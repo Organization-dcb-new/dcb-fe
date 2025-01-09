@@ -3,6 +3,7 @@ import Login from './pages/Login'
 import { Route, Routes } from 'react-router-dom'
 import { RouterProvider } from 'react-router-dom'
 import router from './routes'
+import AuthProvider from './provider/AuthProvider'
 import SideMenu from './components/SideMenu'
 import Dashboard from './pages/Dashboard'
 
@@ -15,7 +16,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes> */}
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </div>
   )
 }

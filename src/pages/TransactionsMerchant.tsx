@@ -28,7 +28,7 @@ import {
   datePickersCustomizations,
   treeViewCustomizations,
 } from '../styles/theme/customizations'
-import Badge, { BadgeProps } from '../components/Badge'
+import Badge from '../components/Badge'
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -44,13 +44,12 @@ const xThemeComponents = {
   ...datePickersCustomizations,
   ...treeViewCustomizations,
 }
-
 const columns = [
   {
-    title: 'Transaction ID',
-    width: 300,
-    dataIndex: 'u_id',
-    key: 'u_id',
+    title: 'Merchant Transaction ID',
+    width: 260,
+    dataIndex: 'merchant_transaction_id',
+    key: 'merchant_transaction_id',
   },
   {
     title: 'User MDN',
@@ -89,17 +88,11 @@ const columns = [
       return paymentMethod
     },
   },
-
-  {
-    title: 'Merchant',
-    dataIndex: 'merchant_name',
-    key: 'merchant_name',
-  },
-  {
-    title: 'App',
-    dataIndex: 'app_name',
-    key: 'app_name',
-  },
+  // {
+  //   title: 'App',
+  //   dataIndex: 'app_name',
+  //   key: 'app_name',
+  // },
   {
     title: 'Denom',
     width: 120,
@@ -133,16 +126,17 @@ const columns = [
     key: 'item_name',
   },
   {
+    title: 'Item Name',
+    width: 250,
+    align: 'center',
+    dataIndex: 'item_id',
+    key: 'item_id',
+  },
+  {
     title: 'User ID',
     width: 120,
     dataIndex: 'user_id',
     key: 'user_id',
-  },
-  {
-    title: 'Merchant Trx ID',
-    width: 250,
-    dataIndex: 'merchant_transaction_id',
-    key: 'merchant_transaction_id',
   },
   {
     title: 'Action',
@@ -153,7 +147,7 @@ const columns = [
         color='success'
         className='h-6 text-sky-700 '
         onClick={() => {
-          window.location.href = `/transaction/${record.u_id}` // Ganti dengan rute yang sesuai
+          window.location.href = `/merchant-transaction/${record.merchant_transaction_id}` // Ganti dengan rute yang sesuai
         }}
       >
         Detail
@@ -162,61 +156,47 @@ const columns = [
   },
 ]
 
-export default function Transactions(props: { disableCustomTheme?: boolean }) {
+export default function TransactionsMerchant() {
   const [formData, setFormData] = useState({
-    user_mdn: '',
+    user_mdn: null,
     password: '',
     user_id: '',
-    merchant_transaction_id: '',
-    transaction_id: '',
-    merchant_name: '',
+    merchant_transaction_id: null,
+    transaction_id: null,
+    start_date: null,
+    end_date: null,
     payment_method: '',
     payment_status: '',
-    status_code: null,
-    app_name: '',
+    status: null,
+    merchant: '',
+    app: '',
     item_name: '',
     denom: null,
   })
-
   const [data, setData] = useState([])
+  const [value, setValue] = useState(null)
   const [paymentMethod, setPaymentMethod] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [total, setTotal] = useState(0)
   const [resetTrigger, setResetTrigger] = useState(0)
+  const [total, setTotal] = useState(0)
   const { token } = useAuth()
   const decoded: any = jwtDecode(token as string)
-
-  const merchantList = [
-    { id: 1, name: 'HIGO GAME PTE LTD' },
-    { id: 2, name: 'Redigame' },
-  ]
-
-  const appList = [
-    { id: 1, name: 'Royal Domino' },
-    { id: 2, name: 'Redigame' },
-  ]
 
   const denomList = [3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 100000]
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
-      const start_date = formData.start_date
-        ? dayjs(formData.start_date).add(1, 'day').startOf('day').format('Mon, 02 Jan 2006 15:04:05 GMT')
-        : null
-      const end_date = formData.end_date
-        ? dayjs(formData.end_date).add(1, 'day').startOf('day').format('Mon, 02 Jan 2006 15:04:05 GMT')
-        : null
-      const response = await axios.get(`${import.meta.env.VITE_URL_API}/api/transactions`, {
+      const response = await axios.get(`${import.meta.env.VITE_URL_API}/merchant/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
+          appkey: decoded.appkey,
+          appid: decoded.appid,
         },
         params: {
           page: page,
           limit: limit,
-          start_date,
-          end_date,
           ...formData,
         },
       })
@@ -243,7 +223,7 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
   }
 
   useEffect(() => {
-    if (decoded.role == 'merchant') {
+    if (decoded.role !== 'merchant') {
       window.location.href = '/merchant-transactions'
     }
 
@@ -276,20 +256,16 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
     { name: 'Failed', value: 1005 },
   ]
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e) => {
     e.preventDefault() // Prevents the default form submission behaviour
     // Process and send formData to the server or perform other actions
     // console.log('filteredData: ', filteredData)
     fetchData()
   }
 
-  const handleChange = (e: any) => {
+  const handleChange = (e) => {
     const { name, value } = e.target
     setFormData({ ...formData, [name]: value })
-  }
-
-  const handleDateChange = (name: 'start_date' | 'end_date') => (newValue: any) => {
-    setFormData({ ...formData, [name]: newValue })
   }
 
   const handlePaymentChange = (event: SelectChangeEvent<typeof paymentMethod>) => {
@@ -308,17 +284,18 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
       user_id: '',
       merchant_transaction_id: '',
       transaction_id: '',
-      merchant_name: '',
-      app_name: '',
+      start_date: null,
+      end_date: null,
       payment_method: '',
       status_code: null,
       item_name: '',
-      denom: null,
+      denom: '',
     })
+
     setResetTrigger((prev) => prev + 1)
   }
 
-  const handlePageChange = (page: number, pageSize: number) => {
+  const handlePageChange = (page, pageSize) => {
     setCurrentPage(page)
     setPageSize(pageSize)
   }
@@ -371,15 +348,17 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
                     <TextField
                       variant='outlined'
                       fullWidth
-                      name='user_id'
-                      value={formData.user_id}
+                      name='user'
+                      value={formData.password}
                       onChange={handleChange}
                     />
                   </Grid>
                 </Grid>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6}>
-                    <FormLabel className='font-medium'>Merchant Trx ID</FormLabel>
+                    <FormLabel className='font-medium ' style={{ marginBottom: '8px !important' }}>
+                      Merchant Trx ID
+                    </FormLabel>
                     <TextField
                       variant='outlined'
                       fullWidth
@@ -388,25 +367,34 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
                       onChange={handleChange}
                     />
                   </Grid>
-                  <Grid size={6}>
-                    <FormLabel className='font-medium'>Transaction ID</FormLabel>
-                    <TextField
-                      variant='outlined'
-                      fullWidth
-                      name='transaction_id'
-                      value={formData.transaction_id}
-                      onChange={handleChange}
-                    />
+                  <Grid size={6} className='flex flex-col'>
+                    <FormLabel className='font-medium'>App Name</FormLabel>
+                    <Select
+                      labelId='demo-multiple-name-label'
+                      id='demo-multiple-name'
+                      value={paymentMethod}
+                      onChange={handlePaymentChange}
+                      input={<OutlinedInput label='Name' />}
+                    >
+                      {names.map((name) => (
+                        <MenuItem key={name} value={name}>
+                          {name}
+                        </MenuItem>
+                      ))}
+                    </Select>
                   </Grid>
                 </Grid>
+                {/* <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid> */}
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>Start Date</FormLabel>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
-                        label='Select Start Date'
-                        value={formData.start_date}
-                        onChange={handleDateChange('start_date')}
+                        label='Select date'
+                        value={value}
+                        onChange={(newValue) => {
+                          setValue(newValue)
+                        }}
                         renderInput={(params) => <TextField {...params} />}
                       />
                     </LocalizationProvider>
@@ -415,9 +403,11 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
                     <FormLabel className='font-medium'>End Date</FormLabel>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
-                        label='Select End Date'
-                        value={formData.end_date}
-                        onChange={handleDateChange('end_date')}
+                        label='Select date'
+                        value={value}
+                        onChange={(newValue) => {
+                          setValue(newValue)
+                        }}
                         renderInput={(params) => <TextField {...params} />}
                       />
                     </LocalizationProvider>
@@ -426,6 +416,21 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>Payment Method</FormLabel>
+
+                    {/* <Select
+                      labelId='demo-multiple-name-label'
+                      id='demo-multiple-name'
+                      value={formData.payment_method}
+                      onChange={handleChange}
+                      input={<OutlinedInput label='Name' />}
+                      // MenuProps={MenuProps}
+                    >
+                      {routes.map((method) => (
+                        <MenuItem key={method.route} value={method.route}>
+                          {method.name}
+                        </MenuItem>
+                      ))}
+                    </Select> */}
                     <Select
                       labelId='payment-method-label'
                       id='payment-method '
@@ -461,43 +466,7 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
                     </Select>
                   </Grid>
                 </Grid>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6} className='flex flex-col'>
-                    <FormLabel className='font-medium'>Merchant</FormLabel>
 
-                    <Select
-                      labelId='merchant-label'
-                      id='merchant_name'
-                      name='merchant_name'
-                      value={formData.merchant_name}
-                      onChange={handleChange}
-                      input={<OutlinedInput label='merchant_name' />}
-                    >
-                      {merchantList.map((merchant) => (
-                        <MenuItem key={merchant.id} value={merchant.name}>
-                          {merchant.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Grid>
-                  <Grid size={6} className='flex flex-col'>
-                    <FormLabel className='font-medium'>App</FormLabel>
-                    <Select
-                      labelId='merchant-label'
-                      id='app_name'
-                      name='app_name'
-                      value={formData.app_name}
-                      onChange={handleChange}
-                      input={<OutlinedInput label='app_name' />}
-                    >
-                      {appList.map((app) => (
-                        <MenuItem key={app.id} value={app.name}>
-                          {app.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Grid>
-                </Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6}>
                     <FormLabel className='font-medium'>Denom</FormLabel>
@@ -540,7 +509,7 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
             <Grid size={{ xs: 12, md: 6 }}>{/* <PageViewsBarChart /> */}</Grid>
           </Grid>
           <Typography component='h2' variant='h6' sx={{ mb: 2 }}>
-            Transaction Details
+            Merchant Transaction Details
           </Typography>
 
           {/* 1540px */}

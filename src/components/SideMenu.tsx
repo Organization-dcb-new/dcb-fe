@@ -10,6 +10,8 @@ import CardAlert from './CardAlert'
 import OptionsMenu from './OptionsMenu'
 import IconButton from '@mui/material/IconButton'
 import { ChevronLeft, MenuOpen } from '@mui/icons-material'
+import { jwtDecode } from 'jwt-decode'
+import { useAuth } from '../provider/AuthProvider'
 
 const drawerWidth = 240
 
@@ -30,6 +32,8 @@ interface SideMenuProps {
 }
 
 export default function SideMenu({ open, handleDrawerToggle }: SideMenuProps) {
+  const { token } = useAuth()
+  const decoded: any = jwtDecode(token as string)
   return (
     <Box>
       {/* <IconButton
@@ -73,13 +77,10 @@ export default function SideMenu({ open, handleDrawerToggle }: SideMenuProps) {
             borderColor: 'divider',
           }}
         >
-          <Avatar sizes='small' alt='Riley Carter' src='/static/images/avatar/7.jpg' sx={{ width: 36, height: 36 }} />
+          {/* <Avatar sizes='small' alt='Riley Carter' src='/static/images/avatar/7.jpg' sx={{ width: 36, height: 36 }} /> */}
           <Box sx={{ mr: 'auto' }}>
             <Typography variant='body2' sx={{ fontWeight: 500, lineHeight: '16px' }}>
-              Riley Carter
-            </Typography>
-            <Typography variant='caption' sx={{ color: 'text.secondary' }}>
-              riley@email.com
+              {decoded.username}
             </Typography>
           </Box>
           <OptionsMenu />

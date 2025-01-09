@@ -18,3 +18,8 @@
     -moz-appearance: textfield;
   }
 }
+
+.transactions-table .ant-table-thead > tr > th {
+  background: rgb(120, 181, 255);
+  color: whitesmoke;
+}

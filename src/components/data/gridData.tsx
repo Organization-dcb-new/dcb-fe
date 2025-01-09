@@ -1,32 +1,32 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Chip from '@mui/material/Chip';
-import { GridCellParams, GridRowsProp, GridColDef } from '@mui/x-data-grid';
-import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
+import * as React from 'react'
+import Avatar from '@mui/material/Avatar'
+import Chip from '@mui/material/Chip'
+import { GridCellParams, GridRowsProp, GridColDef } from '@mui/x-data-grid'
+import { SparkLineChart } from '@mui/x-charts/SparkLineChart'
 
-type SparkLineData = number[];
+type SparkLineData = number[]
 
 function getDaysInMonth(month: number, year: number) {
-  const date = new Date(year, month, 0);
+  const date = new Date(year, month, 0)
   const monthName = date.toLocaleDateString('en-US', {
     month: 'short',
-  });
-  const daysInMonth = date.getDate();
-  const days = [];
-  let i = 1;
+  })
+  const daysInMonth = date.getDate()
+  const days = []
+  let i = 1
   while (days.length < daysInMonth) {
-    days.push(`${monthName} ${i}`);
-    i += 1;
+    days.push(`${monthName} ${i}`)
+    i += 1
   }
-  return days;
+  return days
 }
 
 function renderSparklineCell(params: GridCellParams<SparkLineData, any>) {
-  const data = getDaysInMonth(4, 2024);
-  const { value, colDef } = params;
+  const data = getDaysInMonth(4, 2024)
+  const { value, colDef } = params
 
   if (!value || value.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -35,7 +35,7 @@ function renderSparklineCell(params: GridCellParams<SparkLineData, any>) {
         data={value}
         width={colDef.computedWidth || 100}
         height={32}
-        plotType="bar"
+        plotType='bar'
         showHighlight
         showTooltip
         colors={['hsl(210, 98%, 42%)']}
@@ -45,23 +45,21 @@ function renderSparklineCell(params: GridCellParams<SparkLineData, any>) {
         }}
       />
     </div>
-  );
+  )
 }
 
 function renderStatus(status: 'Online' | 'Offline') {
   const colors: { [index: string]: 'success' | 'default' } = {
     Online: 'success',
     Offline: 'default',
-  };
+  }
 
-  return <Chip label={status} color={colors[status]} size="small" />;
+  return <Chip label={status} color={colors[status]} size='small' />
 }
 
-export function renderAvatar(
-  params: GridCellParams<{ name: string; color: string }, any, any>
-) {
+export function renderAvatar(params: GridCellParams<{ name: string; color: string }, any, any>) {
   if (params.value == null) {
-    return '';
+    return ''
   }
 
   return (
@@ -75,7 +73,7 @@ export function renderAvatar(
     >
       {params.value.name.toUpperCase().substring(0, 1)}
     </Avatar>
-  );
+  )
 }
 
 export const columns: GridColDef[] = [
@@ -116,24 +114,24 @@ export const columns: GridColDef[] = [
     headerName: 'Status',
     flex: 0.5,
     minWidth: 80,
-    renderCell: params => renderStatus(params.value as any),
+    renderCell: (params) => renderStatus(params.value as any),
   },
-  // {
-  //   field: 'app',
-  //   headerName: 'App',
-  //   headerAlign: 'right',
-  //   align: 'right',
-  //   flex: 1,
-  //   minWidth: 80,
-  // },
-  // {
-  //   field: "amount",
-  //   headerName: "Amount",
-  //   headerAlign: "right",
-  //   align: "right",
-  //   flex: 1,
-  //   minWidth: 100,
-  // },
+  {
+    field: 'app',
+    headerName: 'App',
+    headerAlign: 'right',
+    align: 'right',
+    flex: 1,
+    minWidth: 80,
+  },
+  {
+    field: 'amount',
+    headerName: 'Amount',
+    headerAlign: 'right',
+    align: 'right',
+    flex: 1,
+    minWidth: 100,
+  },
   // {
   //   field: "price",
   //   headerName: "Price",
@@ -173,7 +171,7 @@ export const columns: GridColDef[] = [
   //   minWidth: 150,
   //   renderCell: renderSparklineCell,
   // },
-];
+]
 
 export const rows: GridRowsProp = [
   {
@@ -186,36 +184,9 @@ export const rows: GridRowsProp = [
     viewsPerUser: 18.5,
     averageTime: '2m 15s',
     conversions: [
-      469172,
-      488506,
-      592287,
-      617401,
-      640374,
-      632751,
-      668638,
-      807246,
-      749198,
-      944863,
-      911787,
-      844815,
-      992022,
-      1143838,
-      1446926,
-      1267886,
-      1362511,
-      1348746,
-      1560533,
-      1670690,
-      1695142,
-      1916613,
-      1823306,
-      1683646,
-      2025965,
-      2529989,
-      3263473,
-      3296541,
-      3041524,
-      2599497,
+      469172, 488506, 592287, 617401, 640374, 632751, 668638, 807246, 749198, 944863, 911787, 844815, 992022, 1143838,
+      1446926, 1267886, 1362511, 1348746, 1560533, 1670690, 1695142, 1916613, 1823306, 1683646, 2025965, 2529989,
+      3263473, 3296541, 3041524, 2599497,
     ],
   },
   // {
@@ -1613,4 +1584,4 @@ export const rows: GridRowsProp = [
   //     878886,
   //   ],
   // },
-];
+]

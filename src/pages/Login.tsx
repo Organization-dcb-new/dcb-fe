@@ -13,7 +13,8 @@ import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
 import MuiCard from '@mui/material/Card'
 import { styled } from '@mui/material/styles'
-
+import axios from 'axios'
+import { useAuth } from '../provider/AuthProvider'
 import AppTheme from '../styles/theme/shared-theme/AppTheme'
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -59,38 +60,65 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('')
   const [passwordError, setPasswordError] = React.useState(false)
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('')
-  const [setOpen] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
+  const { setToken } = useAuth()
 
-  const handleClickOpen = () => {
-    setOpen(true)
-  }
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault() // Mencegah reload halaman
+    if (!validateInputs()) return // Validasi input
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (emailError || passwordError) {
-      event.preventDefault()
-      return
-    }
     const data = new FormData(event.currentTarget)
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    })
+    const username = data.get('username')
+    const password = data.get('password')
+
+    try {
+      setLoading(true)
+
+      const userData = {
+        username,
+        password,
+      }
+
+      const response = await axios.post('http://localhost:80/api/user/login', userData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      // console.log('response', response)
+      // Simpan token ke localStorage
+      console.log('response', response.data)
+      setToken(response.data.token)
+      // Ganti dengan respons yang sesuai
+      // Redirect atau lakukan tindakan lain setelah login berhasil
+      window.location.href = '/dashboard' // Ganti dengan rute yang sesuai
+    } catch (error) {
+      console.error('Login failed:', error)
+      // Tangani error, misalnya menampilkan pesan kesalahan
+      if (error.response) {
+        alert(error.response.data.message || 'Login failed. Please try again.') // Tampilkan pesan kesalahan
+      } else {
+        alert('Login failed. Please check your network connection.')
+      }
+    } finally {
+      setLoading(false) // Reset loading state
+    }
   }
 
   const validateInputs = () => {
-    const email = document.getElementById('email') as HTMLInputElement
+    const username = document.getElementById('username') as HTMLInputElement
     const password = document.getElementById('password') as HTMLInputElement
 
     let isValid = true
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true)
-      setEmailErrorMessage('Please enter a valid email address.')
-      isValid = false
-    } else {
-      setEmailError(false)
-      setEmailErrorMessage('')
-    }
+    // if (!username.value || !/\S+@\S+\.\S+/.test(username.value)) {
+    //   setEmailError(true)
+    //   setEmailErrorMessage('Please enter a valid email address.')
+    //   isValid = false
+    // } else {
+    //   setEmailError(false)
+    //   setEmailErrorMessage('')
+    // }
 
     if (!password.value || password.value.length < 6) {
       setPasswordError(true)
@@ -106,10 +134,8 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
 
   return (
     <AppTheme {...props}>
-      <CssBaseline enableColorScheme />
       <SignInContainer direction='column' justifyContent='space-between'>
         <Card variant='outlined'>
-          {/* <SitemarkIcon /> */}
           <Typography component='h1' variant='h3' sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}>
             Sign in
           </Typography>
@@ -125,21 +151,20 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
             }}
           >
             <FormControl>
-              <FormLabel htmlFor='email'>Email</FormLabel>
+              <FormLabel htmlFor='username'>Username</FormLabel>
               <TextField
                 error={emailError}
                 helperText={emailErrorMessage}
-                id='email'
-                type='email'
-                name='email'
-                placeholder='your@email.com'
+                id='username'
+                type='username'
+                name='username'
+                placeholder='your username'
                 autoComplete='email'
                 autoFocus
                 required
                 fullWidth
                 variant='outlined'
                 color={emailError ? 'error' : 'primary'}
-                sx={{ ariaLabel: 'email' }}
               />
             </FormControl>
             <FormControl>
@@ -154,7 +179,6 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
                 type='password'
                 id='password'
                 autoComplete='current-password'
-                autoFocus
                 required
                 fullWidth
                 variant='outlined'
@@ -168,9 +192,9 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
               variant='contained'
               color='secondary'
               className='mt-4'
-              onClick={validateInputs}
+              disabled={loading} // Disable button saat loading
             >
-              Sign in
+              {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </Box>
         </Card>

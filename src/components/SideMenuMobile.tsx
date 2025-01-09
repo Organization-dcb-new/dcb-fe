@@ -40,7 +40,7 @@ export default function SideMenuMobile({ open, toggleDrawer }: SideMenuMobilePro
           <Stack direction='row' sx={{ gap: 1, alignItems: 'center', flexGrow: 1, p: 1 }}>
             <Avatar sizes='small' alt='Riley Carter' src='/static/images/avatar/7.jpg' sx={{ width: 24, height: 24 }} />
             <Typography component='p' variant='h6'>
-              Riley Carter
+              Admin
             </Typography>
           </Stack>
           <MenuButton showBadge>

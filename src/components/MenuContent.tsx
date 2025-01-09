@@ -121,7 +121,7 @@ export default function MenuContent() {
                 <Collapse in={openItems[index]} timeout='auto' unmountOnExit>
                   <List component='div' disablePadding>
                     {item.nestedItems.map((nestedItem, nestedIndex) => (
-                      <ListItemButton key={nestedIndex} className='min-w-0 px-6 ' sx={{ pl: 6 }}>
+                      <ListItemButton key={nestedIndex} className='min-w-0  ' sx={{ pl: 6 }}>
                         <ListItemIcon className='min-w-8'>{nestedItem.icon}</ListItemIcon>
                         <ListItemText className='text-sm' disableTypography primary={nestedItem.text} />
                       </ListItemButton>

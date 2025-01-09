@@ -5,7 +5,11 @@ import Dashboard from '../pages/Dashboard'
 import MainLayout from '../layout/MainLayout'
 import Transactions from '../pages/Transactions'
 import Summary from '../pages/Summary'
+import PrivateRoute from '../components/PrivateRoute'
 import { useParams } from 'react-router-dom'
+import TransactionDetail from '../pages/TransactionDetail'
+import TransactionsMerchant from '../pages/TransactionsMerchant'
+import TransactionMerchantDetail from '../pages/TransactionsMerchantDetail'
 
 const router = createBrowserRouter([
   {
@@ -18,27 +22,71 @@ const router = createBrowserRouter([
       },
       {
         path: 'dashboard',
-        element: <Dashboard />,
+        element: (
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        ),
       },
       {
         path: 'transactions',
-        element: <Transactions />,
+        element: (
+          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+            <Transactions />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'transaction/:id',
+        element: (
+          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+            <TransactionDetail />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'merchant-transactions',
+        element: (
+          <PrivateRoute allowedRoles={['merchant']}>
+            <TransactionsMerchant />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'merchant-transaction/:id',
+        element: (
+          <PrivateRoute allowedRoles={['merchant']}>
+            <TransactionMerchantDetail />
+          </PrivateRoute>
+        ),
       },
       {
         path: 'summary/:type',
-        element: <Summary />,
+        element: (
+          <PrivateRoute>
+            <Summary />
+          </PrivateRoute>
+        ),
         children: [
           {
             path: 'summary/hourly',
-            element: <Summary />,
+            element: (
+              <PrivateRoute>
+                <Summary />
+              </PrivateRoute>
+            ),
           },
           {
             path: 'summary/daily',
-            element: <Summary />,
+            element: (
+              <PrivateRoute>
+                <Summary />
+              </PrivateRoute>
+            ),
           },
           {
             path: 'summary/monthly',
-            element: <Summary type='Monthly' />,
+            element: <Summary />,
           },
         ],
       },
