@@ -5,47 +5,36 @@
 import { useState, useEffect } from 'react'
 import Grid from '@mui/material/Grid2'
 import { alpha } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
+// import CssBaseline from '@mui/material/CssBaseline'
 import { TextField, OutlinedInput, Select, MenuItem } from '@mui/material'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
-import AppNavbar from '../components/AppNavbar'
-import Header from '../components/Header'
-import CustomizedDataGrid from '../components/CustomizedDataGrid'
-import MainGrid from '../components/MainGrid'
-import SideMenu from '../components/SideMenu'
+// import AppNavbar from '../components/AppNavbar'
+// import Header from '../components/Header'
+// import CustomizedDataGrid from '../components/CustomizedDataGrid'
+// import MainGrid from '../components/MainGrid'
+// import SideMenu from '../components/SideMenu'
 import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
+// import CardContent from '@mui/material/CardContent'
 import { FormLabel } from '@mui/material'
 
 import Typography from '@mui/material/Typography'
-import AppTheme from '../styles/theme/shared-theme/AppTheme'
+// import AppTheme from '../styles/theme/shared-theme/AppTheme'
 import { Table } from 'antd'
-import {
-  chartsCustomizations,
-  dataGridCustomizations,
-  datePickersCustomizations,
-  treeViewCustomizations,
-} from '../styles/theme/customizations'
-import Badge, { BadgeProps } from '../components/Badge'
+import { ColumnType } from 'antd/es/table'
+
+import Badge from '../components/Badge'
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+// import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { useAuth } from '../provider/AuthProvider'
 import { jwtDecode } from 'jwt-decode'
 
-const xThemeComponents = {
-  ...chartsCustomizations,
-  ...dataGridCustomizations,
-  ...datePickersCustomizations,
-  ...treeViewCustomizations,
-}
-
-const columns = [
+const columns: ColumnType<any>[] = [
   {
     title: 'Transaction ID',
     width: 300,
@@ -111,7 +100,7 @@ const columns = [
     dataIndex: 'status_code',
     key: 'status_code',
     render: (status: number) => {
-      let color = 'pending'
+      let color: 'success' | 'error' | 'pending' = 'pending'
       let text = 'Pending'
 
       if (status === 1000) {
@@ -162,7 +151,7 @@ const columns = [
   },
 ]
 
-export default function Transactions(props: { disableCustomTheme?: boolean }) {
+export default function Transactions() {
   const [formData, setFormData] = useState({
     user_mdn: '',
     password: '',
@@ -173,13 +162,15 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
     payment_method: '',
     payment_status: '',
     status_code: null,
+    start_date: null,
+    end_date: null,
     app_name: '',
     item_name: '',
     denom: null,
   })
 
   const [data, setData] = useState([])
-  const [paymentMethod, setPaymentMethod] = useState<string[]>([])
+
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [total, setTotal] = useState(0)
@@ -213,11 +204,20 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
           'Content-Type': 'application/json',
         },
         params: {
-          page: page,
+          age: page,
           limit: limit,
           start_date,
           end_date,
-          ...formData,
+          user_mdn: formData.user_mdn,
+          user_id: formData.user_id,
+          merchant_transaction_id: formData.merchant_transaction_id,
+          transaction_id: formData.transaction_id,
+          merchant_name: formData.merchant_name,
+          app_name: formData.app_name,
+          payment_method: formData.payment_method,
+          status_code: formData.status_code,
+          item_name: formData.item_name,
+          denom: formData.denom,
         },
       })
       setData(response.data.data)
@@ -250,19 +250,6 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
     fetchData(currentPage, pageSize)
   }, [currentPage, pageSize, resetTrigger])
 
-  const names = [
-    'Oliver Hansen',
-    'Van Henry',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
-  ]
-
   const routes = [
     { name: 'All', value: '' },
     { name: 'Xl', value: 'xl_airtime' },
@@ -288,32 +275,36 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
     setFormData({ ...formData, [name]: value })
   }
 
-  const handleDateChange = (name: 'start_date' | 'end_date') => (newValue: any) => {
-    setFormData({ ...formData, [name]: newValue })
-  }
+  // const handleDateChange = (name: 'start_date' | 'end_date') => (newValue: any) => {
+  //   setFormData({ ...formData, [name]: newValue })
+  // }
 
-  const handlePaymentChange = (event: SelectChangeEvent<typeof paymentMethod>) => {
-    const {
-      target: { value },
-    } = event
-    setPaymentMethod(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    )
-  }
+  // const handlePaymentChange = (event: SelectChangeEvent<typeof paymentMethod>) => {
+  //   const {
+  //     target: { value },
+  //   } = event
+  //   setPaymentMethod(
+  //     // On autofill we get a stringified value.
+  //     typeof value === 'string' ? value.split(',') : value,
+  //   )
+  // }
 
   const handleReset = () => {
     setFormData({
       user_mdn: '',
+      password: '',
       user_id: '',
       merchant_transaction_id: '',
       transaction_id: '',
       merchant_name: '',
       app_name: '',
       payment_method: '',
+      payment_status: '',
       status_code: null,
       item_name: '',
       denom: null,
+      start_date: null,
+      end_date: null,
     })
     setResetTrigger((prev) => prev + 1)
   }
@@ -328,9 +319,7 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
       component='main'
       sx={(theme) => ({
         flexGrow: 1,
-        backgroundColor: theme.vars
-          ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
-          : alpha(theme.palette.background.default, 1),
+        backgroundColor: theme.vars ? `white` : alpha(theme.palette.background.default, 1),
         overflow: 'auto',
         pt: 4,
       })}
@@ -403,23 +392,23 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>Start Date</FormLabel>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
+                      {/* <DatePicker
                         label='Select Start Date'
                         value={formData.start_date}
                         onChange={handleDateChange('start_date')}
                         renderInput={(params) => <TextField {...params} />}
-                      />
+                      /> */}
                     </LocalizationProvider>
                   </Grid>
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>End Date</FormLabel>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
+                      {/* <DatePicker
                         label='Select End Date'
                         value={formData.end_date}
                         onChange={handleDateChange('end_date')}
                         renderInput={(params) => <TextField {...params} />}
-                      />
+                      /> */}
                     </LocalizationProvider>
                   </Grid>
                 </Grid>
@@ -450,7 +439,7 @@ export default function Transactions(props: { disableCustomTheme?: boolean }) {
                       id='status'
                       onChange={handleChange}
                       name='status'
-                      value={formData.status}
+                      value={formData.status_code}
                       input={<OutlinedInput label='status' />}
                     >
                       {status.map((s) => (

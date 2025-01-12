@@ -5,46 +5,31 @@
 import { useState, useEffect } from 'react'
 import Grid from '@mui/material/Grid2'
 import { alpha } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
+// import CssBaseline from '@mui/material/CssBaseline'
 import { TextField, OutlinedInput, Select, MenuItem } from '@mui/material'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
-import AppNavbar from '../components/AppNavbar'
-import Header from '../components/Header'
-import CustomizedDataGrid from '../components/CustomizedDataGrid'
-import MainGrid from '../components/MainGrid'
-import SideMenu from '../components/SideMenu'
+
 import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
 import { FormLabel } from '@mui/material'
 
 import Typography from '@mui/material/Typography'
-import AppTheme from '../styles/theme/shared-theme/AppTheme'
+// import AppTheme from '../styles/theme/shared-theme/AppTheme'
 import { Table } from 'antd'
-import {
-  chartsCustomizations,
-  dataGridCustomizations,
-  datePickersCustomizations,
-  treeViewCustomizations,
-} from '../styles/theme/customizations'
+
 import Badge from '../components/Badge'
+import { ColumnType } from 'antd/es/table'
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+// import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { useAuth } from '../provider/AuthProvider'
 import { jwtDecode } from 'jwt-decode'
 
-const xThemeComponents = {
-  ...chartsCustomizations,
-  ...dataGridCustomizations,
-  ...datePickersCustomizations,
-  ...treeViewCustomizations,
-}
-const columns = [
+const columns: ColumnType<any>[] = [
   {
     title: 'Merchant Transaction ID',
     width: 260,
@@ -104,7 +89,7 @@ const columns = [
     dataIndex: 'status_code',
     key: 'status_code',
     render: (status: number) => {
-      let color = 'pending'
+      let color: 'success' | 'error' | 'pending' = 'pending'
       let text = 'Pending'
 
       if (status === 1000) {
@@ -158,24 +143,38 @@ const columns = [
 
 export default function TransactionsMerchant() {
   const [formData, setFormData] = useState({
-    user_mdn: null,
-    password: '',
+    user_mdn: '',
     user_id: '',
-    merchant_transaction_id: null,
-    transaction_id: null,
+    merchant_transaction_id: '',
+    transaction_id: '',
     start_date: null,
     end_date: null,
     payment_method: '',
-    payment_status: '',
-    status: null,
-    merchant: '',
-    app: '',
+    status_code: null,
     item_name: '',
     denom: null,
   })
+
+  const handleReset = () => {
+    setFormData({
+      user_mdn: '',
+      user_id: '',
+      merchant_transaction_id: '',
+      transaction_id: '',
+      start_date: null,
+      end_date: null,
+      payment_method: '',
+      status_code: null,
+      item_name: '',
+      denom: null,
+    })
+
+    setResetTrigger((prev) => prev + 1)
+  }
+
   const [data, setData] = useState([])
-  const [value, setValue] = useState(null)
-  const [paymentMethod, setPaymentMethod] = useState<string[]>([])
+  // const [value, setValue] = useState(null)
+  const [paymentMethod] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [resetTrigger, setResetTrigger] = useState(0)
@@ -256,46 +255,31 @@ export default function TransactionsMerchant() {
     { name: 'Failed', value: 1005 },
   ]
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault() // Prevents the default form submission behaviour
     // Process and send formData to the server or perform other actions
     // console.log('filteredData: ', filteredData)
     fetchData()
   }
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target
     setFormData({ ...formData, [name]: value })
   }
 
-  const handlePaymentChange = (event: SelectChangeEvent<typeof paymentMethod>) => {
-    const {
-      target: { value },
-    } = event
-    setPaymentMethod(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    )
-  }
+  // const handlePaymentChange = (event: SelectChangeEvent<typeof paymentMethod>) => {
+  //   const {
+  //     target: { value },
+  //   } = event
+  //   setPaymentMethod(
+  //     // On autofill we get a stringified value.
+  //     typeof value === 'string' ? value.split(',') : value,
+  //   )
+  // }
 
-  const handleReset = () => {
-    setFormData({
-      user_mdn: '',
-      user_id: '',
-      merchant_transaction_id: '',
-      transaction_id: '',
-      start_date: null,
-      end_date: null,
-      payment_method: '',
-      status_code: null,
-      item_name: '',
-      denom: '',
-    })
+  //
 
-    setResetTrigger((prev) => prev + 1)
-  }
-
-  const handlePageChange = (page, pageSize) => {
+  const handlePageChange = (page: number, pageSize: number) => {
     setCurrentPage(page)
     setPageSize(pageSize)
   }
@@ -305,9 +289,7 @@ export default function TransactionsMerchant() {
       component='main'
       sx={(theme) => ({
         flexGrow: 1,
-        backgroundColor: theme.vars
-          ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
-          : alpha(theme.palette.background.default, 1),
+        backgroundColor: theme.vars ? `white` : alpha(theme.palette.background.default, 1),
         overflow: 'auto',
         pt: 4,
       })}
@@ -348,8 +330,8 @@ export default function TransactionsMerchant() {
                     <TextField
                       variant='outlined'
                       fullWidth
-                      name='user'
-                      value={formData.password}
+                      name='user_id'
+                      value={formData.user_id}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -373,7 +355,7 @@ export default function TransactionsMerchant() {
                       labelId='demo-multiple-name-label'
                       id='demo-multiple-name'
                       value={paymentMethod}
-                      onChange={handlePaymentChange}
+                      onChange={handleChange}
                       input={<OutlinedInput label='Name' />}
                     >
                       {names.map((name) => (
@@ -389,27 +371,27 @@ export default function TransactionsMerchant() {
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>Start Date</FormLabel>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
+                      {/* <DatePicker
                         label='Select date'
                         value={value}
                         onChange={(newValue) => {
                           setValue(newValue)
                         }}
                         renderInput={(params) => <TextField {...params} />}
-                      />
+                      /> */}
                     </LocalizationProvider>
                   </Grid>
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>End Date</FormLabel>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
+                      {/* <DatePicker
                         label='Select date'
                         value={value}
                         onChange={(newValue) => {
                           setValue(newValue)
                         }}
                         renderInput={(params) => <TextField {...params} />}
-                      />
+                      /> */}
                     </LocalizationProvider>
                   </Grid>
                 </Grid>
@@ -455,7 +437,7 @@ export default function TransactionsMerchant() {
                       id='status'
                       onChange={handleChange}
                       name='status'
-                      value={formData.status}
+                      value={formData.status_code}
                       input={<OutlinedInput label='status' />}
                     >
                       {status.map((s) => (

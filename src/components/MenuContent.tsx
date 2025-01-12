@@ -4,19 +4,19 @@ import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, Divi
 import { Link } from 'react-router-dom'
 
 import {
-  HomeRounded as HomeIcon,
+  // HomeRounded as HomeIcon,
   AnalyticsRounded as AnalyticsIcon,
   ListAltOutlined,
-  AssignmentRounded as AssignmentIcon,
-  SettingsRounded as SettingsIcon,
+  // AssignmentRounded as AssignmentIcon,
+  // SettingsRounded as SettingsIcon,
   StoreMallDirectoryOutlined,
   BusinessOutlined,
-  Inbox as InboxIcon,
+  // Inbox as InboxIcon,
   ReceiptLongOutlined,
   ListOutlined,
   ExpandLess,
   ExpandMore,
-  StarBorder,
+  // StarBorder,
 } from '@mui/icons-material'
 
 const mainListItems = [
@@ -54,9 +54,9 @@ const secondaryListItems = [
 ]
 
 export default function MenuContent() {
-  const [openItems, setOpenItems] = useState({})
+  const [openItems, setOpenItems] = useState<{ [key: number]: boolean }>({})
 
-  const handleToggle = (index) => {
+  const handleToggle = (index: any) => {
     setOpenItems((prevState) => ({
       ...prevState,
       [index]: !prevState[index],
@@ -69,13 +69,8 @@ export default function MenuContent() {
         {mainListItems.map((item, index) => (
           <div>
             <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-              <div
-                key={index}
-                className='min-w-0 '
-                sx={{ pl: 6 }}
-                onClick={() => item.nestedItems && handleToggle(index)}
-              >
-                <Link to={item.path}>
+              <div key={index} className='min-w-0  !pl-2' onClick={() => item.nestedItems && handleToggle(index)}>
+                <Link to={item.path as string}>
                   <ListItemButton>
                     {item.icon && <ListItemIcon className='min-w-8'>{item.icon}</ListItemIcon>}
                     <ListItemText disableTypography className='!text-base' primary={item.text} />
@@ -90,7 +85,7 @@ export default function MenuContent() {
                   {item.nestedItems.map((nestedItem, nestedIndex) => (
                     // <ListItemButton key={nestedIndex} className='min-w-0 px-6 ' sx={{ pl: 6 }}>
                     <Link to={nestedItem.path}>
-                      <div key={nestedIndex} className='min-w-0 flex pl-6' sx={{ pl: 6 }}>
+                      <div key={nestedIndex} className='min-w-0 flex !pl-6'>
                         <ListItemIcon className='min-w-8'>{nestedItem.icon}</ListItemIcon>
                         <ListItemText className='text-sm' disableTypography primary={nestedItem.text} />
                       </div>

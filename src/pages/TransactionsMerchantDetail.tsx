@@ -1,7 +1,7 @@
 // TransactionDetail.tsx
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import Button from '@mui/material/Button'
+// import Button from '@mui/material/Button'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { Typography, Card, CircularProgress, Box } from '@mui/material'
@@ -12,12 +12,20 @@ interface Transaction {
   u_id: string
   user_mdn: string
   payment_method: string
+  timestamp_callback_date: number
   currency: string
   app_name: string
   user_id: string
   status_code: number
   created_at: string
-  // Tambahkan properti lain sesuai dengan data yang Anda terima
+  timestamp_callback_result: string
+  merchant_transaction_id: string
+  updated_at: number
+  amount: number
+  item_name: number
+  testing: boolean
+  price: number
+  timestamp_request_date: Date
 }
 
 const TransactionMerchantDetail: React.FC = () => {

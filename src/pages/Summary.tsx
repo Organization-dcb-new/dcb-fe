@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Grid from '@mui/material/Grid2'
 
@@ -8,28 +8,21 @@ import { TextField, OutlinedInput, Select, MenuItem } from '@mui/material'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
-import AppNavbar from '../components/AppNavbar'
-import Header from '../components/Header'
+// import AppNavbar from '../components/AppNavbar'
+// import Header from '../components/Header'
 import CustomizedDataGrid from '../components/CustomizedDataGrid'
-import MainGrid from '../components/MainGrid'
-import SideMenu from '../components/SideMenu'
+// import MainGrid from '../components/MainGrid'
+// import SideMenu from '../components/SideMenu'
 import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
+// import CardContent from '@mui/material/CardContent'
 import { FormLabel } from '@mui/material'
 
 import Typography from '@mui/material/Typography'
 import { capitalizeLetter } from '../utils/Capitalize'
-import AppTheme from '../styles/theme/shared-theme/AppTheme'
-import {
-  chartsCustomizations,
-  dataGridCustomizations,
-  datePickersCustomizations,
-  treeViewCustomizations,
-} from '../styles/theme/customizations'
+// import AppTheme from '../styles/theme/shared-theme/AppTheme'
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 
 // interface SummaryProps {
 //   type?: 'Hourly' | 'Daily' | 'Monthly'
@@ -51,7 +44,7 @@ export default function Summary() {
     item_name: '',
     denom: null,
   })
-  const [value, setValue] = useState(null)
+  // const [value, setValue] = useState(null)
   const [paymentMethod, setPaymentMethod] = useState<string[]>([])
   const { type } = useParams()
 
@@ -70,17 +63,17 @@ export default function Summary() {
     'Kelly Snyder',
   ]
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault()
     console.log('Form data submitted:', formData)
   }
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target
     setFormData({ ...formData, [name]: value })
   }
 
-  const handlePaymentChange = (event: SelectChangeEvent<typeof paymentMethod>) => {
+  const handlePaymentChange = (event: any) => {
     const {
       target: { value },
     } = event
@@ -95,9 +88,7 @@ export default function Summary() {
         component='main'
         sx={(theme) => ({
           flexGrow: 1,
-          backgroundColor: theme.vars
-            ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
-            : alpha(theme.palette.background.default, 1),
+          backgroundColor: theme.vars ? `white` : alpha(theme.palette.background.default, 1),
           overflow: 'auto',
           pt: 4,
         })}
@@ -174,27 +165,27 @@ export default function Summary() {
                     <Grid size={6} className='flex flex-col'>
                       <FormLabel className='font-medium'>Start Date</FormLabel>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
+                        {/* <DatePicker
                           label='Select date'
                           value={value}
                           onChange={(newValue) => {
                             setValue(newValue)
                           }}
-                          renderInput={(params) => <TextField {...params} />}
-                        />
+                          renderInput={(params: any) => <TextField {...params} />}
+                        /> */}
                       </LocalizationProvider>
                     </Grid>
                     <Grid size={6} className='flex flex-col'>
                       <FormLabel className='font-medium'>End Date</FormLabel>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
+                        {/* <DatePicker
                           label='Select date'
                           value={value}
                           onChange={(newValue) => {
                             setValue(newValue)
                           }}
                           renderInput={(params) => <TextField {...params} />}
-                        />
+                        /> */}
                       </LocalizationProvider>
                     </Grid>
                   </Grid>

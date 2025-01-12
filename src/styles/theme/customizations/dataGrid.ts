@@ -19,12 +19,12 @@ export const dataGridCustomizations: DataGridProComponents<Theme> & DataGridComp
         '--DataGrid-overlayHeight': '300px',
         overflow: 'clip',
         borderColor: (theme.vars || theme).palette.divider,
-        backgroundColor: (theme.vars || theme).palette.background.default,
+        // backgroundColor: (theme.vars || theme).palette.background.default,
         [`& .${gridClasses.columnHeader}`]: {
-          backgroundColor: (theme.vars || theme).palette.background.paper,
+          // backgroundColor: (theme.vars || theme).palette.background.paper,
         },
         [`& .${gridClasses.footerContainer}`]: {
-          backgroundColor: (theme.vars || theme).palette.background.paper,
+          // backgroundColor: (theme.vars || theme).palette.background.paper,
         },
         [`& .${checkboxClasses.root}`]: {
           padding: theme.spacing(0.5),
@@ -66,12 +66,12 @@ export const dataGridCustomizations: DataGridProComponents<Theme> & DataGridComp
       row: ({ theme }) => ({
         '&:last-of-type': { borderBottom: `1px solid ${(theme.vars || theme).palette.divider}` },
         '&:hover': {
-          backgroundColor: (theme.vars || theme).palette.action.hover,
+          // backgroundColor: (theme.vars || theme).palette.action.hover,
         },
         '&.Mui-selected': {
-          background: (theme.vars || theme).palette.action.selected,
+          // background: (theme.vars || theme).palette.action.selected,
           '&:hover': {
-            backgroundColor: (theme.vars || theme).palette.action.hover,
+            // backgroundColor: (theme.vars || theme).palette.action.hover,
           },
         },
       }),

@@ -1,13 +1,10 @@
 import * as React from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import CssBaseline from '@mui/material/CssBaseline'
-import FormControlLabel from '@mui/material/FormControlLabel'
 
 import FormLabel from '@mui/material/FormLabel'
 import FormControl from '@mui/material/FormControl'
-import Link from '@mui/material/Link'
+
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
@@ -56,8 +53,8 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 }))
 
 export default function Login(props: { disableCustomTheme?: boolean }) {
-  const [emailError, setEmailError] = React.useState(false)
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState('')
+  const [emailError] = React.useState(false)
+  const [emailErrorMessage] = React.useState('')
   const [passwordError, setPasswordError] = React.useState(false)
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('')
   const [loading, setLoading] = React.useState(false)
@@ -92,11 +89,16 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
       // Ganti dengan respons yang sesuai
       // Redirect atau lakukan tindakan lain setelah login berhasil
       window.location.href = '/dashboard' // Ganti dengan rute yang sesuai
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Login failed:', error)
       // Tangani error, misalnya menampilkan pesan kesalahan
-      if (error.response) {
-        alert(error.response.data.message || 'Login failed. Please try again.') // Tampilkan pesan kesalahan
+      if (axios.isAxiosError(error)) {
+        // Memeriksa apakah error memiliki response
+        if (error.response) {
+          alert(error.response.data.message || 'Login failed. Please try again.')
+        } else {
+          alert('Login failed. No response from server.')
+        }
       } else {
         alert('Login failed. Please check your network connection.')
       }
@@ -106,7 +108,7 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
   }
 
   const validateInputs = () => {
-    const username = document.getElementById('username') as HTMLInputElement
+    // const username = document.getElementById('username') as HTMLInputElement
     const password = document.getElementById('password') as HTMLInputElement
 
     let isValid = true

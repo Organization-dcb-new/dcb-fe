@@ -14,7 +14,21 @@ interface Transaction {
   user_id: string
   status_code: number
   created_at: string
-  // Tambahkan properti lain sesuai dengan data yang Anda terima
+  merchant_transaction_id: string
+  currency: string
+  amount: number
+  item_name: string
+  client_appkey: string
+  testing: boolean
+  price: number
+  appid: string
+  merchant_name: string
+  app_name: string
+  updated_at: Date
+  timestamp_request_date: Date
+  timestamp_submit_date: Date
+  timestamp_callback_date: Date
+  timestamp_callback_result: string
 }
 
 const TransactionDetail: React.FC = () => {

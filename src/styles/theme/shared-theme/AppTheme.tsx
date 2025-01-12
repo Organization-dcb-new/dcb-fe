@@ -5,7 +5,7 @@ import { inputsCustomizations } from './customizations/inputs'
 import { dataDisplayCustomizations } from './customizations/dataDisplay'
 import { feedbackCustomizations } from './customizations/feedback'
 import { navigationCustomizations } from './customizations/navigation'
-import { surfacesCustomizations } from './customizations/surfaces'
+// import { surfacesCustomizations } from './customizations/surfaces'
 import { colorSchemes, typography, shadows, shape } from './themePrimitives'
 
 interface AppThemeProps {
@@ -36,7 +36,7 @@ export default function AppTheme({ children, disableCustomTheme, themeComponents
             ...dataDisplayCustomizations,
             ...feedbackCustomizations,
             ...navigationCustomizations,
-            ...surfacesCustomizations,
+            // ...surfacesCustomizations,
             ...themeComponents,
           },
         })

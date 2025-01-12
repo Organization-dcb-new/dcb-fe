@@ -1,11 +1,11 @@
-import Home from './pages/Home'
-import Login from './pages/Login'
-import { Route, Routes } from 'react-router-dom'
+// import Home from './pages/Home'
+// import Login from './pages/Login'
+// import { Route, Routes } from 'react-router-dom'
 import { RouterProvider } from 'react-router-dom'
 import router from './routes'
 import AuthProvider from './provider/AuthProvider'
-import SideMenu from './components/SideMenu'
-import Dashboard from './pages/Dashboard'
+// import SideMenu from './components/SideMenu'
+// import Dashboard from './pages/Dashboard'
 
 function App() {
   return (

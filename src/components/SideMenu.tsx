@@ -1,15 +1,15 @@
 import { styled } from '@mui/material/styles'
-import Avatar from '@mui/material/Avatar'
+// import Avatar from '@mui/material/Avatar'
 import MuiDrawer, { drawerClasses } from '@mui/material/Drawer'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import MenuContent from './MenuContent'
-import CardAlert from './CardAlert'
+// import CardAlert from './CardAlert'
 import OptionsMenu from './OptionsMenu'
-import IconButton from '@mui/material/IconButton'
-import { ChevronLeft, MenuOpen } from '@mui/icons-material'
+// import IconButton from '@mui/material/IconButton'
+// import { ChevronLeft, MenuOpen } from '@mui/icons-material'
 import { jwtDecode } from 'jwt-decode'
 import { useAuth } from '../provider/AuthProvider'
 
@@ -31,7 +31,7 @@ interface SideMenuProps {
   handleDrawerToggle: () => void
 }
 
-export default function SideMenu({ open, handleDrawerToggle }: SideMenuProps) {
+export default function SideMenu({ open }: SideMenuProps) {
   const { token } = useAuth()
   const decoded: any = jwtDecode(token as string)
   return (
