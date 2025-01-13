@@ -156,10 +156,10 @@ export default function Transactions() {
     user_id: string
     merchant_transaction_id: string
     transaction_id: string
-    merchant_name: string
-    payment_method: string
+    merchant_name: string[]
+    payment_method: string[]
     payment_status: string
-    status_code: number | null
+    status: number | null
     start_date: string | null // Pastikan ini adalah string | null
     end_date: string | null // Pastikan ini adalah string | null
     app_name: string
@@ -171,10 +171,10 @@ export default function Transactions() {
     user_id: '',
     merchant_transaction_id: '',
     transaction_id: '',
-    merchant_name: '',
-    payment_method: '',
+    merchant_name: [],
+    payment_method: [],
     payment_status: '',
-    status_code: null,
+    status: null,
     start_date: null,
     end_date: null,
     app_name: '',
@@ -229,10 +229,10 @@ export default function Transactions() {
           user_id: formData.user_id,
           merchant_transaction_id: formData.merchant_transaction_id,
           transaction_id: formData.transaction_id,
-          merchant_name: formData.merchant_name,
+          merchant_name: formData.merchant_name.join(','),
           app_name: formData.app_name,
-          payment_method: formData.payment_method,
-          status_code: formData.status_code,
+          payment_method: formData.payment_method.join(','),
+          status: formData.status,
           item_name: formData.item_name,
           denom: formData.denom,
         },
@@ -275,7 +275,15 @@ export default function Transactions() {
 
   const handleChange = (e: any) => {
     const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
+
+    if (typeof name === 'string') {
+      if (name === 'payment_method' || name === 'merchant_name') {
+        const newValue = typeof value === 'string' ? value.split(',') : value
+        setFormData({ ...formData, [name]: newValue })
+      } else {
+        setFormData({ ...formData, [name]: value })
+      }
+    }
   }
 
   const handleDateChange = (dates: any) => {
@@ -294,11 +302,11 @@ export default function Transactions() {
       user_id: '',
       merchant_transaction_id: '',
       transaction_id: '',
-      merchant_name: '',
+      merchant_name: [],
       app_name: '',
-      payment_method: '',
+      payment_method: [],
       payment_status: '',
-      status_code: null,
+      status: null,
       item_name: '',
       denom: null,
       start_date: null,
@@ -428,13 +436,14 @@ export default function Transactions() {
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>Payment Method</FormLabel>
                     <Select
+                      multiple
                       labelId='payment-method-label'
                       id='payment-method '
                       name='payment_method'
                       value={formData.payment_method} // Pastikan ini adalah string
                       onChange={handleChange}
                       input={<OutlinedInput label='payment_method' />}
-                      // fullWidth
+                      renderValue={(selected) => selected.join(', ')}
                     >
                       {routes.map((method) => (
                         <MenuItem key={method.value} value={method.value}>
@@ -451,7 +460,7 @@ export default function Transactions() {
                       id='status'
                       onChange={handleChange}
                       name='status'
-                      value={formData.status_code}
+                      value={formData.status}
                       input={<OutlinedInput label='status' />}
                     >
                       {status.map((s) => (
@@ -468,10 +477,12 @@ export default function Transactions() {
 
                     <Select
                       labelId='merchant-label'
+                      multiple
                       id='merchant_name'
                       name='merchant_name'
                       value={formData.merchant_name}
                       onChange={handleChange}
+                      renderValue={(selected) => selected.join(', ')}
                       input={<OutlinedInput label='merchant_name' />}
                     >
                       {merchantList.map((merchant) => (
@@ -494,6 +505,9 @@ export default function Transactions() {
                       onChange={handleChange}
                       input={<OutlinedInput label='denom' />}
                     >
+                      <MenuItem key='all' value={0}>
+                        All
+                      </MenuItem>
                       {denomList.map((denom) => (
                         <MenuItem key={denom} value={denom}>
                           {denom}
