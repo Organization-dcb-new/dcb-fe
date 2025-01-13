@@ -198,7 +198,7 @@ export default function Transactions() {
       const end_date = formData.end_date
         ? dayjs(formData.end_date).add(1, 'day').startOf('day').format('Mon, 02 Jan 2006 15:04:05 GMT')
         : null
-      const response = await axios.get(`${import.meta.env.VITE_URL_API}/api/transactions`, {
+      const response = await axios.get(`${import.meta.env.VITE_URL_API}/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
