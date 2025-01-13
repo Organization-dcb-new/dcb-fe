@@ -536,7 +536,7 @@ export default function Transactions() {
           </Typography>
 
           {/* 1540px */}
-          <div style={{ overflowX: 'scroll', width: '1400px' }}>
+          <div style={{ overflowX: 'scroll', width: '97vw' }}>
             <Table
               columns={columns}
               dataSource={data}
