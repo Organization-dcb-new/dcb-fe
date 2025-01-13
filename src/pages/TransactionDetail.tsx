@@ -45,14 +45,12 @@ const TransactionDetail: React.FC = () => {
   useEffect(() => {
     const fetchTransactionDetail = async () => {
       try {
-        console.log('id', id)
         const response = await axios.get(`${import.meta.env.VITE_URL_API}/transaction/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         })
-        console.log(response.data.data)
         setTransaction(response.data.data)
       } catch (error) {
         console.error('Error fetching transaction detail:', error)

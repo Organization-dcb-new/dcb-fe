@@ -43,7 +43,6 @@ const TransactionMerchantDetail: React.FC = () => {
   useEffect(() => {
     const fetchTransactionDetail = async () => {
       try {
-        console.log('id', id)
         const response = await axios.get(`${import.meta.env.VITE_URL_API}/merchant/transaction/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -52,7 +51,6 @@ const TransactionMerchantDetail: React.FC = () => {
             appkey: decoded.appkey,
           },
         })
-        console.log(response.data.data)
         setTransaction(response.data.data)
       } catch (error) {
         console.error('Error fetching transaction detail:', error)

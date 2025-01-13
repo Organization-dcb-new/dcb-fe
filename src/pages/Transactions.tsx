@@ -21,13 +21,11 @@ import { FormLabel } from '@mui/material'
 
 import Typography from '@mui/material/Typography'
 // import AppTheme from '../styles/theme/shared-theme/AppTheme'
-import { Table } from 'antd'
+import { Table, DatePicker } from 'antd'
 import { ColumnType } from 'antd/es/table'
 
 import Badge from '../components/Badge'
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 // import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -152,7 +150,22 @@ const columns: ColumnType<any>[] = [
 ]
 
 export default function Transactions() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    user_mdn: string
+    password: string
+    user_id: string
+    merchant_transaction_id: string
+    transaction_id: string
+    merchant_name: string
+    payment_method: string
+    payment_status: string
+    status_code: number | null
+    start_date: string | null // Pastikan ini adalah string | null
+    end_date: string | null // Pastikan ini adalah string | null
+    app_name: string
+    item_name: string
+    denom: number | null
+  }>({
     user_mdn: '',
     password: '',
     user_id: '',
@@ -177,6 +190,7 @@ export default function Transactions() {
   const [resetTrigger, setResetTrigger] = useState(0)
   const { token } = useAuth()
   const decoded: any = jwtDecode(token as string)
+  const { RangePicker } = DatePicker
 
   const merchantList = [
     { id: 1, name: 'HIGO GAME PTE LTD' },
@@ -192,19 +206,22 @@ export default function Transactions() {
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
-      const start_date = formData.start_date
-        ? dayjs(formData.start_date).add(1, 'day').startOf('day').format('Mon, 02 Jan 2006 15:04:05 GMT')
-        : null
+      // const start_date = formData.start_date
+      //   ? dayjs(formData.start_date).add(1, 'day').startOf('day').format('Mon, 02 Jan 2006 15:04:05 GMT')
+      //   : null
+      // const end_date = formData.end_date
+      //   ? dayjs(formData.end_date).add(1, 'day').startOf('day').format('Mon, 02 Jan 2006 15:04:05 GMT')
+      //   : null
+
+      const start_date = formData.start_date // Sudah dalam format yang benar
       const end_date = formData.end_date
-        ? dayjs(formData.end_date).add(1, 'day').startOf('day').format('Mon, 02 Jan 2006 15:04:05 GMT')
-        : null
       const response = await axios.get(`${import.meta.env.VITE_URL_API}/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         params: {
-          age: page,
+          page: page,
           limit: limit,
           start_date,
           end_date,
@@ -223,20 +240,6 @@ export default function Transactions() {
       setData(response.data.data)
 
       setTotal(response.data.pagination.total_items)
-
-      // const filtered = response.data.data.filter((item: any) => {
-      //   // if (item.status_code == formData.status) {
-      //   console.log('Tes:', item.status_code)
-      //   console.log('formdata status:', formData.status)
-      //   // }
-      //   if (formData.status) {
-      //     return item.status_code == formData.status
-      //   }
-      //   return true // Jika tidak ada filter, ambil semua
-      // })
-
-      // setFilteredData(filtered)
-      // console.log('status:', formData.status)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -275,19 +278,14 @@ export default function Transactions() {
     setFormData({ ...formData, [name]: value })
   }
 
-  // const handleDateChange = (name: 'start_date' | 'end_date') => (newValue: any) => {
-  //   setFormData({ ...formData, [name]: newValue })
-  // }
-
-  // const handlePaymentChange = (event: SelectChangeEvent<typeof paymentMethod>) => {
-  //   const {
-  //     target: { value },
-  //   } = event
-  //   setPaymentMethod(
-  //     // On autofill we get a stringified value.
-  //     typeof value === 'string' ? value.split(',') : value,
-  //   )
-  // }
+  const handleDateChange = (dates: any) => {
+    const [start, end] = dates
+    setFormData({
+      ...formData,
+      start_date: start ? start.format('ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+      end_date: end ? end.format('ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+    })
+  }
 
   const handleReset = () => {
     setFormData({
@@ -339,9 +337,9 @@ export default function Transactions() {
           <Typography component='h2' variant='h6' sx={{ mb: 2 }}>
             Redpay Transactions
           </Typography>
-          <Card variant='outlined'>
+          <Card variant='outlined' className='p-3'>
             <span className='font-semibold'>Filter Transaction</span>
-            <div>
+            <div className='mt-3'>
               <form onSubmit={handleSubmit}>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6}>
@@ -390,26 +388,40 @@ export default function Transactions() {
                 </Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6} className='flex flex-col'>
-                    <FormLabel className='font-medium'>Start Date</FormLabel>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      {/* <DatePicker
+                    <FormLabel className='font-medium'>Date Filter</FormLabel>
+                    {/* <LocalizationProvider dateAdapter={AdapterDayjs}> */}
+                    {/* <DatePicker
                         label='Select Start Date'
                         value={formData.start_date}
                         onChange={handleDateChange('start_date')}
                         renderInput={(params) => <TextField {...params} />}
                       /> */}
-                    </LocalizationProvider>
+                    <RangePicker
+                      size='large'
+                      onChange={handleDateChange}
+                      value={[
+                        formData.start_date ? dayjs(formData.start_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+                        formData.end_date ? dayjs(formData.end_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+                      ]}
+                    />
+                    {/* </LocalizationProvider> */}
                   </Grid>
                   <Grid size={6} className='flex flex-col'>
-                    <FormLabel className='font-medium'>End Date</FormLabel>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      {/* <DatePicker
-                        label='Select End Date'
-                        value={formData.end_date}
-                        onChange={handleDateChange('end_date')}
-                        renderInput={(params) => <TextField {...params} />}
-                      /> */}
-                    </LocalizationProvider>
+                    <FormLabel className='font-medium'>App</FormLabel>
+                    <Select
+                      labelId='merchant-label'
+                      id='app_name'
+                      name='app_name'
+                      value={formData.app_name}
+                      onChange={handleChange}
+                      input={<OutlinedInput label='app_name' />}
+                    >
+                      {appList.map((app) => (
+                        <MenuItem key={app.id} value={app.name}>
+                          {app.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
                   </Grid>
                 </Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
@@ -469,25 +481,6 @@ export default function Transactions() {
                       ))}
                     </Select>
                   </Grid>
-                  <Grid size={6} className='flex flex-col'>
-                    <FormLabel className='font-medium'>App</FormLabel>
-                    <Select
-                      labelId='merchant-label'
-                      id='app_name'
-                      name='app_name'
-                      value={formData.app_name}
-                      onChange={handleChange}
-                      input={<OutlinedInput label='app_name' />}
-                    >
-                      {appList.map((app) => (
-                        <MenuItem key={app.id} value={app.name}>
-                          {app.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Grid>
-                </Grid>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6}>
                     <FormLabel className='font-medium'>Denom</FormLabel>
                     <Select
@@ -509,6 +502,7 @@ export default function Transactions() {
                     </Select>
                   </Grid>
                 </Grid>
+                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid>
                 <Button type='submit' className='mt-3 mr-4' variant='contained' color='primary'>
                   Submit
                 </Button>
@@ -519,11 +513,6 @@ export default function Transactions() {
             </div>
           </Card>
           <Grid container spacing={2} columns={12} sx={{ mb: (theme) => theme.spacing(2) }}>
-            {/* {data.map((card, index) => (
-                  <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
-                    <StatCard {...card} />
-                  </Grid>
-                ))} */}
             <Grid size={{ xs: 12, sm: 6, lg: 3 }}>{/* <HighlightedCard /> */}</Grid>
             <Grid size={{ xs: 12, md: 6 }}>{/* <SessionsChart /> */}</Grid>
             <Grid size={{ xs: 12, md: 6 }}>{/* <PageViewsBarChart /> */}</Grid>

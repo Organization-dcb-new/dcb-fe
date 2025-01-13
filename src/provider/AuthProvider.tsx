@@ -39,7 +39,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const decoded: any = jwtDecode(token)
       const isExpired = decoded.exp * 1000 < Date.now()
-      console.log('decoded: ', decoded)
 
       if (isExpired) {
         setToken(null)

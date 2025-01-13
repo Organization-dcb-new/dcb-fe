@@ -7,13 +7,13 @@ interface PrivateRouteProps {
   allowedRoles?: string[] | null // Tambahkan properti untuk allowedRoles
 }
 
-const PrivateRoute = ({ children, allowedRoles }: PrivateRouteProps) => {
-  const { token, role } = useAuth()
+const PrivateRoute = ({ children }: PrivateRouteProps) => {
+  const { token } = useAuth()
   const isAuthenticated = !!token // Cek apakah pengguna terautentikasi
-  const hasAccess = allowedRoles ? allowedRoles.includes(role as string) : true // Cek apakah role ada dalam allowedRoles
-  console.log('hasAccess: ', hasAccess)
-  console.log('role: ', role)
-  console.log('allowed: ', allowedRoles)
+  // const hasAccess = allowedRoles ? allowedRoles.includes(role as string) : true // Cek apakah role ada dalam allowedRoles
+  // console.log('hasAccess: ', hasAccess)
+  // console.log('role: ', role)
+  // console.log('allowed: ', allowedRoles)
 
   return isAuthenticated ? children : <Navigate to='/login' />
 }
