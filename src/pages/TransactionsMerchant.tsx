@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import Grid from '@mui/material/Grid2'
 import { alpha } from '@mui/material/styles'
 // import CssBaseline from '@mui/material/CssBaseline'
-import { TextField, OutlinedInput, Select, MenuItem } from '@mui/material'
+import { TextField, OutlinedInput, Select, MenuItem, Tooltip } from '@mui/material'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
@@ -16,13 +16,13 @@ import { FormLabel } from '@mui/material'
 
 import Typography from '@mui/material/Typography'
 // import AppTheme from '../styles/theme/shared-theme/AppTheme'
-import { Table } from 'antd'
+import { Table, DatePicker } from 'antd'
 
 import Badge from '../components/Badge'
 import { ColumnType } from 'antd/es/table'
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 // import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -35,6 +35,16 @@ const columns: ColumnType<any>[] = [
     width: 260,
     dataIndex: 'merchant_transaction_id',
     key: 'merchant_transaction_id',
+    render: (text: string) => (
+      <Tooltip title='Copy Merchant Transaction ID'>
+        <div
+          onClick={() => navigator.clipboard.writeText(text)}
+          style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+        >
+          {text}
+        </div>
+      </Tooltip>
+    ),
   },
   {
     title: 'User MDN',
@@ -181,6 +191,7 @@ export default function TransactionsMerchant() {
   const [total, setTotal] = useState(0)
   const { token } = useAuth()
   const decoded: any = jwtDecode(token as string)
+  const { RangePicker } = DatePicker
 
   const denomList = [3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 100000]
 
@@ -279,6 +290,15 @@ export default function TransactionsMerchant() {
 
   //
 
+  const handleDateChange = (dates: any) => {
+    const [start, end] = dates
+    setFormData({
+      ...formData,
+      start_date: start ? start.format('ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+      end_date: end ? end.format('ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+    })
+  }
+
   const handlePageChange = (page: number, pageSize: number) => {
     setCurrentPage(page)
     setPageSize(pageSize)
@@ -305,11 +325,10 @@ export default function TransactionsMerchant() {
       >
         {/* <Header /> */}
         <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
-          {/* cards */}
           <Typography component='h2' variant='h6' sx={{ mb: 2 }}>
             Redpay Transactions
           </Typography>
-          <Card variant='outlined'>
+          <Card variant='outlined' className='p-3'>
             <span className='font-semibold'>Filter Transaction</span>
             <div>
               <form onSubmit={handleSubmit}>
@@ -358,61 +377,70 @@ export default function TransactionsMerchant() {
                       onChange={handleChange}
                       input={<OutlinedInput label='Name' />}
                     >
-                      {names.map((name) => (
+                      {/* {names.map((name) => (
                         <MenuItem key={name} value={name}>
                           {name}
                         </MenuItem>
-                      ))}
+                      ))} */}
                     </Select>
                   </Grid>
                 </Grid>
                 {/* <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid> */}
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6} className='flex flex-col'>
+                  {/* <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>Start Date</FormLabel>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      {/* <DatePicker
+                      <DatePicker
                         label='Select date'
                         value={value}
                         onChange={(newValue) => {
                           setValue(newValue)
                         }}
                         renderInput={(params) => <TextField {...params} />}
-                      /> */}
+                      />
                     </LocalizationProvider>
+                  </Grid> */}
+                  <Grid size={6} className='flex flex-col'>
+                    <FormLabel className='font-medium'>Filter Date</FormLabel>
+                    {/* <LocalizationProvider dateAdapter={AdapterDayjs}> */}
+                    {/* <DatePicker
+                        label='Select Start Date'
+                        value={formData.start_date}
+                        onChange={handleDateChange('start_date')}
+                        renderInput={(params) => <TextField {...params} />}
+                      /> */}
+                    <RangePicker
+                      size='large'
+                      onChange={handleDateChange}
+                      value={[
+                        formData.start_date ? dayjs(formData.start_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+                        formData.end_date ? dayjs(formData.end_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+                      ]}
+                    />
+                    {/* </LocalizationProvider> */}
                   </Grid>
                   <Grid size={6} className='flex flex-col'>
-                    <FormLabel className='font-medium'>End Date</FormLabel>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      {/* <DatePicker
-                        label='Select date'
-                        value={value}
-                        onChange={(newValue) => {
-                          setValue(newValue)
-                        }}
-                        renderInput={(params) => <TextField {...params} />}
-                      /> */}
-                    </LocalizationProvider>
+                    <FormLabel className='font-medium'>Status</FormLabel>
+
+                    <Select
+                      labelId='status-label'
+                      id='status_code'
+                      onChange={handleChange}
+                      name='status_code'
+                      value={formData.status_code}
+                      input={<OutlinedInput label='status_code' />}
+                    >
+                      {status.map((s) => (
+                        <MenuItem key={s.value} value={s.value}>
+                          {s.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
                   </Grid>
                 </Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>Payment Method</FormLabel>
-
-                    {/* <Select
-                      labelId='demo-multiple-name-label'
-                      id='demo-multiple-name'
-                      value={formData.payment_method}
-                      onChange={handleChange}
-                      input={<OutlinedInput label='Name' />}
-                      // MenuProps={MenuProps}
-                    >
-                      {routes.map((method) => (
-                        <MenuItem key={method.route} value={method.route}>
-                          {method.name}
-                        </MenuItem>
-                      ))}
-                    </Select> */}
                     <Select
                       labelId='payment-method-label'
                       id='payment-method '
@@ -429,27 +457,6 @@ export default function TransactionsMerchant() {
                       ))}
                     </Select>
                   </Grid>
-                  <Grid size={6} className='flex flex-col'>
-                    <FormLabel className='font-medium'>Status</FormLabel>
-
-                    <Select
-                      labelId='status-label'
-                      id='status'
-                      onChange={handleChange}
-                      name='status'
-                      value={formData.status_code}
-                      input={<OutlinedInput label='status' />}
-                    >
-                      {status.map((s) => (
-                        <MenuItem key={s.value} value={s.value}>
-                          {s.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Grid>
-                </Grid>
-
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6}>
                     <FormLabel className='font-medium'>Denom</FormLabel>
                     <Select
@@ -463,6 +470,9 @@ export default function TransactionsMerchant() {
                       onChange={handleChange}
                       input={<OutlinedInput label='denom' />}
                     >
+                      <MenuItem key='all' value={0}>
+                        All
+                      </MenuItem>
                       {denomList.map((denom) => (
                         <MenuItem key={denom} value={denom}>
                           {denom}
@@ -471,6 +481,8 @@ export default function TransactionsMerchant() {
                     </Select>
                   </Grid>
                 </Grid>
+
+                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid>
                 <Button type='submit' className='mt-3 mr-4' variant='contained' color='primary'>
                   Submit
                 </Button>

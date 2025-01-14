@@ -19,31 +19,8 @@ import {
   // StarBorder,
 } from '@mui/icons-material'
 
-const mainListItems = [
-  // { text: "Home", icon: <HomeIcon />, path: "/" },
-  { text: 'Dashboard', icon: <AnalyticsIcon />, path: '/' },
-  {
-    text: 'Transaction Data',
-    icon: <ReceiptLongOutlined />,
-    nestedItems: [
-      {
-        text: 'Redpay Transaction',
-        icon: <ReceiptLongOutlined />,
-        path: '/transactions',
-      },
-    ],
-  },
-  {
-    text: 'Summary',
-    icon: <ListAltOutlined />,
-    path: '/transactions',
-    nestedItems: [
-      { text: 'Report Hourly', icon: <ListOutlined />, path: '/summary/hourly' },
-      { text: 'Report Daily', icon: <ListOutlined />, path: '/summary/daily' },
-      { text: 'Report Monthly', icon: <ListOutlined />, path: '/summary/monthly' },
-    ],
-  },
-]
+import { useAuth } from '../provider/AuthProvider'
+import { jwtDecode } from 'jwt-decode'
 
 const secondaryListItems = [
   {
@@ -56,12 +33,41 @@ const secondaryListItems = [
 export default function MenuContent() {
   const [openItems, setOpenItems] = useState<{ [key: number]: boolean }>({})
 
+  const { token } = useAuth()
+  const decoded: any = jwtDecode(token as string)
+
   const handleToggle = (index: any) => {
     setOpenItems((prevState) => ({
       ...prevState,
       [index]: !prevState[index],
     }))
   }
+
+  const mainListItems = [
+    // { text: "Home", icon: <HomeIcon />, path: "/" },
+    { text: 'Dashboard', icon: <AnalyticsIcon />, path: '/' },
+    {
+      text: 'Transaction Data',
+      icon: <ReceiptLongOutlined />,
+      nestedItems: [
+        {
+          text: 'Redpay Transaction',
+          icon: <ReceiptLongOutlined />,
+          path: decoded.role != 'merchant' ? '/transactions' : 'merchant-transactions',
+        },
+      ],
+    },
+    {
+      text: 'Summary',
+      icon: <ListAltOutlined />,
+      path: '/transactions',
+      nestedItems: [
+        { text: 'Report Hourly', icon: <ListOutlined />, path: '/summary/hourly' },
+        { text: 'Report Daily', icon: <ListOutlined />, path: '/summary/daily' },
+        { text: 'Report Monthly', icon: <ListOutlined />, path: '/summary/monthly' },
+      ],
+    },
+  ]
 
   return (
     <Stack sx={{ p: 1, flexGrow: 1 }}>
@@ -98,36 +104,40 @@ export default function MenuContent() {
         ))}
       </List>
 
-      <div className='mt-10 '>
-        <div className='text-xl mb-2'>Internal</div>
-        <Divider />
+      {decoded.role != 'merchant' ? (
+        <div className='mt-10 '>
+          <div className='text-xl mb-2'>Internal</div>
+          <Divider />
 
-        <List dense>
-          {secondaryListItems.map((item, index) => (
-            <div>
-              <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-                <ListItemButton onClick={() => item.nestedItems && handleToggle(index)}>
-                  {item.icon && <ListItemIcon className='min-w-8'>{item.icon}</ListItemIcon>}
-                  <ListItemText disableTypography className='!text-base' primary={item.text} />
-                  {item.nestedItems ? openItems[index] ? <ExpandLess /> : <ExpandMore /> : null}
-                </ListItemButton>
-              </ListItem>
-              {item.nestedItems && (
-                <Collapse in={openItems[index]} timeout='auto' unmountOnExit>
-                  <List component='div' disablePadding>
-                    {item.nestedItems.map((nestedItem, nestedIndex) => (
-                      <ListItemButton key={nestedIndex} className='min-w-0  ' sx={{ pl: 6 }}>
-                        <ListItemIcon className='min-w-8'>{nestedItem.icon}</ListItemIcon>
-                        <ListItemText className='text-sm' disableTypography primary={nestedItem.text} />
-                      </ListItemButton>
-                    ))}
-                  </List>
-                </Collapse>
-              )}
-            </div>
-          ))}
-        </List>
-      </div>
+          <List dense>
+            {secondaryListItems.map((item, index) => (
+              <div>
+                <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+                  <ListItemButton onClick={() => item.nestedItems && handleToggle(index)}>
+                    {item.icon && <ListItemIcon className='min-w-8'>{item.icon}</ListItemIcon>}
+                    <ListItemText disableTypography className='!text-base' primary={item.text} />
+                    {item.nestedItems ? openItems[index] ? <ExpandLess /> : <ExpandMore /> : null}
+                  </ListItemButton>
+                </ListItem>
+                {item.nestedItems && (
+                  <Collapse in={openItems[index]} timeout='auto' unmountOnExit>
+                    <List component='div' disablePadding>
+                      {item.nestedItems.map((nestedItem, nestedIndex) => (
+                        <ListItemButton key={nestedIndex} className='min-w-0  ' sx={{ pl: 6 }}>
+                          <ListItemIcon className='min-w-8'>{nestedItem.icon}</ListItemIcon>
+                          <ListItemText className='text-sm' disableTypography primary={nestedItem.text} />
+                        </ListItemButton>
+                      ))}
+                    </List>
+                  </Collapse>
+                )}
+              </div>
+            ))}
+          </List>
+        </div>
+      ) : (
+        <div />
+      )}
     </Stack>
   )
 }

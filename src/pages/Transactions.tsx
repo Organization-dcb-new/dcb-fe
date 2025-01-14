@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import Grid from '@mui/material/Grid2'
 import { alpha } from '@mui/material/styles'
 // import CssBaseline from '@mui/material/CssBaseline'
-import { TextField, OutlinedInput, Select, MenuItem } from '@mui/material'
+import { TextField, OutlinedInput, Select, MenuItem, Tooltip } from '@mui/material'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
@@ -38,6 +38,13 @@ const columns: ColumnType<any>[] = [
     width: 300,
     dataIndex: 'u_id',
     key: 'u_id',
+    render: (text: string) => (
+      <Tooltip title='Copy Transaction ID'>
+        <div onClick={() => navigator.clipboard.writeText(text)} style={{ display: 'flex', alignItems: 'center' }}>
+          {text}
+        </div>
+      </Tooltip>
+    ),
   },
   {
     title: 'User MDN',
@@ -130,6 +137,13 @@ const columns: ColumnType<any>[] = [
     width: 250,
     dataIndex: 'merchant_transaction_id',
     key: 'merchant_transaction_id',
+    render: (text: string) => (
+      <Tooltip title='Copy Merchant Trx ID'>
+        <div onClick={() => navigator.clipboard.writeText(text)} style={{ display: 'flex', alignItems: 'center' }}>
+          {text}
+        </div>
+      </Tooltip>
+    ),
   },
   {
     title: 'Action',
@@ -396,7 +410,7 @@ export default function Transactions() {
                 </Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6} className='flex flex-col'>
-                    <FormLabel className='font-medium'>Date Filter</FormLabel>
+                    <FormLabel className='font-medium'>Filter Date</FormLabel>
                     {/* <LocalizationProvider dateAdapter={AdapterDayjs}> */}
                     {/* <DatePicker
                         label='Select Start Date'
