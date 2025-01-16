@@ -35,7 +35,7 @@ import { jwtDecode } from 'jwt-decode'
 const columns: ColumnType<any>[] = [
   {
     title: 'Transaction ID',
-    width: 300,
+    width: 320,
     dataIndex: 'u_id',
     key: 'u_id',
     render: (text: string) => (
@@ -329,6 +329,33 @@ export default function Transactions() {
     setResetTrigger((prev) => prev + 1)
   }
 
+  const handleExport = async (type: string) => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_URL_API}/transactions`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        params: {
+          export_csv: type == 'csv' ? 'true' : 'false', // Menambahkan parameter untuk ekspor CSV
+          export_excel: type == 'excel' ? 'true' : 'false', // Menambahkan parameter untuk ekspor CSV
+          ...formData,
+        },
+        responseType: 'blob',
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'transactions.csv') // Nama file yang diunduh
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch (error) {
+      console.error('Error exporting CSV:', error)
+    }
+  }
+
   const handlePageChange = (page: number, pageSize: number) => {
     setCurrentPage(page)
     setPageSize(pageSize)
@@ -540,7 +567,7 @@ export default function Transactions() {
               </form>
             </div>
           </Card>
-          <Grid container spacing={2} columns={12} sx={{ mb: (theme) => theme.spacing(2) }}>
+          <Grid container spacing={2} columns={12} sx={{ mb: (theme) => theme.spacing(4) }}>
             <Grid size={{ xs: 12, sm: 6, lg: 3 }}>{/* <HighlightedCard /> */}</Grid>
             <Grid size={{ xs: 12, md: 6 }}>{/* <SessionsChart /> */}</Grid>
             <Grid size={{ xs: 12, md: 6 }}>{/* <PageViewsBarChart /> */}</Grid>
@@ -549,8 +576,28 @@ export default function Transactions() {
             Transaction Details
           </Typography>
 
+          <Button
+            size='small'
+            className='border-sky-400'
+            variant='outlined'
+            color='info'
+            onClick={() => handleExport('csv')}
+          >
+            Export Csv
+          </Button>
+
+          <Button
+            size='small'
+            className='border-sky-400 ml-4'
+            variant='contained'
+            color='info'
+            onClick={() => handleExport('excel')}
+          >
+            Export Excel
+          </Button>
+
           {/* 1540px */}
-          <div style={{ overflowX: 'scroll', width: '97vw' }}>
+          <div style={{ overflowX: 'scroll', width: '97vw', marginTop: '14px' }}>
             <Table
               columns={columns}
               dataSource={data}

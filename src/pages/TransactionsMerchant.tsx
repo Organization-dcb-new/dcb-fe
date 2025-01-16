@@ -97,6 +97,7 @@ const columns: ColumnType<any>[] = [
   {
     title: 'Status',
     dataIndex: 'status_code',
+    align: 'center',
     key: 'status_code',
     render: (status: number) => {
       let color: 'success' | 'error' | 'pending' = 'pending'
@@ -240,19 +241,6 @@ export default function TransactionsMerchant() {
     fetchData(currentPage, pageSize)
   }, [currentPage, pageSize, resetTrigger])
 
-  const names = [
-    'Oliver Hansen',
-    'Van Henry',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
-  ]
-
   const routes = [
     { name: 'All', value: '' },
     { name: 'Xl', value: 'xl_airtime' },
@@ -288,7 +276,34 @@ export default function TransactionsMerchant() {
   //   )
   // }
 
-  //
+  const handleExport = async (type: string) => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_URL_API}/merchant/transactions`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          appkey: decoded.appkey,
+          appid: decoded.appid,
+        },
+        params: {
+          export_csv: type == 'csv' ? 'true' : 'false',
+          export_excel: type == 'excel' ? 'true' : 'false',
+          ...formData,
+        },
+        responseType: 'blob',
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'transactions.csv')
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch (error) {
+      console.error('Error exporting CSV:', error)
+    }
+  }
 
   const handleDateChange = (dates: any) => {
     const [start, end] = dates
@@ -492,7 +507,7 @@ export default function TransactionsMerchant() {
               </form>
             </div>
           </Card>
-          <Grid container spacing={2} columns={12} sx={{ mb: (theme) => theme.spacing(2) }}>
+          <Grid container spacing={2} columns={12} sx={{ mb: (theme) => theme.spacing(3) }}>
             {/* {data.map((card, index) => (
                   <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
                     <StatCard {...card} />
@@ -506,8 +521,28 @@ export default function TransactionsMerchant() {
             Merchant Transaction Details
           </Typography>
 
+          <Button
+            size='small'
+            className='border-sky-400'
+            variant='outlined'
+            color='info'
+            onClick={() => handleExport('csv')}
+          >
+            Export Csv
+          </Button>
+
+          <Button
+            size='small'
+            className='border-sky-400 ml-3'
+            variant='contained'
+            color='info'
+            onClick={() => handleExport('excel')}
+          >
+            Export Excel
+          </Button>
+
           {/* 1540px */}
-          <div style={{ overflowX: 'scroll', width: '1400px' }}>
+          <div style={{ overflowX: 'scroll', width: '1400px', marginTop: '14px' }}>
             <Table
               columns={columns}
               dataSource={data}
