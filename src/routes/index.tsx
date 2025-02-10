@@ -6,7 +6,7 @@ import MainLayout from '../layout/MainLayout'
 import Transactions from '../pages/Transactions'
 import Summary from '../pages/Summary'
 import PrivateRoute from '../components/PrivateRoute'
-// import { useParams } from 'react-router-dom'
+
 import TransactionDetail from '../pages/TransactionDetail'
 import TransactionsMerchant from '../pages/TransactionsMerchant'
 import TransactionMerchantDetail from '../pages/TransactionsMerchantDetail'
@@ -18,7 +18,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Home />,
+        element: (
+          <PrivateRoute>
+            <Home />
+          </PrivateRoute>
+        ),
       },
       {
         path: 'dashboard',

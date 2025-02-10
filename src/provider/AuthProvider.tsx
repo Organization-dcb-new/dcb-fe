@@ -40,7 +40,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       const decoded: any = jwtDecode(token)
       const isExpired = decoded.exp * 1000 < Date.now()
 
-      if (isExpired) {
+      if (isExpired || !decoded) {
         setToken(null)
         localStorage.removeItem('token')
         window.location.href = '/login'
