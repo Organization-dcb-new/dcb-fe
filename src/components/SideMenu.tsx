@@ -6,12 +6,15 @@ import Divider from '@mui/material/Divider'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import MenuContent from './MenuContent'
+import { Navigate } from 'react-router-dom'
 // import CardAlert from './CardAlert'
 import OptionsMenu from './OptionsMenu'
 // import IconButton from '@mui/material/IconButton'
 // import { ChevronLeft, MenuOpen } from '@mui/icons-material'
 import { jwtDecode } from 'jwt-decode'
 import { useAuth } from '../provider/AuthProvider'
+import { UserOutlined } from '@ant-design/icons'
+import { Avatar } from 'antd'
 
 const drawerWidth = 240
 
@@ -33,6 +36,11 @@ interface SideMenuProps {
 
 export default function SideMenu({ open }: SideMenuProps) {
   const { token } = useAuth()
+  if (!token || typeof token !== 'string') {
+    // window.location.href = '/login' // Ganti dengan rute yang sesuai
+    return <Navigate to='/login' /> // Menghentikan eksekusi komponen
+  }
+
   const decoded: any = jwtDecode(token as string)
   return (
     <Box>
@@ -78,6 +86,7 @@ export default function SideMenu({ open }: SideMenuProps) {
           }}
         >
           {/* <Avatar sizes='small' alt='Riley Carter' src='/static/images/avatar/7.jpg' sx={{ width: 36, height: 36 }} /> */}
+          <Avatar style={{ backgroundColor: '#87d068' }} icon={<UserOutlined />} />
           <Box sx={{ mr: 'auto' }}>
             <Typography variant='body2' sx={{ fontWeight: 500, lineHeight: '16px' }}>
               {decoded.username}
