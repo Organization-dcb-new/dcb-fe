@@ -22,19 +22,14 @@ import {
 import { useAuth } from '../provider/AuthProvider'
 import { jwtDecode } from 'jwt-decode'
 
-const secondaryListItems = [
-  {
-    text: 'Redpay',
-    icon: <BusinessOutlined />,
-    nestedItems: [{ text: 'Merchant', icon: <StoreMallDirectoryOutlined /> }],
-  },
-]
-
 export default function MenuContent() {
   const [openItems, setOpenItems] = useState<{ [key: number]: boolean }>({})
 
   const { token } = useAuth()
   const decoded: any = jwtDecode(token as string)
+  const isAuthenticated = !!token
+
+  console.log('isAuthenticated:', isAuthenticated)
 
   const handleToggle = (index: any) => {
     setOpenItems((prevState) => ({
@@ -43,8 +38,16 @@ export default function MenuContent() {
     }))
   }
 
+  const secondaryListItems = [
+    {
+      text: 'Redpay',
+      icon: <BusinessOutlined />,
+      path: '/merchant',
+      nestedItems: [{ text: 'Merchant', icon: <StoreMallDirectoryOutlined />, path: '/merchant' }],
+    },
+  ]
+
   const mainListItems = [
-    // { text: "Home", icon: <HomeIcon />, path: "/" },
     { text: 'Dashboard', icon: <AnalyticsIcon />, path: '/' },
     {
       text: 'Transaction Data',
@@ -123,10 +126,13 @@ export default function MenuContent() {
                   <Collapse in={openItems[index]} timeout='auto' unmountOnExit>
                     <List component='div' disablePadding>
                       {item.nestedItems.map((nestedItem, nestedIndex) => (
-                        <ListItemButton key={nestedIndex} className='min-w-0  ' sx={{ pl: 6 }}>
-                          <ListItemIcon className='min-w-8'>{nestedItem.icon}</ListItemIcon>
-                          <ListItemText className='text-sm' disableTypography primary={nestedItem.text} />
-                        </ListItemButton>
+                        // <ListItemButton key={nestedIndex} className='min-w-0 px-6 ' sx={{ pl: 6 }}>
+                        <Link to={nestedItem.path}>
+                          <div key={nestedIndex} className='min-w-0 flex !pl-6'>
+                            <ListItemIcon className='min-w-8'>{nestedItem.icon}</ListItemIcon>
+                            <ListItemText className='text-sm' disableTypography primary={nestedItem.text} />
+                          </div>
+                        </Link>
                       ))}
                     </List>
                   </Collapse>
