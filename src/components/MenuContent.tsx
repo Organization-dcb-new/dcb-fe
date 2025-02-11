@@ -27,9 +27,6 @@ export default function MenuContent() {
 
   const { token } = useAuth()
   const decoded: any = jwtDecode(token as string)
-  const isAuthenticated = !!token
-
-  console.log('isAuthenticated:', isAuthenticated)
 
   const handleToggle = (index: any) => {
     setOpenItems((prevState) => ({
@@ -48,7 +45,7 @@ export default function MenuContent() {
   ]
 
   const mainListItems = [
-    { text: 'Dashboard', icon: <AnalyticsIcon />, path: '/' },
+    ...(decoded.role !== 'merchant' ? [{ text: 'Dashboard', icon: <AnalyticsIcon />, path: '/' }] : []),
     {
       text: 'Transaction Data',
       icon: <ReceiptLongOutlined />,
