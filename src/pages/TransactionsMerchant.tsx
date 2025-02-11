@@ -143,7 +143,7 @@ const columns: ColumnType<any>[] = [
         color='success'
         className='h-6 text-sky-700 '
         onClick={() => {
-          window.location.href = `/merchant-transaction/${record.merchant_transaction_id}` // Ganti dengan rute yang sesuai
+          window.location.href = `/merchant-transaction/${record.u_id}` // Ganti dengan rute yang sesuai
         }}
       >
         Detail
