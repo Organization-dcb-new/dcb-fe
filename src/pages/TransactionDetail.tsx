@@ -1,6 +1,6 @@
 // TransactionDetail.tsx
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import Button from '@mui/material/Button'
 import { Modal } from 'antd'
 import axios from 'axios'
@@ -37,7 +37,7 @@ const TransactionDetail: React.FC = () => {
   const [transaction, setTransaction] = useState<Transaction | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [transactionStatus, setTransactionStatus] = useState<{ status: string; responseDesc: string } | null>(null)
-
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
   const { token } = useAuth()
@@ -315,10 +315,10 @@ const TransactionDetail: React.FC = () => {
           Check Charging
         </Button>
         <Button type='button' disabled className='mt-3 mr-4' variant='contained' color='success'>
-          Make Success
-        </Button>
-        <Button type='button' className='mt-3 mr-4' variant='contained' color='primary'>
           Manual Callback
+        </Button>
+        <Button type='button' className='mt-3 mr-4' variant='contained' color='primary' onClick={() => navigate(-1)}>
+          Back
         </Button>
       </div>
       <Modal title='Transaction' open={open} onOk={handleOk} width={400} onCancel={handleCancel} centered>
