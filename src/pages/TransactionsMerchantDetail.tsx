@@ -1,11 +1,12 @@
 // TransactionDetail.tsx
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-// import Button from '@mui/material/Button'
+import Button from '@mui/material/Button'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { Typography, Card, CircularProgress, Box } from '@mui/material'
 import { useAuth } from '../provider/AuthProvider'
+import { useNavigate } from 'react-router-dom'
 import { jwtDecode } from 'jwt-decode'
 
 interface Transaction {
@@ -17,6 +18,7 @@ interface Transaction {
   app_name: string
   user_id: string
   status_code: number
+  fail_reason: string
   created_at: string
   timestamp_callback_result: string
   merchant_transaction_id: string
@@ -29,9 +31,10 @@ interface Transaction {
 }
 
 const TransactionMerchantDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>() // Ambil u_id dari URL
+  const { id } = useParams<{ id: string }>()
   const [transaction, setTransaction] = useState<Transaction | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
+  const navigate = useNavigate()
 
   const { token } = useAuth()
   const decoded: any = jwtDecode(token as string)
@@ -39,6 +42,7 @@ const TransactionMerchantDetail: React.FC = () => {
   let paymentMethod
 
   let status
+  let failReason
 
   useEffect(() => {
     const fetchTransactionDetail = async () => {
@@ -69,6 +73,8 @@ const TransactionMerchantDetail: React.FC = () => {
   if (!transaction) {
     return <Typography variant='h6'>Transaction not found</Typography>
   }
+
+  failReason = transaction.fail_reason ? `(${transaction.fail_reason})` : ''
 
   switch (transaction.status_code) {
     case 1000:
@@ -138,7 +144,9 @@ const TransactionMerchantDetail: React.FC = () => {
               <div className='w-1/4'>
                 <strong>Status:</strong>
               </div>
-              <div>{status}</div>
+              <div>
+                {status} {failReason}
+              </div>
             </div>
           </Box>
           <Box display='flex'>
@@ -227,14 +235,21 @@ const TransactionMerchantDetail: React.FC = () => {
           </Box>
         </Box>
       </Card>
-      {/* <div className='flex pl-4 pt-2'>
-        <Button type='button' className='mt-3 mr-4' variant='contained' color='info'>
-          Check Transactions
+      <div className='flex pl-4 pt-2'>
+        <Button
+          type='button'
+          className='mt-3 mr-4'
+          size='small'
+          variant='contained'
+          color='info'
+          onClick={() => navigate(-1)}
+        >
+          Back
         </Button>
-        <Button type='button' disabled className='mt-3 mr-4' variant='contained' color='success'>
+        {/* <Button type='button' disabled className='mt-3 mr-4' variant='contained' color='success'>
           Make Success
-        </Button>
-      </div> */}
+        </Button> */}
+      </div>
     </div>
   )
 }
