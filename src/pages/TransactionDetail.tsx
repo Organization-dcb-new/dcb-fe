@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Button from '@mui/material/Button'
+import { Modal } from 'antd'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { Typography, Card, CircularProgress, Box } from '@mui/material'
@@ -35,12 +36,58 @@ const TransactionDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>() // Ambil u_id dari URL
   const [transaction, setTransaction] = useState<Transaction | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
+  const [transactionStatus, setTransactionStatus] = useState<{ status: string; responseDesc: string } | null>(null)
+
+  const [open, setOpen] = useState(false)
 
   const { token } = useAuth()
 
   let paymentMethod
 
   let status
+
+  const handleCheckCharging = async () => {
+    try {
+      const requestOptions = {
+        method: 'GET',
+      }
+
+      const response = await fetch(`https://new-payment.redision.com/api/check/${id}`, requestOptions)
+
+      const result = await response.json()
+      console.log('result', result.data.transactionInquiryStatusTO.responseCode)
+
+      if (result.data.transactionInquiryStatusTO.responseCode == '00') {
+        setTransactionStatus({
+          status: 'Success',
+          responseDesc: result.data.transactionInquiryStatusTO.responseDesc,
+        })
+      } else {
+        setTransactionStatus({
+          status: 'error',
+          responseDesc: 'Transaction failed',
+        })
+      }
+
+      setOpen(true)
+    } catch (error) {
+      console.error('Error checking charging:', error)
+      setTransactionStatus({
+        status: 'Error',
+        responseDesc: 'Failed to fetch transaction status',
+      })
+      setOpen(true)
+    }
+  }
+
+  const handleOk = () => {
+    setOpen(false)
+  }
+
+  const handleCancel = () => {
+    console.log('Clicked cancel button')
+    setOpen(false)
+  }
 
   useEffect(() => {
     const fetchTransactionDetail = async () => {
@@ -264,7 +311,7 @@ const TransactionDetail: React.FC = () => {
         </Box>
       </Card>
       <div className='flex pl-4 pt-2'>
-        <Button type='button' className='mt-3 mr-4' variant='contained' color='info'>
+        <Button type='button' className='mt-3 mr-4' onClick={handleCheckCharging} variant='contained' color='info'>
           Check Charging
         </Button>
         <Button type='button' disabled className='mt-3 mr-4' variant='contained' color='success'>
@@ -274,6 +321,10 @@ const TransactionDetail: React.FC = () => {
           Manual Callback
         </Button>
       </div>
+      <Modal title='Transaction' open={open} onOk={handleOk} width={400} onCancel={handleCancel} centered>
+        <p>Status : {transactionStatus?.status}</p>
+        <p>Desc : {transactionStatus?.responseDesc}</p>
+      </Modal>
     </div>
   )
 }
