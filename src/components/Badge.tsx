@@ -3,7 +3,7 @@ import React from 'react'
 
 export interface BadgeProps {
   text: string
-  color: 'success' | 'error' | 'pending' // Anda dapat menambahkan lebih banyak warna jika diperlukan
+  color: 'success' | 'error' | 'pending' | 'waiting-callback' // Anda dapat menambahkan lebih banyak warna jika diperlukan
 }
 
 const Badge: React.FC<BadgeProps> = ({ text, color }) => {
@@ -19,6 +19,9 @@ const Badge: React.FC<BadgeProps> = ({ text, color }) => {
       break
     case 'pending':
       backgroundColor = '#FFC107' // Kuning
+      break
+    case 'waiting-callback':
+      backgroundColor = '#945af2' // Kuning
       break
     default:
       backgroundColor = '#9E9E9E' // Abu-abu untuk status tidak dikenal

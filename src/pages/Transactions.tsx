@@ -67,7 +67,7 @@ const columns: ColumnType<any>[] = [
   // },
   {
     title: 'Payment Method',
-    width: 200,
+    width: 190,
     align: 'center',
     dataIndex: 'payment_method',
     key: 'payment_method',
@@ -104,8 +104,9 @@ const columns: ColumnType<any>[] = [
     title: 'Status',
     dataIndex: 'status_code',
     key: 'status_code',
+    align: 'center',
     render: (status: number) => {
-      let color: 'success' | 'error' | 'pending' = 'pending'
+      let color: 'success' | 'error' | 'pending' | 'waiting-callback' = 'pending'
       let text = 'Pending'
 
       if (status === 1000) {
@@ -114,6 +115,9 @@ const columns: ColumnType<any>[] = [
       } else if (status === 1005) {
         color = 'error'
         text = 'Failed'
+      } else if (status == 1003) {
+        color = 'waiting-callback'
+        text = 'Waiting'
       }
 
       return <Badge color={color} text={text} />
@@ -121,20 +125,27 @@ const columns: ColumnType<any>[] = [
   },
   {
     title: 'Item Name',
-    width: 250,
+    width: 230,
     align: 'center',
     dataIndex: 'item_name',
     key: 'item_name',
   },
   {
-    title: 'User ID',
-    width: 120,
-    dataIndex: 'user_id',
-    key: 'user_id',
+    title: 'Fail Reason',
+    width: 150,
+    align: 'center',
+    dataIndex: 'fail_reason',
+    key: 'fail_reason',
   },
+  // {
+  //   title: 'User ID',
+  //   width: 150,
+  //   dataIndex: 'user_id',
+  //   key: 'user_id',
+  // },
   {
     title: 'Merchant Trx ID',
-    width: 250,
+    width: 200,
     dataIndex: 'merchant_transaction_id',
     key: 'merchant_transaction_id',
     render: (text: string) => (
@@ -154,7 +165,7 @@ const columns: ColumnType<any>[] = [
         color='success'
         className='h-6 text-sky-700 '
         onClick={() => {
-          window.location.href = `/transaction/${record.u_id}` // Ganti dengan rute yang sesuai
+          window.location.href = `/transaction/${record.u_id}`
         }}
       >
         Detail
