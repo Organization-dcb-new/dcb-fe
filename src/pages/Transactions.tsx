@@ -31,6 +31,11 @@ import axios from 'axios'
 import dayjs from 'dayjs'
 import { useAuth } from '../provider/AuthProvider'
 import { jwtDecode } from 'jwt-decode'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const columns: ColumnType<any>[] = [
   {
@@ -231,15 +236,9 @@ export default function Transactions() {
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
-      // const start_date = formData.start_date
-      //   ? dayjs(formData.start_date).add(1, 'day').startOf('day').format('Mon, 02 Jan 2006 15:04:05 GMT')
-      //   : null
-      // const end_date = formData.end_date
-      //   ? dayjs(formData.end_date).add(1, 'day').startOf('day').format('Mon, 02 Jan 2006 15:04:05 GMT')
-      //   : null
+      const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
 
-      const start_date = formData.start_date // Sudah dalam format yang benar
-      const end_date = formData.end_date
+      const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
       const response = await axios.get(`${import.meta.env.VITE_URL_API}/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -342,15 +341,19 @@ export default function Transactions() {
 
   const handleExport = async (type: string) => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_URL_API}/transactions`, {
+      const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
+
+      const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
+      const response = await axios.get(`${import.meta.env.VITE_URL_API}/export`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         params: {
-          export_csv: type == 'csv' ? 'true' : 'false', // Menambahkan parameter untuk ekspor CSV
-          export_excel: type == 'excel' ? 'true' : 'false', // Menambahkan parameter untuk ekspor CSV
-          ...formData,
+          export_csv: type == 'csv' ? 'true' : 'false',
+          export_excel: type == 'excel' ? 'true' : 'false',
+          start_date,
+          end_date,
         },
         responseType: 'blob',
       })
