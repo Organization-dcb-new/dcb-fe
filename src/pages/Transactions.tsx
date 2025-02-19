@@ -287,6 +287,7 @@ export default function Transactions() {
     { name: 'All', value: '' },
     { name: 'Success', value: 1000 },
     { name: 'Pending', value: 1001 },
+    { name: 'Waiting', value: 1003 },
     { name: 'Failed', value: 1005 },
   ]
 
@@ -379,7 +380,6 @@ export default function Transactions() {
     <Box
       component='main'
       sx={(theme) => ({
-        flexGrow: 1,
         backgroundColor: theme.vars ? `white` : alpha(theme.palette.background.default, 1),
         overflow: 'auto',
         pt: 4,
