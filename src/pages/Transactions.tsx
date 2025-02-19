@@ -380,6 +380,7 @@ export default function Transactions() {
     <Box
       component='main'
       sx={(theme) => ({
+        flexGrow: 1,
         backgroundColor: theme.vars ? `white` : alpha(theme.palette.background.default, 1),
         overflow: 'auto',
         pt: 4,
