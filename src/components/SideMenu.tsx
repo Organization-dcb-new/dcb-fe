@@ -67,7 +67,7 @@ export default function SideMenu({ open }: SideMenuProps) {
             mt: 'calc(var(--template-frame-height, 0px) + 4px)',
             p: 1.5,
           }}
-          className='pt-[72px]'
+          className='pt-[32px]'
         >
           {/* <SelectContent /> */}
           <div className='text-3xl mx-auto'>Redpay Panel</div>

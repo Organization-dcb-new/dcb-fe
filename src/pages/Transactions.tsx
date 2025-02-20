@@ -40,7 +40,7 @@ dayjs.extend(timezone)
 const columns: ColumnType<any>[] = [
   {
     title: 'Transaction ID',
-    width: 320,
+    width: 220,
     dataIndex: 'u_id',
     key: 'u_id',
     render: (text: string) => (
@@ -59,7 +59,7 @@ const columns: ColumnType<any>[] = [
   },
   {
     title: ' Date',
-    width: 220,
+    width: 100,
     dataIndex: 'created_at',
     key: 'created_at',
     render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : 'N/A'),
@@ -72,7 +72,7 @@ const columns: ColumnType<any>[] = [
   // },
   {
     title: 'Payment Method',
-    width: 190,
+    width: 140,
     align: 'center',
     dataIndex: 'payment_method',
     key: 'payment_method',
@@ -101,7 +101,8 @@ const columns: ColumnType<any>[] = [
   },
   {
     title: 'Denom',
-    width: 120,
+    width: 100,
+    align: 'center',
     dataIndex: 'amount',
     key: 'amount',
   },
@@ -128,16 +129,17 @@ const columns: ColumnType<any>[] = [
       return <Badge color={color} text={text} />
     },
   },
+
   {
     title: 'Item Name',
-    width: 230,
+    width: 170,
     align: 'center',
     dataIndex: 'item_name',
     key: 'item_name',
   },
   {
     title: 'Fail Reason',
-    width: 150,
+    width: 120,
     align: 'center',
     dataIndex: 'fail_reason',
     key: 'fail_reason',
@@ -163,7 +165,10 @@ const columns: ColumnType<any>[] = [
   },
   {
     title: 'Action',
+    width: 120,
     key: 'action',
+    align: 'center',
+    fixed: 'right',
     render: (record: any) => (
       <Button
         variant='outlined'
@@ -396,7 +401,7 @@ export default function Transactions() {
         }}
       >
         {/* <Header /> */}
-        <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
+        <Box sx={{ width: '100%', maxWidth: '96vw' }}>
           {/* cards */}
           <Typography component='h2' variant='h6' sx={{ mb: 2 }}>
             Redpay Transactions
@@ -612,7 +617,7 @@ export default function Transactions() {
           </Button>
 
           {/* 1540px */}
-          <div style={{ overflowX: 'scroll', width: '97vw', marginTop: '14px' }}>
+          <div className='mt-5'>
             <Table
               columns={columns}
               dataSource={data}
@@ -623,9 +628,9 @@ export default function Transactions() {
                 onChange: handlePageChange,
               }}
               size='small'
-              className='transactions-table'
+              className='transactions-table '
               rowKey='key'
-              scroll={{ x: 1500 }} // Set a fixed width for horizontal scrolling
+              scroll={{ x: 'max-content' }}
             />
           </div>
         </Box>

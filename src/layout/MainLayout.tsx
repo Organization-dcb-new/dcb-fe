@@ -32,19 +32,11 @@ const MainContent = styled('main', {
   open: boolean
 }>(({ theme, open }) => ({
   flexGrow: 1,
-  //   padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
+  transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
-    // duration: theme.transitions.duration.leavingScreen,
   }),
-  marginLeft: `-${drawerWidth}px`,
-  ...(open && {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      // duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
-  }),
+  marginLeft: open ? 0 : `-${drawerWidth}px`,
+  width: open ? `calc(100% - ${drawerWidth}px)` : '100%', // Menyesuaikan lebar konten
 }))
 
 export default function MainLayout() {
@@ -64,8 +56,9 @@ export default function MainLayout() {
           zIndex: theme.zIndex.drawer + 1,
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
-            // duration: theme.transitions.duration.leavingScreen,
           }),
+          marginLeft: open ? `${drawerWidth}px` : 0, // Geser AppBar saat sidebar terbuka
+          width: open ? `calc(100% - ${drawerWidth}px)` : '100%', // Atur lebar AppBar
         }}
       >
         <Toolbar>
