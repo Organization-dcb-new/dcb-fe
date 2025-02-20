@@ -27,6 +27,7 @@ interface Transaction {
   app_name: string
   updated_at: Date
   timestamp_request_date: Date
+  receive_callback_date: Date
   timestamp_submit_date: Date
   timestamp_callback_date: Date
   timestamp_callback_result: string
@@ -263,13 +264,13 @@ const TransactionDetail: React.FC = () => {
               <div className='w-1/4'>
                 <strong>Created At:</strong>
               </div>
-              <div>{dayjs(transaction.created_at).format('YYYY-MM-DD HH:mm:ss')}</div>
+              <div>{dayjs(transaction.created_at).format('YYYY-MM-DD HH:mm:ss SSS')}</div>
             </div>
             <div className='w-full flex'>
               <div className='w-1/4'>
                 <strong>Updated At:</strong>
               </div>
-              <div> {dayjs(transaction.updated_at).format('YYYY-MM-DD HH:mm:ss')}</div>
+              <div> {dayjs(transaction.updated_at).format('YYYY-MM-DD HH:mm:ss SSS')}</div>
             </div>
           </Box>
           <Box display='flex'>
@@ -277,27 +278,27 @@ const TransactionDetail: React.FC = () => {
               <div className='w-1/4'>
                 <strong>Request Date:</strong>
               </div>
-              <div> {dayjs(transaction.timestamp_request_date).format('YYYY-MM-DD HH:mm:ss')} </div>
+              <div> {dayjs(transaction.timestamp_request_date).format('YYYY-MM-DD HH:mm:ss SSS')} </div>
             </div>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
-                <strong>Submit Date:</strong>
-              </div>
-              <div>
-                {transaction.timestamp_submit_date
-                  ? dayjs(transaction.timestamp_submit_date).format('YYYY-MM-DD HH:mm:ss')
-                  : '-'}
-              </div>
-            </div>
-          </Box>
-          <Box display='flex'>
             <div className='w-full flex'>
               <div className='w-1/4'>
                 <strong>Callback Date:</strong>
               </div>
               <div>
                 {transaction.timestamp_callback_date
-                  ? dayjs(transaction.timestamp_callback_date).format('YYYY-MM-DD HH:mm:ss')
+                  ? dayjs(transaction.timestamp_callback_date).format('YYYY-MM-DD HH:mm:ss SSS')
+                  : '-'}{' '}
+              </div>
+            </div>
+          </Box>
+          <Box display='flex'>
+            <div className='w-full flex'>
+              <div className='w-1/4'>
+                <strong>Receive Callback Date:</strong>
+              </div>
+              <div>
+                {transaction.receive_callback_date
+                  ? dayjs(transaction.receive_callback_date).format('YYYY-MM-DD HH:mm:ss SSS')
                   : '-'}{' '}
               </div>
             </div>
