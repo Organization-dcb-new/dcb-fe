@@ -230,11 +230,13 @@ export default function Transactions() {
   const merchantList = [
     { id: 1, name: 'HIGO GAME PTE LTD' },
     { id: 2, name: 'Redigame' },
+    { id: 2, name: 'PT WAHANA VENTURINDO GALAMEGA' },
   ]
 
   const appList = [
     { id: 1, name: 'Royal Domino' },
     { id: 2, name: 'Redigame' },
+    { id: 3, name: 'Wavegame - 3 Kingdom' },
   ]
 
   const denomList = [3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 100000]
