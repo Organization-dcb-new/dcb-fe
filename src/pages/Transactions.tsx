@@ -230,7 +230,7 @@ export default function Transactions() {
   const merchantList = [
     { id: 1, name: 'HIGO GAME PTE LTD' },
     { id: 2, name: 'Redigame' },
-    { id: 2, name: 'PT WAHANA VENTURINDO GALAMEGA' },
+    { id: 3, name: 'PT WAHANA VENTURINDO GALAMEGA' },
   ]
 
   const appList = [
