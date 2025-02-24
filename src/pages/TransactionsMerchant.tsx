@@ -54,7 +54,7 @@ const columns: ColumnType<any>[] = [
   },
   {
     title: ' Date',
-    width: 220,
+    width: 100,
     dataIndex: 'created_at',
     key: 'created_at',
     render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : 'N/A'),
@@ -67,7 +67,7 @@ const columns: ColumnType<any>[] = [
   // },
   {
     title: 'Payment Method',
-    width: 200,
+    width: 140,
     align: 'center',
     dataIndex: 'payment_method',
     key: 'payment_method',
@@ -91,12 +91,14 @@ const columns: ColumnType<any>[] = [
   {
     title: 'Denom',
     width: 120,
+    align: 'center',
     dataIndex: 'amount',
     key: 'amount',
   },
   {
     title: 'Status',
     dataIndex: 'status_code',
+    width: 180,
     align: 'center',
     key: 'status_code',
     render: (status: number) => {
@@ -116,14 +118,14 @@ const columns: ColumnType<any>[] = [
   },
   {
     title: 'Item Name',
-    width: 250,
+    width: 200,
     align: 'center',
     dataIndex: 'item_name',
     key: 'item_name',
   },
   {
-    title: 'Item Name',
-    width: 250,
+    title: 'Item ID',
+    width: 180,
     align: 'center',
     dataIndex: 'item_id',
     key: 'item_id',
@@ -131,12 +133,14 @@ const columns: ColumnType<any>[] = [
   {
     title: 'User ID',
     width: 120,
+    align: 'center',
     dataIndex: 'user_id',
     key: 'user_id',
   },
   {
     title: 'Action',
     key: 'action',
+    fixed: 'right',
     render: (record: any) => (
       <Button
         variant='outlined'
@@ -542,7 +546,7 @@ export default function TransactionsMerchant() {
           </Button>
 
           {/* 1540px */}
-          <div style={{ overflowX: 'scroll', width: '1400px', marginTop: '14px' }}>
+          <div className='mt-5'>
             <Table
               columns={columns}
               dataSource={data}
@@ -555,7 +559,7 @@ export default function TransactionsMerchant() {
               size='small'
               className='transactions-table'
               rowKey='key'
-              scroll={{ x: 1500 }} // Set a fixed width for horizontal scrolling
+              scroll={{ x: 'max-content' }}
             />
           </div>
         </Box>
