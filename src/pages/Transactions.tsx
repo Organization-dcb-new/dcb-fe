@@ -222,6 +222,7 @@ export default function Transactions() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [total, setTotal] = useState(0)
+  const [isFiltered, setIsFiltered] = useState(false)
   const [resetTrigger, setResetTrigger] = useState(0)
   const { token } = useAuth()
   const decoded: any = jwtDecode(token as string)
@@ -240,6 +241,23 @@ export default function Transactions() {
   ]
 
   const denomList = [3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 100000]
+
+  // const hasFilters = () => {
+  //   return (
+  //     formData.user_mdn ||
+  //     formData.user_id ||
+  //     formData.merchant_transaction_id ||
+  //     formData.transaction_id ||
+  //     formData.merchant_name.length > 0 ||
+  //     formData.app_name ||
+  //     formData.payment_method.length > 0 ||
+  //     formData.status !== null ||
+  //     formData.item_name ||
+  //     formData.denom !== null ||
+  //     formData.start_date ||
+  //     formData.end_date
+  //   )
+  // }
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
@@ -302,6 +320,7 @@ export default function Transactions() {
     e.preventDefault() // Prevents the default form submission behaviour
     // Process and send formData to the server or perform other actions
     // console.log('filteredData: ', filteredData)
+    setIsFiltered(true)
     fetchData()
   }
 
@@ -344,6 +363,7 @@ export default function Transactions() {
       start_date: null,
       end_date: null,
     })
+    setIsFiltered(false)
     setResetTrigger((prev) => prev + 1)
   }
 
@@ -597,28 +617,33 @@ export default function Transactions() {
           <Typography component='h2' variant='h6' sx={{ mb: 2 }}>
             Transaction Details
           </Typography>
+          <div className='flex items-center justify-between'>
+            <div>
+              <Button
+                size='small'
+                className='border-sky-400'
+                variant='outlined'
+                color='info'
+                onClick={() => handleExport('csv')}
+              >
+                Export Csv
+              </Button>
 
-          <Button
-            size='small'
-            className='border-sky-400'
-            variant='outlined'
-            color='info'
-            onClick={() => handleExport('csv')}
-          >
-            Export Csv
-          </Button>
-
-          <Button
-            size='small'
-            className='border-sky-400 ml-4'
-            variant='contained'
-            color='info'
-            onClick={() => handleExport('excel')}
-          >
-            Export Excel
-          </Button>
+              <Button
+                size='small'
+                className='border-sky-400 ml-4'
+                variant='contained'
+                color='info'
+                onClick={() => handleExport('excel')}
+              >
+                Export Excel
+              </Button>
+            </div>
+            {isFiltered && <Typography variant='subtitle1'>Total Items: {total}</Typography>}
+          </div>
 
           {/* 1540px */}
+
           <div className='mt-5'>
             <Table
               columns={columns}

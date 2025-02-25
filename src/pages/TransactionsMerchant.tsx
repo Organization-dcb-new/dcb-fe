@@ -183,6 +183,7 @@ export default function TransactionsMerchant() {
       item_name: '',
       denom: null,
     })
+    setIsFiltered(false)
 
     setResetTrigger((prev) => prev + 1)
   }
@@ -192,6 +193,7 @@ export default function TransactionsMerchant() {
   const [paymentMethod] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [isFiltered, setIsFiltered] = useState(false)
   const [resetTrigger, setResetTrigger] = useState(0)
   const [total, setTotal] = useState(0)
   const { token } = useAuth()
@@ -262,6 +264,7 @@ export default function TransactionsMerchant() {
     e.preventDefault() // Prevents the default form submission behaviour
     // Process and send formData to the server or perform other actions
     // console.log('filteredData: ', filteredData)
+    setIsFiltered(true)
     fetchData()
   }
 
@@ -502,12 +505,17 @@ export default function TransactionsMerchant() {
                 </Grid>
 
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid>
-                <Button type='submit' className='mt-3 mr-4' variant='contained' color='primary'>
-                  Submit
-                </Button>
-                <Button type='button' className='mt-3' variant='outlined' color='inherit' onClick={handleReset}>
-                  Reset
-                </Button>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <Button type='submit' className='mt-3 mr-4' variant='contained' color='primary'>
+                      Submit
+                    </Button>
+                    <Button type='button' className='mt-3' variant='outlined' color='inherit' onClick={handleReset}>
+                      Reset
+                    </Button>
+                  </div>
+                  {isFiltered && <Typography variant='subtitle1'>Total Items: {total}</Typography>}
+                </div>
               </form>
             </div>
           </Card>
