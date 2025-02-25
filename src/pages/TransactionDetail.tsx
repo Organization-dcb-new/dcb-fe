@@ -26,6 +26,8 @@ interface Transaction {
   merchant_name: string
   app_name: string
   updated_at: Date
+  ximpay_id: string
+  reference_id: string
   timestamp_request_date: Date
   receive_callback_date: Date
   timestamp_submit_date: Date
@@ -135,10 +137,23 @@ const TransactionDetail: React.FC = () => {
       paymentMethod = 'XL'
       break
     case 'telkomsel_airtime':
-      paymentMethod = 'Failed'
+      paymentMethod = 'Telkomsel'
       break
+    case 'smartfren_airtime':
+      paymentMethod = 'Smartfren'
+      break
+    case 'indosat_airtime':
+      paymentMethod = 'Indosat'
+      break
+    case 'tri_airtime':
+      paymentMethod = 'Tri'
       break
   }
+  const ximpayMethods = ['tri_airtime', 'indosat_airtime', 'smartfren_airtime']
+
+  const referenceId = ximpayMethods.includes(transaction.payment_method)
+    ? transaction.ximpay_id
+    : transaction.reference_id
 
   return (
     <div>
@@ -220,9 +235,9 @@ const TransactionDetail: React.FC = () => {
           <Box display='flex'>
             <div className='w-full flex'>
               <div className='w-1/4'>
-                <strong>Testing :</strong>
+                <strong>Refference ID :</strong>
               </div>
-              <div> {transaction.testing ? 'True' : 'False'}</div>
+              <div>{referenceId}</div>
             </div>
             <div className='w-full flex'>
               <div className='w-1/4'>

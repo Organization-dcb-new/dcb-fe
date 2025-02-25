@@ -74,10 +74,19 @@ const columns: ColumnType<any>[] = [
     render: (paymentMethod: string) => {
       switch (paymentMethod) {
         case 'xl_airtime':
-          return 'XL'
+          paymentMethod = 'XL'
           break
         case 'telkomsel_airtime':
-          return 'Telkomsel'
+          paymentMethod = 'Telkomsel'
+          break
+        case 'smartfren_airtime':
+          paymentMethod = 'Smartfren'
+          break
+        case 'indosat_airtime':
+          paymentMethod = 'Indosat'
+          break
+        case 'tri_airtime':
+          paymentMethod = 'Tri'
           break
       }
       return paymentMethod
@@ -251,6 +260,9 @@ export default function TransactionsMerchant() {
     { name: 'All', value: '' },
     { name: 'Xl', value: 'xl_airtime' },
     { name: 'Telkomsel', value: 'telkomsel_airtime' },
+    { name: 'Tri', value: 'tri_airtime' },
+    { name: 'Indosat', value: 'indosat_airtime' },
+    { name: 'Smartfren', value: 'smartfren_airtime' },
   ]
 
   const status = [
@@ -473,7 +485,7 @@ export default function TransactionsMerchant() {
                       // fullWidth
                     >
                       {routes.map((method) => (
-                        <MenuItem key={method.value} value={method.value}>
+                        <MenuItem key={method.name} value={method.value}>
                           {method.name}
                         </MenuItem>
                       ))}
@@ -505,17 +517,13 @@ export default function TransactionsMerchant() {
                 </Grid>
 
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid>
-                <div className='flex items-center justify-between'>
-                  <div>
-                    <Button type='submit' className='mt-3 mr-4' variant='contained' color='primary'>
-                      Submit
-                    </Button>
-                    <Button type='button' className='mt-3' variant='outlined' color='inherit' onClick={handleReset}>
-                      Reset
-                    </Button>
-                  </div>
-                  {isFiltered && <Typography variant='subtitle1'>Total Items: {total}</Typography>}
-                </div>
+
+                <Button type='submit' className='mt-3 mr-4' variant='contained' color='primary'>
+                  Submit
+                </Button>
+                <Button type='button' className='mt-3' variant='outlined' color='inherit' onClick={handleReset}>
+                  Reset
+                </Button>
               </form>
             </div>
           </Card>
@@ -532,27 +540,30 @@ export default function TransactionsMerchant() {
           <Typography component='h2' variant='h6' sx={{ mb: 2 }}>
             Merchant Transaction Details
           </Typography>
+          <div className='flex items-center justify-between'>
+            <div>
+              <Button
+                size='small'
+                className='border-sky-400'
+                variant='outlined'
+                color='info'
+                onClick={() => handleExport('csv')}
+              >
+                Export Csv
+              </Button>
 
-          <Button
-            size='small'
-            className='border-sky-400'
-            variant='outlined'
-            color='info'
-            onClick={() => handleExport('csv')}
-          >
-            Export Csv
-          </Button>
-
-          <Button
-            size='small'
-            className='border-sky-400 ml-3'
-            variant='contained'
-            color='info'
-            onClick={() => handleExport('excel')}
-          >
-            Export Excel
-          </Button>
-
+              <Button
+                size='small'
+                className='border-sky-400 ml-3'
+                variant='contained'
+                color='info'
+                onClick={() => handleExport('excel')}
+              >
+                Export Excel
+              </Button>
+            </div>
+            {isFiltered && <Typography variant='subtitle1'>Total Items: {total}</Typography>}
+          </div>
           {/* 1540px */}
           <div className='mt-5'>
             <Table

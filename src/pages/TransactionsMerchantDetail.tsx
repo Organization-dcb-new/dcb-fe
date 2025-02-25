@@ -93,8 +93,16 @@ const TransactionMerchantDetail: React.FC = () => {
       paymentMethod = 'XL'
       break
     case 'telkomsel_airtime':
-      paymentMethod = 'Failed'
+      paymentMethod = 'Telkomsel'
       break
+    case 'smartfren_airtime':
+      paymentMethod = 'Smartfren'
+      break
+    case 'indosat_airtime':
+      paymentMethod = 'Indosat'
+      break
+    case 'tri_airtime':
+      paymentMethod = 'Tri'
       break
   }
 

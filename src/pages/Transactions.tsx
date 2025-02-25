@@ -64,12 +64,6 @@ const columns: ColumnType<any>[] = [
     key: 'created_at',
     render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : 'N/A'),
   },
-  // {
-  //   title: 'End Date',
-  //   width: 250,
-  //   dataIndex: 'end_date',
-  //   key: 'end_date',
-  // },
   {
     title: 'Payment Method',
     width: 140,
@@ -79,10 +73,19 @@ const columns: ColumnType<any>[] = [
     render: (paymentMethod: string) => {
       switch (paymentMethod) {
         case 'xl_airtime':
-          return 'XL'
+          paymentMethod = 'XL'
           break
         case 'telkomsel_airtime':
-          return 'Telkomsel'
+          paymentMethod = 'Telkomsel'
+          break
+        case 'smartfren_airtime':
+          paymentMethod = 'Smartfren'
+          break
+        case 'indosat_airtime':
+          paymentMethod = 'Indosat'
+          break
+        case 'tri_airtime':
+          paymentMethod = 'Tri'
           break
       }
       return paymentMethod
@@ -306,6 +309,9 @@ export default function Transactions() {
     { name: 'All', value: '' },
     { name: 'Xl', value: 'xl_airtime' },
     { name: 'Telkomsel', value: 'telkomsel_airtime' },
+    { name: 'Tri', value: 'tri_airtime' },
+    { name: 'Indosat', value: 'indosat_airtime' },
+    { name: 'Smartfren', value: 'smartfren_airtime' },
   ]
 
   const status = [
@@ -523,7 +529,7 @@ export default function Transactions() {
                       labelId='payment-method-label'
                       id='payment-method '
                       name='payment_method'
-                      value={formData.payment_method} // Pastikan ini adalah string
+                      value={formData.payment_method}
                       onChange={handleChange}
                       input={<OutlinedInput label='payment_method' />}
                       renderValue={(selected) => selected.join(', ')}
