@@ -190,7 +190,6 @@ const columns: ColumnType<any>[] = [
 export default function Transactions() {
   const [formData, setFormData] = useState<{
     user_mdn: string
-    password: string
     user_id: string
     merchant_transaction_id: string
     transaction_id: string
@@ -205,7 +204,6 @@ export default function Transactions() {
     denom: number | null
   }>({
     user_mdn: '',
-    password: '',
     user_id: '',
     merchant_transaction_id: '',
     transaction_id: '',
@@ -355,7 +353,6 @@ export default function Transactions() {
   const handleReset = () => {
     setFormData({
       user_mdn: '',
-      password: '',
       user_id: '',
       merchant_transaction_id: '',
       transaction_id: '',

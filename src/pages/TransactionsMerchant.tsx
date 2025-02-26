@@ -166,15 +166,28 @@ const columns: ColumnType<any>[] = [
 ]
 
 export default function TransactionsMerchant() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    user_mdn: string
+    user_id: string
+    merchant_transaction_id: string
+    transaction_id: string
+    payment_method: string[]
+    status: number | null
+    start_date: string | null
+    end_date: string | null
+    app_name: string
+    item_name: string
+    denom: number | null
+  }>({
     user_mdn: '',
     user_id: '',
     merchant_transaction_id: '',
     transaction_id: '',
+    payment_method: [],
+    status: null,
     start_date: null,
     end_date: null,
-    payment_method: '',
-    status_code: null,
+    app_name: '',
     item_name: '',
     denom: null,
   })
@@ -185,10 +198,11 @@ export default function TransactionsMerchant() {
       user_id: '',
       merchant_transaction_id: '',
       transaction_id: '',
+      payment_method: [],
+      status: null,
       start_date: null,
       end_date: null,
-      payment_method: '',
-      status_code: null,
+      app_name: '',
       item_name: '',
       denom: null,
     })
@@ -213,6 +227,10 @@ export default function TransactionsMerchant() {
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
+      const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
+
+      const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
+
       const response = await axios.get(`${import.meta.env.VITE_URL_API}/merchant/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -223,7 +241,17 @@ export default function TransactionsMerchant() {
         params: {
           page: page,
           limit: limit,
-          ...formData,
+          start_date,
+          end_date,
+          user_mdn: formData.user_mdn,
+          user_id: formData.user_id,
+          merchant_transaction_id: formData.merchant_transaction_id,
+          transaction_id: formData.transaction_id,
+          app_name: formData.app_name,
+          payment_method: formData.payment_method.join(','),
+          status: formData.status,
+          item_name: formData.item_name,
+          denom: formData.denom,
         },
       })
       setData(response.data.data)
@@ -458,11 +486,11 @@ export default function TransactionsMerchant() {
 
                     <Select
                       labelId='status-label'
-                      id='status_code'
+                      id='status'
                       onChange={handleChange}
-                      name='status_code'
-                      value={formData.status_code}
-                      input={<OutlinedInput label='status_code' />}
+                      name='status'
+                      value={formData.status}
+                      input={<OutlinedInput label='status' />}
                     >
                       {status.map((s) => (
                         <MenuItem key={s.value} value={s.value}>
