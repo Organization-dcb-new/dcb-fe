@@ -47,7 +47,7 @@ const TransactionMerchantDetail: React.FC = () => {
   useEffect(() => {
     const fetchTransactionDetail = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_URL_API}/merchant/transaction/${id}`, {
+        const response = await axios.get(`https://sandbox-payment.redision.com/api/merchant/transaction/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
