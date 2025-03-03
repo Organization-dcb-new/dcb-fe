@@ -383,6 +383,7 @@ export default function Transactions() {
         params: {
           export_csv: type == 'csv' ? 'true' : 'false',
           export_excel: type == 'excel' ? 'true' : 'false',
+          status: formData.status,
           start_date,
           end_date,
         },
