@@ -76,7 +76,7 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
         password,
       }
 
-      const response = await axios.post(`${import.meta.env.VITE_URL_API}/user/login`, userData, {
+      const response = await axios.post(`https://sandbox-payment.redision.com/api/user/login`, userData, {
         headers: {
           'Content-Type': 'application/json',
         },
