@@ -1,4 +1,7 @@
 import * as React from 'react'
+import { useEffect } from 'react'
+
+import { useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 
@@ -58,7 +61,17 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
   const [passwordError, setPasswordError] = React.useState(false)
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('')
   const [loading, setLoading] = React.useState(false)
-  const { setToken } = useAuth()
+  const { setToken, apiUrl, setIsDev } = useAuth()
+
+  const location = useLocation()
+
+  // Jika berada di halaman login, set mode ke Production
+  useEffect(() => {
+    if (location.pathname === '/login') {
+      setIsDev(false)
+      localStorage.setItem('api_env', 'prod')
+    }
+  }, [location.pathname, setIsDev])
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault() // Mencegah reload halaman
@@ -76,7 +89,7 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
         password,
       }
 
-      const response = await axios.post(`${import.meta.env.VITE_URL_API}/user/login`, userData, {
+      const response = await axios.post(`${apiUrl}/user/login`, userData, {
         headers: {
           'Content-Type': 'application/json',
         },

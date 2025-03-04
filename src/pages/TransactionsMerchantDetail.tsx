@@ -36,7 +36,7 @@ const TransactionMerchantDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const navigate = useNavigate()
 
-  const { token } = useAuth()
+  const { token, apiUrl } = useAuth()
   const decoded: any = jwtDecode(token as string)
 
   let paymentMethod
@@ -47,7 +47,7 @@ const TransactionMerchantDetail: React.FC = () => {
   useEffect(() => {
     const fetchTransactionDetail = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_URL_API}/merchant/transaction/${id}`, {
+        const response = await axios.get(`${apiUrl}/merchant/transaction/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',

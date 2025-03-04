@@ -43,7 +43,7 @@ const TransactionDetail: React.FC = () => {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
-  const { token } = useAuth()
+  const { token, apiUrl } = useAuth()
 
   let paymentMethod
 
@@ -95,7 +95,7 @@ const TransactionDetail: React.FC = () => {
   useEffect(() => {
     const fetchTransactionDetail = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_URL_API}/transaction/${id}`, {
+        const response = await axios.get(`${apiUrl}/transaction/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
