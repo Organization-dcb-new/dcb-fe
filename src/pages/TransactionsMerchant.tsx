@@ -600,7 +600,7 @@ export default function TransactionsMerchant() {
               pagination={{
                 current: currentPage,
                 pageSize: pageSize,
-                total: total,
+                total: 20000,
                 onChange: handlePageChange,
               }}
               size='small'
