@@ -148,6 +148,15 @@ const TransactionDetail: React.FC = () => {
     case 'tri_airtime':
       paymentMethod = 'Tri'
       break
+    case 'qris':
+      paymentMethod = 'Qris'
+      break
+    case 'gopay':
+      paymentMethod = 'Gopay'
+      break
+    case 'shopeepay':
+      paymentMethod = 'Shopeepay'
+      break
   }
   const ximpayMethods = ['tri_airtime', 'indosat_airtime', 'smartfren_airtime']
 

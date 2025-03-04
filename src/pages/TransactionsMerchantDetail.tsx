@@ -104,6 +104,15 @@ const TransactionMerchantDetail: React.FC = () => {
     case 'tri_airtime':
       paymentMethod = 'Tri'
       break
+    case 'qris':
+      paymentMethod = 'Qris'
+      break
+    case 'gopay':
+      paymentMethod = 'Gopay'
+      break
+    case 'shopeepay':
+      paymentMethod = 'Shopeepay'
+      break
   }
 
   return (
