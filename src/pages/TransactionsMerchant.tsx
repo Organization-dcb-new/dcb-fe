@@ -291,6 +291,9 @@ export default function TransactionsMerchant() {
     { name: 'Tri', value: 'tri_airtime' },
     { name: 'Indosat', value: 'indosat_airtime' },
     { name: 'Smartfren', value: 'smartfren_airtime' },
+    { name: 'Gopay', value: 'gopay' },
+    { name: 'Shopeepay', value: 'shopeepay' },
+    { name: 'Qris', value: 'qris' },
   ]
 
   const status = [
