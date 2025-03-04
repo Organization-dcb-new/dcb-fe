@@ -655,7 +655,7 @@ export default function Transactions() {
               pagination={{
                 current: currentPage,
                 pageSize: pageSize,
-                total: 20000,
+                total: total >= 20000 ? 20000 : total,
                 onChange: handlePageChange,
               }}
               size='small'
