@@ -5,7 +5,8 @@ import { alpha } from '@mui/material/styles'
 import { Table } from 'antd'
 import { ColumnType } from 'antd/es/table'
 import axios from 'axios'
-import { useAuth } from '../provider/AuthProvider'
+import { useAuth } from '../../provider/AuthProvider'
+import { Link } from 'react-router-dom'
 
 const Merchant = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -99,34 +100,32 @@ const Merchant = () => {
       title: 'Merchant Name',
       dataIndex: 'appName',
       key: 'appName',
-      render: (text) => <a>{text}</a>,
     },
     {
       title: 'User ID',
       dataIndex: 'uid',
       key: 'uid',
-      render: (text) => <a>{text}</a>,
     },
 
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
-      render: (text) => <a>{text}</a>,
     },
     {
       title: 'Phone',
       dataIndex: 'phone',
       key: 'phone',
-      render: (text) => <a>{text}</a>,
     },
     {
       title: 'Action',
       key: 'action',
-      dataIndex: 'id',
+      dataIndex: 'uid',
       align: 'center',
-      render: () => (
+      render: (uid) => (
         <Stack direction='row' justifyContent='center' spacing={2}>
+          {/* <a href={`/merchant/${uid}`}>View</a> */}
+          <Link to={`/merchant/${uid}`}>View</Link>
           <a href='#'>Edit</a>
           <a href='#'>Delete</a>
         </Stack>
