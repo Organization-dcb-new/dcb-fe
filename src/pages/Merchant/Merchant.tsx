@@ -100,22 +100,38 @@ const Merchant = () => {
       title: 'Merchant Name',
       dataIndex: 'appName',
       key: 'appName',
+      render: (text) => {
+        if (!text) return '-'
+        return text
+      },
     },
     {
       title: 'User ID',
       dataIndex: 'uid',
       key: 'uid',
+      render: (text) => {
+        if (!text) return '-'
+        return text
+      },
     },
 
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
+      render: (text) => {
+        if (!text) return '-'
+        return text
+      },
     },
     {
       title: 'Phone',
       dataIndex: 'phone',
       key: 'phone',
+      render: (text) => {
+        if (!text) return '-'
+        return text
+      },
     },
     {
       title: 'Action',
@@ -124,7 +140,6 @@ const Merchant = () => {
       align: 'center',
       render: (uid) => (
         <Stack direction='row' justifyContent='center' spacing={2}>
-          {/* <a href={`/merchant/${uid}`}>View</a> */}
           <Link to={`/merchant/${uid}`}>View</Link>
           <a href='#'>Edit</a>
           <a href='#'>Delete</a>
