@@ -9,6 +9,7 @@ import Stack from '@mui/material/Stack'
 import AppNavbar from '../components/AppNavbar'
 import Header from '../components/Header'
 import MainGrid from '../components/MainGrid'
+import Summary from '../components/Summary'
 // import SideMenu from '../components/SideMenu'
 import AppTheme from '../styles/theme/shared-theme/AppTheme'
 import {
@@ -51,6 +52,7 @@ export default function Home(props: { disableCustomTheme?: boolean }) {
             }}
           >
             <Header />
+            <Summary />
             <MainGrid />
           </Stack>
         </Box>
