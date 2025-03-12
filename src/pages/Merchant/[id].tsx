@@ -52,57 +52,67 @@ const DetailMerchant = () => {
   const lists = [
     {
       label: 'Merchant Name',
-      value: merchantDetail?.client_name,
+      value: !merchantDetail ? null : merchantDetail.client_name || '-',
     },
     {
       label: 'Phone',
-      value: merchantDetail?.phone,
+      value: !merchantDetail ? null : merchantDetail.phone || '-',
     },
     {
       label: 'Email',
-      value: merchantDetail?.email,
+      value: !merchantDetail ? null : merchantDetail.email || '-',
     },
     {
       label: 'UID',
-      value: merchantDetail?.u_id,
+      value: !merchantDetail ? null : merchantDetail.u_id || '-',
     },
     {
       label: 'Application Name',
-      value: merchantDetail?.app_name,
+      value: !merchantDetail ? null : merchantDetail.app_name || '-',
     },
     {
       label: 'Application Type',
-      value: merchantDetail?.mobile ? 'Mobile App' : 'Web App',
+      value: !merchantDetail ? null : merchantDetail.mobile ? 'Mobile App' : 'Web App',
     },
     {
       label: 'Date Created',
-      value: merchantDetail ? dayjs(merchantDetail.created_at).format('YYYY-MM-DD, HH:mm:ss') : null,
+      value: !merchantDetail
+        ? null
+        : !merchantDetail.created_at
+          ? '-'
+          : dayjs(merchantDetail.created_at).format('YYYY-MM-DD, HH:mm:ss'),
     },
     {
       label: 'Last Updated',
-      value: merchantDetail ? dayjs(merchantDetail.updated_at).format('YYYY-MM-DD, HH:mm:ss') : null,
+      value: !merchantDetail
+        ? null
+        : !merchantDetail.updated_at
+          ? '-'
+          : dayjs(merchantDetail.updated_at).format('YYYY-MM-DD, HH:mm:ss'),
     },
     {
       label: 'Payment Methods',
-      value: merchantDetail ? (
+      value: !merchantDetail ? null : (
         <div className='flex gap-2 items-center'>
-          {merchantDetail?.payment_methods.map((item) => (
-            <Chip
-              className='bg-transparent'
-              variant='outlined'
-              label={
-                <Typography component='span' fontSize={12} className='text-gray-900'>
-                  {item.name}
-                </Typography>
-              }
-            />
-          ))}
+          {!merchantDetail.payment_methods
+            ? '-'
+            : merchantDetail.payment_methods.map((item) => (
+                <Chip
+                  className='bg-transparent'
+                  variant='outlined'
+                  label={
+                    <Typography component='span' fontSize={12} className='text-gray-900'>
+                      {item.name}
+                    </Typography>
+                  }
+                />
+              ))}
         </div>
-      ) : null,
+      ),
     },
     {
       label: 'Callback URL',
-      value: merchantDetail?.callback_url,
+      value: !merchantDetail ? null : merchantDetail.callback_url || '-',
     },
   ]
 
