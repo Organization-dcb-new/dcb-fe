@@ -265,7 +265,7 @@ export default function Transactions() {
       const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
 
       const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
-      const response = await axios.get(`${apiUrl}/transactions`, {
+      const response = await axios.get(`https://sandbox-payment.redision.com/api/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -378,7 +378,7 @@ export default function Transactions() {
       const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
 
       const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
-      const response = await axios.get(`${apiUrl}/export`, {
+      const response = await axios.get(`https://sandbox-payment.redision.com/api/export`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
