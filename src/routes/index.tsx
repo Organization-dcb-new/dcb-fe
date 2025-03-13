@@ -10,6 +10,7 @@ import PrivateRoute from '../components/PrivateRoute'
 import TransactionDetail from '../pages/TransactionDetail'
 import TransactionsMerchant from '../pages/TransactionsMerchant'
 import TransactionMerchantDetail from '../pages/TransactionsMerchantDetail'
+import SummaryAdmin from '../pages/SummaryAdmin'
 
 const router = createBrowserRouter([
   {
@@ -93,6 +94,14 @@ const router = createBrowserRouter([
             element: <Summary />,
           },
         ],
+      },
+      {
+        path: 'admin/summary',
+        element: (
+          <PrivateRoute allowedRoles={['admin']}>
+            <SummaryAdmin />
+          </PrivateRoute>
+        ),
       },
     ],
   },
