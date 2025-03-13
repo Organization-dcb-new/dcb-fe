@@ -136,11 +136,11 @@ const Merchant = () => {
     {
       title: 'Action',
       key: 'action',
-      dataIndex: 'uid',
+      dataIndex: 'clientAppid',
       align: 'center',
-      render: (uid) => (
+      render: (clientAppid) => (
         <Stack direction='row' justifyContent='center' spacing={2}>
-          <Link to={`/merchant/${uid}`}>View</Link>
+          <Link to={`/merchant/${clientAppid}`}>View</Link>
           <a href='#'>Edit</a>
           <a href='#'>Delete</a>
         </Stack>
