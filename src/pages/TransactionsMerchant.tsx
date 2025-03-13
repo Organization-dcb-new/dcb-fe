@@ -85,7 +85,7 @@ const columns: ColumnType<any>[] = [
         case 'indosat_airtime':
           paymentMethod = 'Indosat'
           break
-        case 'tri_airtime':
+        case 'three_airtime':
           paymentMethod = 'Tri'
           break
       }
@@ -288,7 +288,7 @@ export default function TransactionsMerchant() {
     { name: 'All', value: '' },
     { name: 'Xl', value: 'xl_airtime' },
     { name: 'Telkomsel', value: 'telkomsel_airtime' },
-    { name: 'Tri', value: 'tri_airtime' },
+    { name: 'Tri', value: 'three_airtime' },
     { name: 'Indosat', value: 'indosat_airtime' },
     { name: 'Smartfren', value: 'smartfren_airtime' },
     { name: 'Gopay', value: 'gopay' },
@@ -507,16 +507,17 @@ export default function TransactionsMerchant() {
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>Payment Method</FormLabel>
                     <Select
+                      multiple
                       labelId='payment-method-label'
                       id='payment-method '
                       name='payment_method'
-                      value={formData.payment_method} // Pastikan ini adalah string
+                      value={formData.payment_method}
                       onChange={handleChange}
                       input={<OutlinedInput label='payment_method' />}
-                      // fullWidth
+                      renderValue={(selected) => selected.join(', ')}
                     >
                       {routes.map((method) => (
-                        <MenuItem key={method.name} value={method.value}>
+                        <MenuItem key={method.value} value={method.value}>
                           {method.name}
                         </MenuItem>
                       ))}
@@ -559,11 +560,6 @@ export default function TransactionsMerchant() {
             </div>
           </Card>
           <Grid container spacing={2} columns={12} sx={{ mb: (theme) => theme.spacing(3) }}>
-            {/* {data.map((card, index) => (
-                  <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
-                    <StatCard {...card} />
-                  </Grid>
-                ))} */}
             <Grid size={{ xs: 12, sm: 6, lg: 3 }}>{/* <HighlightedCard /> */}</Grid>
             <Grid size={{ xs: 12, md: 6 }}>{/* <SessionsChart /> */}</Grid>
             <Grid size={{ xs: 12, md: 6 }}>{/* <PageViewsBarChart /> */}</Grid>

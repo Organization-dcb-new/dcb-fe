@@ -84,7 +84,7 @@ const columns: ColumnType<any>[] = [
         case 'indosat_airtime':
           paymentMethod = 'Indosat'
           break
-        case 'tri_airtime':
+        case 'three_airtime':
           paymentMethod = 'Tri'
           break
       }
@@ -307,7 +307,7 @@ export default function Transactions() {
     { name: 'All', value: '' },
     { name: 'Xl', value: 'xl_airtime' },
     { name: 'Telkomsel', value: 'telkomsel_airtime' },
-    { name: 'Tri', value: 'tri_airtime' },
+    { name: 'Tri', value: 'three_airtime' },
     { name: 'Indosat', value: 'indosat_airtime' },
     { name: 'Smartfren', value: 'smartfren_airtime' },
     { name: 'Gopay', value: 'gopay' },
