@@ -282,7 +282,7 @@ export default function TransactionsMerchant() {
     }
 
     fetchData(currentPage, pageSize)
-  }, [currentPage, pageSize, resetTrigger])
+  }, [currentPage, pageSize, resetTrigger, appId, appKey])
 
   const routes = [
     { name: 'All', value: '' },

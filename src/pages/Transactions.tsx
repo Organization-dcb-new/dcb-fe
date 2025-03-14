@@ -233,6 +233,7 @@ export default function Transactions() {
     { id: 1, name: 'HIGO GAME PTE LTD' },
     { id: 2, name: 'Redigame' },
     { id: 3, name: 'PT WAHANA VENTURINDO GALAMEGA' },
+    { id: 3, name: 'PT Jaya Permata Elektro' },
   ]
 
   const appList = [
