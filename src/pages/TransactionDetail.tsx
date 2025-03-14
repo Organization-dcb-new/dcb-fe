@@ -95,7 +95,7 @@ const TransactionDetail: React.FC = () => {
   useEffect(() => {
     const fetchTransactionDetail = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/transaction/${id}`, {
+        const response = await axios.get(`https://sandbox-payment.redision.com/api/transaction/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',

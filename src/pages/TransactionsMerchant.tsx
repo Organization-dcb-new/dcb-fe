@@ -231,7 +231,7 @@ export default function TransactionsMerchant() {
 
       const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
 
-      const response = await axios.get(`${apiUrl}/merchant/transactions`, {
+      const response = await axios.get(`https://sandbox-payment.redision.com/api/merchant/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -328,7 +328,7 @@ export default function TransactionsMerchant() {
 
   const handleExport = async (type: string) => {
     try {
-      const response = await axios.get(`${apiUrl}/merchant/transactions`, {
+      const response = await axios.get(`https://sandbox-payment.redision.com/api/merchant/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
