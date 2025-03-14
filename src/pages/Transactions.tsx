@@ -84,7 +84,7 @@ const columns: ColumnType<any>[] = [
         case 'indosat_airtime':
           paymentMethod = 'Indosat'
           break
-        case 'tri_airtime':
+        case 'three_airtime':
           paymentMethod = 'Tri'
           break
       }
@@ -233,6 +233,7 @@ export default function Transactions() {
     { id: 1, name: 'HIGO GAME PTE LTD' },
     { id: 2, name: 'Redigame' },
     { id: 3, name: 'PT WAHANA VENTURINDO GALAMEGA' },
+    { id: 3, name: 'PT Jaya Permata Elektro' },
   ]
 
   const appList = [
@@ -307,7 +308,7 @@ export default function Transactions() {
     { name: 'All', value: '' },
     { name: 'Xl', value: 'xl_airtime' },
     { name: 'Telkomsel', value: 'telkomsel_airtime' },
-    { name: 'Tri', value: 'tri_airtime' },
+    { name: 'Tri', value: 'three_airtime' },
     { name: 'Indosat', value: 'indosat_airtime' },
     { name: 'Smartfren', value: 'smartfren_airtime' },
     { name: 'Gopay', value: 'gopay' },
