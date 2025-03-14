@@ -34,8 +34,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       const newIsDev = !prev
       localStorage.setItem('api_env', newIsDev ? 'dev' : 'prod')
 
+      // Reload halaman agar perubahan environment langsung diterapkan
       window.location.reload()
-
       return newIsDev
     })
   }
@@ -45,8 +45,16 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (newToken) {
       const decoded: any = jwtDecode(newToken)
       setRole(decoded.role)
-      setAppId(decoded.appid)
-      setAppKey(decoded.appkey)
+
+      if (isDev) {
+        setAppId(decoded.devappid)
+        setAppKey(decoded.devappkey)
+      } else {
+        setAppId(decoded.appid)
+        setAppKey(decoded.appkey)
+      }
+
+      localStorage.setItem('token', newToken)
     }
   }
 
@@ -64,14 +72,20 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         window.location.href = '/login'
       } else {
         setRole(decoded.role)
-        setAppId(decoded.appid)
-        setAppKey(decoded.appkey)
+
+        if (isDev) {
+          setAppId(decoded.devappid)
+          setAppKey(decoded.devappkey)
+        } else {
+          setAppId(decoded.appid)
+          setAppKey(decoded.appkey)
+        }
       }
     } else {
       delete axios.defaults.headers.common['Authorization']
       localStorage.removeItem('token')
     }
-  }, [token])
+  }, [token, isDev])
 
   const contextValue = useMemo(
     () => ({

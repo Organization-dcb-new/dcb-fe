@@ -219,7 +219,7 @@ export default function TransactionsMerchant() {
   const [isFiltered, setIsFiltered] = useState(false)
   const [resetTrigger, setResetTrigger] = useState(0)
   const [total, setTotal] = useState(0)
-  const { token, apiUrl } = useAuth()
+  const { token, apiUrl, appId, appKey } = useAuth()
   const decoded: any = jwtDecode(token as string)
   const { RangePicker } = DatePicker
 
@@ -235,8 +235,8 @@ export default function TransactionsMerchant() {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-          appkey: decoded.appkey,
-          appid: decoded.appid,
+          appkey: appKey,
+          appid: appId,
         },
         params: {
           page: page,
