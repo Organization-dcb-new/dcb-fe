@@ -2,33 +2,59 @@ import axios from 'axios'
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react'
 import { jwtDecode } from 'jwt-decode'
 
-// Definisikan tipe untuk konteks
+const API_DEV = 'https://sandbox-payment.redision.com/api'
+const API_PROD = 'https://new-payment.redision.com/api'
+
 interface AuthContextType {
   token: string | null
   setToken: (newToken: string | null) => void
   role: string | null
   appKey: string | null
   appId: string | null
+  apiUrl: string
+  isDev: boolean
+  toggleApi: () => void
+  setIsDev: (value: boolean) => void
 }
 
-// Berikan nilai default untuk konteks
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // State to hold the authentication token
   const [token, setToken_] = useState<string | null>(localStorage.getItem('token'))
-  const [role, setRole] = useState<string | null>(null) // State untuk role
-  const [appKey, setAppKey] = useState<string | null>(null) // State untuk role
-  const [appId, setAppId] = useState<string | null>(null) // State untuk role
+  const [role, setRole] = useState<string | null>(null)
+  const [appKey, setAppKey] = useState<string | null>(null)
+  const [appId, setAppId] = useState<string | null>(null)
 
-  // Function to set the authentication token
+  // State untuk API environment
+  const [isDev, setIsDev] = useState(localStorage.getItem('api_env') !== 'prod')
+  const apiUrl = isDev ? API_DEV : API_PROD
+
+  const toggleApi = () => {
+    setIsDev((prev) => {
+      const newIsDev = !prev
+      localStorage.setItem('api_env', newIsDev ? 'dev' : 'prod')
+
+      // Reload halaman agar perubahan environment langsung diterapkan
+      window.location.reload()
+      return newIsDev
+    })
+  }
+
   const setToken = (newToken: string | null) => {
     setToken_(newToken)
     if (newToken) {
       const decoded: any = jwtDecode(newToken)
       setRole(decoded.role)
-      setAppId(decoded.appid)
-      setAppKey(decoded.appkey)
+
+      if (isDev) {
+        setAppId(decoded.devappid)
+        setAppKey(decoded.devappkey)
+      } else {
+        setAppId(decoded.appid)
+        setAppKey(decoded.appkey)
+      }
+
+      localStorage.setItem('token', newToken)
     }
   }
 
@@ -46,16 +72,21 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         window.location.href = '/login'
       } else {
         setRole(decoded.role)
-        setAppId(decoded.appid)
-        setAppKey(decoded.appkey)
+
+        if (isDev) {
+          setAppId(decoded.devappid)
+          setAppKey(decoded.devappkey)
+        } else {
+          setAppId(decoded.appid)
+          setAppKey(decoded.appkey)
+        }
       }
     } else {
       delete axios.defaults.headers.common['Authorization']
       localStorage.removeItem('token')
     }
-  }, [token])
+  }, [token, isDev])
 
-  // Memoized value of the authentication context
   const contextValue = useMemo(
     () => ({
       token,
@@ -63,15 +94,17 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       role,
       appKey,
       appId,
+      apiUrl,
+      isDev,
+      toggleApi,
+      setIsDev,
     }),
-    [token, role], // Tambahkan role ke dependensi
+    [token, role, isDev],
   )
 
-  // Provide the authentication context to the children components
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
 }
 
-// Custom hook to use the AuthContext
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (context === undefined) {

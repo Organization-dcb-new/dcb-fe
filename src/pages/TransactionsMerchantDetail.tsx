@@ -7,7 +7,6 @@ import dayjs from 'dayjs'
 import { Typography, Card, CircularProgress, Box } from '@mui/material'
 import { useAuth } from '../provider/AuthProvider'
 import { useNavigate } from 'react-router-dom'
-import { jwtDecode } from 'jwt-decode'
 
 interface Transaction {
   u_id: string
@@ -36,8 +35,7 @@ const TransactionMerchantDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const navigate = useNavigate()
 
-  const { token } = useAuth()
-  const decoded: any = jwtDecode(token as string)
+  const { token, apiUrl, appId, appKey } = useAuth()
 
   let paymentMethod
 
@@ -47,12 +45,12 @@ const TransactionMerchantDetail: React.FC = () => {
   useEffect(() => {
     const fetchTransactionDetail = async () => {
       try {
-        const response = await axios.get(`https://sandbox-payment.redision.com/api/merchant/transaction/${id}`, {
+        const response = await axios.get(`${apiUrl}/merchant/transaction/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
-            appid: decoded.appid,
-            appkey: decoded.appkey,
+            appid: appId,
+            appkey: appKey,
           },
         })
         setTransaction(response.data.data)
@@ -103,6 +101,15 @@ const TransactionMerchantDetail: React.FC = () => {
       break
     case 'tri_airtime':
       paymentMethod = 'Tri'
+      break
+    case 'qris':
+      paymentMethod = 'Qris'
+      break
+    case 'gopay':
+      paymentMethod = 'Gopay'
+      break
+    case 'shopeepay':
+      paymentMethod = 'Shopeepay'
       break
   }
 

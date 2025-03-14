@@ -84,7 +84,7 @@ const columns: ColumnType<any>[] = [
         case 'indosat_airtime':
           paymentMethod = 'Indosat'
           break
-        case 'tri_airtime':
+        case 'three_airtime':
           paymentMethod = 'Tri'
           break
       }
@@ -225,7 +225,7 @@ export default function Transactions() {
   const [total, setTotal] = useState(0)
   const [isFiltered, setIsFiltered] = useState(false)
   const [resetTrigger, setResetTrigger] = useState(0)
-  const { token } = useAuth()
+  const { token, apiUrl } = useAuth()
   const decoded: any = jwtDecode(token as string)
   const { RangePicker } = DatePicker
 
@@ -233,6 +233,7 @@ export default function Transactions() {
     { id: 1, name: 'HIGO GAME PTE LTD' },
     { id: 2, name: 'Redigame' },
     { id: 3, name: 'PT WAHANA VENTURINDO GALAMEGA' },
+    { id: 3, name: 'PT Jaya Permata Elektro' },
   ]
 
   const appList = [
@@ -265,7 +266,7 @@ export default function Transactions() {
       const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
 
       const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
-      const response = await axios.get(`https://sandbox-payment.redision.com/api/transactions`, {
+      const response = await axios.get(`${apiUrl}/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -307,9 +308,12 @@ export default function Transactions() {
     { name: 'All', value: '' },
     { name: 'Xl', value: 'xl_airtime' },
     { name: 'Telkomsel', value: 'telkomsel_airtime' },
-    { name: 'Tri', value: 'tri_airtime' },
+    { name: 'Tri', value: 'three_airtime' },
     { name: 'Indosat', value: 'indosat_airtime' },
     { name: 'Smartfren', value: 'smartfren_airtime' },
+    { name: 'Gopay', value: 'gopay' },
+    { name: 'Shopeepay', value: 'shopeepay' },
+    { name: 'Qris', value: 'qris' },
   ]
 
   const status = [
@@ -375,7 +379,7 @@ export default function Transactions() {
       const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
 
       const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
-      const response = await axios.get(`https://sandbox-payment.redision.com/api/export`, {
+      const response = await axios.get(`${apiUrl}/export`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -383,6 +387,7 @@ export default function Transactions() {
         params: {
           export_csv: type == 'csv' ? 'true' : 'false',
           export_excel: type == 'excel' ? 'true' : 'false',
+          status: formData.status,
           start_date,
           end_date,
         },
@@ -654,7 +659,7 @@ export default function Transactions() {
               pagination={{
                 current: currentPage,
                 pageSize: pageSize,
-                total: total,
+                total: total >= 20000 ? 20000 : total,
                 onChange: handlePageChange,
               }}
               size='small'

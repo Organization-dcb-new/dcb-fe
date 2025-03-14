@@ -43,7 +43,7 @@ const TransactionDetail: React.FC = () => {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
-  const { token } = useAuth()
+  const { token, apiUrl } = useAuth()
 
   let paymentMethod
 
@@ -95,7 +95,7 @@ const TransactionDetail: React.FC = () => {
   useEffect(() => {
     const fetchTransactionDetail = async () => {
       try {
-        const response = await axios.get(`https://sandbox-payment.redision.com/api/transaction/${id}`, {
+        const response = await axios.get(`${apiUrl}/transaction/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -147,6 +147,15 @@ const TransactionDetail: React.FC = () => {
       break
     case 'tri_airtime':
       paymentMethod = 'Tri'
+      break
+    case 'qris':
+      paymentMethod = 'Qris'
+      break
+    case 'gopay':
+      paymentMethod = 'Gopay'
+      break
+    case 'shopeepay':
+      paymentMethod = 'Shopeepay'
       break
   }
   const ximpayMethods = ['tri_airtime', 'indosat_airtime', 'smartfren_airtime']

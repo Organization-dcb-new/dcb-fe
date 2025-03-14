@@ -9,6 +9,7 @@ import AppBar from '@mui/material/AppBar'
 import SideMenu from '../components/SideMenu'
 import MenuIcon from '@mui/icons-material/Menu'
 import AppTheme from '../styles/theme/shared-theme/AppTheme'
+import ApiSwitcher from '../components/ApiSwitcher'
 
 import {
   chartsCustomizations,
@@ -52,6 +53,7 @@ export default function MainLayout() {
       <CssBaseline />
       <AppBar
         position='fixed'
+        className='flex flex-row items-center justify-between pr-4'
         sx={{
           zIndex: theme.zIndex.drawer + 1,
           transition: theme.transitions.create(['width', 'margin'], {
@@ -61,20 +63,24 @@ export default function MainLayout() {
           width: open ? `calc(100% - ${drawerWidth}px)` : '100%', // Atur lebar AppBar
         }}
       >
-        <Toolbar>
-          <IconButton
-            color='inherit'
-            aria-label='open drawer'
-            edge='start'
-            onClick={handleDrawerToggle}
-            sx={{ marginRight: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-        </Toolbar>
+        <div>
+          <Toolbar>
+            <IconButton
+              color='inherit'
+              aria-label='open drawer'
+              edge='start'
+              onClick={handleDrawerToggle}
+              sx={{ marginRight: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Toolbar>
+        </div>
+        <ApiSwitcher />
       </AppBar>
 
       <SideMenu open={open} handleDrawerToggle={handleDrawerToggle} />
+
       <AppTheme themeComponents={xThemeComponents}>
         <MainContent open={open}>
           <Toolbar />
