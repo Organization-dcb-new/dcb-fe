@@ -55,7 +55,7 @@ const TransactionDetail: React.FC = () => {
         method: 'GET',
       }
 
-      const response = await fetch(`https://new-payment.redision.com/api/check/${id}`, requestOptions)
+      const response = await fetch(`${apiUrl}/check/${id}`, requestOptions)
 
       const result = await response.json()
       console.log('result', result.data.transactionInquiryStatusTO.responseCode)
@@ -80,6 +80,42 @@ const TransactionDetail: React.FC = () => {
         responseDesc: 'Failed to fetch transaction status',
       })
       setOpen(true)
+    }
+  }
+
+  const handleManualCallback = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/manual-callback/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          transaction_id: transaction?.u_id,
+          merchant_transaction_id: transaction?.merchant_transaction_id,
+          status_code: 1000,
+          message: 'Transaction updated',
+        }),
+      })
+
+      const result = await response.json()
+      console.log('Manual callback result:', result)
+
+      if (response.ok) {
+        Modal.success({
+          title: 'Manual Callback Success',
+          content: `Message: ${result.message}`,
+        })
+      } else {
+        throw new Error(result.message || 'Failed to update transaction')
+      }
+    } catch (error) {
+      console.error('Error during manual callback:', error)
+      Modal.error({
+        title: 'Manual Callback Failed',
+        content: 'An error occurred while processing the manual callback.',
+      })
     }
   }
 
@@ -339,7 +375,14 @@ const TransactionDetail: React.FC = () => {
         <Button type='button' className='mt-3 mr-4' onClick={handleCheckCharging} variant='contained' color='info'>
           Check Charging
         </Button>
-        <Button type='button' disabled className='mt-3 mr-4' variant='contained' color='success'>
+        <Button
+          type='button'
+          disabled={transaction.status_code != 1003}
+          className='mt-3 mr-4'
+          onClick={handleManualCallback}
+          variant='contained'
+          color='info'
+        >
           Manual Callback
         </Button>
         <Button type='button' className='mt-3 mr-4' variant='contained' color='primary' onClick={() => navigate(-1)}>

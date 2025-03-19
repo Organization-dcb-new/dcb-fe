@@ -233,33 +233,29 @@ export default function Transactions() {
     { id: 1, name: 'HIGO GAME PTE LTD' },
     { id: 2, name: 'Redigame' },
     { id: 3, name: 'PT WAHANA VENTURINDO GALAMEGA' },
-    { id: 3, name: 'PT Jaya Permata Elektro' },
+    { id: 4, name: 'PT Jaya Permata Elektro' },
+    { id: 5, name: 'Evos Store' },
+    { id: 6, name: 'Zingplay International PTE,. LTD' },
+    { id: 7, name: 'CYNKING' },
+    { id: 8, name: 'Coda' },
+    { id: 9, name: 'EMGLINK' },
+    { id: 10, name: 'FUNBID' },
   ]
 
   const appList = [
     { id: 1, name: 'Royal Domino' },
     { id: 2, name: 'Redigame' },
     { id: 3, name: 'Wavegame - 3 Kingdom' },
+    { id: 4, name: 'Evos Top Up' },
+    { id: 5, name: 'Zingplay games' },
+    { id: 6, name: 'Full Electricals' },
+    { id: 7, name: 'Codashop' },
+    { id: 8, name: 'Cynking' },
+    { id: 9, name: 'EMG' },
+    { id: 10, name: 'Funbid' },
   ]
 
   const denomList = [3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 100000]
-
-  // const hasFilters = () => {
-  //   return (
-  //     formData.user_mdn ||
-  //     formData.user_id ||
-  //     formData.merchant_transaction_id ||
-  //     formData.transaction_id ||
-  //     formData.merchant_name.length > 0 ||
-  //     formData.app_name ||
-  //     formData.payment_method.length > 0 ||
-  //     formData.status !== null ||
-  //     formData.item_name ||
-  //     formData.denom !== null ||
-  //     formData.start_date ||
-  //     formData.end_date
-  //   )
-  // }
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
