@@ -328,7 +328,11 @@ export default function TransactionsMerchant() {
 
   const handleExport = async (type: string) => {
     try {
-      const response = await axios.get(`${apiUrl}/merchant/transactions`, {
+      const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
+
+      const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
+
+      const response = await axios.get(`${apiUrl}/export/transactions-merchant`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -338,7 +342,9 @@ export default function TransactionsMerchant() {
         params: {
           export_csv: type == 'csv' ? 'true' : 'false',
           export_excel: type == 'excel' ? 'true' : 'false',
-          ...formData,
+          status: formData.status,
+          start_date,
+          end_date,
         },
         responseType: 'blob',
       })
