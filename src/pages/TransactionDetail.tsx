@@ -28,6 +28,7 @@ interface Transaction {
   updated_at: Date
   ximpay_id: string
   reference_id: string
+  midtrans_transaction_id: string
   timestamp_request_date: Date
   receive_callback_date: Date
   timestamp_submit_date: Date
@@ -194,11 +195,32 @@ const TransactionDetail: React.FC = () => {
       paymentMethod = 'Shopeepay'
       break
   }
-  const ximpayMethods = ['tri_airtime', 'indosat_airtime', 'smartfren_airtime']
 
-  const referenceId = ximpayMethods.includes(transaction.payment_method)
-    ? transaction.ximpay_id
-    : transaction.reference_id
+  let referenceId
+
+  switch (transaction.payment_method) {
+    case 'three_airtime':
+      referenceId = transaction.ximpay_id
+      break
+    case 'indosat_airtime':
+      referenceId = transaction.ximpay_id
+      break
+    case 'smartfren_airtime':
+      referenceId = transaction.ximpay_id
+      break
+    case 'gopay':
+      referenceId = transaction.midtrans_transaction_id
+      break
+    case 'shopeepay':
+      referenceId = transaction.midtrans_transaction_id
+      break
+    case 'qris':
+      referenceId = transaction.midtrans_transaction_id
+      break
+    default:
+      referenceId = transaction.reference_id
+      break
+  }
 
   return (
     <div>
