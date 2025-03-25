@@ -240,6 +240,11 @@ export default function Transactions() {
     { id: 8, name: 'Coda' },
     { id: 9, name: 'EMGLINK' },
     { id: 10, name: 'FUNBID' },
+    { id: 11, name: 'WEIDIAN TECHNOLOGY CO' },
+    { id: 12, name: 'PM Max' },
+    { id: 13, name: 'SHAKE GAME PTE.LTD' },
+    { id: 14, name: 'Pt Beta Karya Transaksi (TWIG)' },
+    { id: 15, name: 'Spofeed' },
   ]
 
   const appList = [
@@ -253,6 +258,11 @@ export default function Transactions() {
     { id: 8, name: 'Cynking' },
     { id: 9, name: 'EMG' },
     { id: 10, name: 'Funbid' },
+    { id: 11, name: 'PM Max' },
+    { id: 12, name: 'Topfun' },
+    { id: 13, name: 'Spofeed' },
+    { id: 14, name: 'PG777' },
+    { id: 15, name: 'Duoleworld' },
   ]
 
   const denomList = [3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 100000]
