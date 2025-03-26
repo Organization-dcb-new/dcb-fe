@@ -7,6 +7,7 @@ import dayjs from 'dayjs'
 import { Typography, Card, CircularProgress, Box } from '@mui/material'
 import { useAuth } from '../provider/AuthProvider'
 import { useNavigate } from 'react-router-dom'
+import formatRupiah from '../utils/FormatRupiah'
 
 interface Transaction {
   u_id: string
@@ -169,7 +170,7 @@ const TransactionMerchantDetail: React.FC = () => {
               <div className='w-1/4'>
                 <strong> Amount :</strong>
               </div>
-              <div> {transaction.amount}</div>
+              <div> {formatRupiah(transaction.amount)}</div>
             </div>
             <div className='w-full flex'>
               <div className='w-1/4'>
@@ -190,7 +191,7 @@ const TransactionMerchantDetail: React.FC = () => {
               <div className='w-1/4'>
                 <strong>Price:</strong>
               </div>
-              <div>{transaction.price}</div>
+              <div>{formatRupiah(transaction.price)}</div>
             </div>
           </Box>
           <Box display='flex'>

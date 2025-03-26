@@ -33,6 +33,7 @@ import { useAuth } from '../provider/AuthProvider'
 import { jwtDecode } from 'jwt-decode'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import formatRupiah from '../utils/FormatRupiah'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -108,6 +109,9 @@ const columns: ColumnType<any>[] = [
     align: 'center',
     dataIndex: 'amount',
     key: 'amount',
+    render: (denom: number) => {
+      return <p>{formatRupiah(denom)}</p>
+    },
   },
   {
     title: 'Status',

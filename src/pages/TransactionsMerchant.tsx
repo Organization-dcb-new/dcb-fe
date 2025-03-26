@@ -20,6 +20,7 @@ import { Table, DatePicker } from 'antd'
 
 import Badge from '../components/Badge'
 import { ColumnType } from 'antd/es/table'
+import formatRupiah from '../utils/FormatRupiah'
 
 // import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 // import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -103,6 +104,9 @@ const columns: ColumnType<any>[] = [
     align: 'center',
     dataIndex: 'amount',
     key: 'amount',
+    render: (denom: number) => {
+      return <p>{formatRupiah(denom)}</p>
+    },
   },
   {
     title: 'Status',
