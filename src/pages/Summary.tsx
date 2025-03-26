@@ -1,323 +1,157 @@
-import { useState } from 'react'
-import { useParams } from 'react-router-dom'
-import Grid from '@mui/material/Grid2'
-
+import dayjs from 'dayjs'
+import { DatePicker, Form, Select, Table } from 'antd'
 import { alpha } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
-import { TextField, OutlinedInput, Select, MenuItem } from '@mui/material'
-import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
-import Stack from '@mui/material/Stack'
-// import AppNavbar from '../components/AppNavbar'
-// import Header from '../components/Header'
-import CustomizedDataGrid from '../components/CustomizedDataGrid'
-// import MainGrid from '../components/MainGrid'
-// import SideMenu from '../components/SideMenu'
-import Card from '@mui/material/Card'
-// import CardContent from '@mui/material/CardContent'
-import { FormLabel } from '@mui/material'
-
 import Typography from '@mui/material/Typography'
+
 import { capitalizeLetter } from '../utils/Capitalize'
-// import AppTheme from '../styles/theme/shared-theme/AppTheme'
+import SummaryChart from '../components/SummaryChart'
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+const keyToLabel: { [key: string]: string } = {
+  success: 'Success',
+  canceled: 'Canceled',
+  failed: 'Failed',
+}
+const mockDataChart = [
+  { datetime: 1740787200, success: 3804, canceled: 2500, failed: 2767 },
+  { datetime: 1740873600, success: 4336, canceled: 1940, failed: 2826 },
+  { datetime: 1740960000, success: 4654, canceled: 1938, failed: 1000 },
+  { datetime: 1741046400, success: 4591, canceled: 2079, failed: 2825 },
+  { datetime: 1741132800, success: 4755, canceled: 1274, failed: 2790 },
+  { datetime: 1741219200, success: 3009, canceled: 2889, failed: 2811 },
+  { datetime: 1741305600, success: 3005, canceled: 1707, failed: 2989 },
+  { datetime: 1741392000, success: 3089, canceled: 2747, failed: 2893 },
+  { datetime: 1741478400, success: 4992, canceled: 1781, failed: 2798 },
+  { datetime: 1741564800, success: 4893, canceled: 2351, failed: 2705 },
+  { datetime: 1741651200, success: 4641, canceled: 1795, failed: 2064 },
+  { datetime: 1741737600, success: 4654, canceled: 1302, failed: 2914 },
+  { datetime: 1741824000, success: 3327, canceled: 4500, failed: 500 },
+]
 
-// interface SummaryProps {
-//   type?: 'Hourly' | 'Daily' | 'Monthly'
-// }
+const formatNumber = (num: number) => new Intl.NumberFormat('en-US').format(num)
 
-export default function Summary() {
-  const [formData, setFormData] = useState({
-    user_mdn: null,
-    password: '',
-    user_id: '',
-    merchant_trx_id: null,
-    trx_id: null,
-    start_date: null,
-    end_date: null,
-    payment_method: '',
-    payment_status: '',
-    merchant: '',
-    app: '',
-    item_name: '',
-    denom: null,
-  })
-  // const [value, setValue] = useState(null)
-  const [paymentMethod, setPaymentMethod] = useState<string[]>([])
-  const { type } = useParams()
+interface SummaryProps {
+  type?: 'hourly' | 'daily' | 'monthly'
+}
+export default function Summary({ type = 'hourly' }: SummaryProps) {
+  const dataSource = [
+    {
+      date: '2021-10-10',
+      total: 1000,
+      success: 3804,
+      pending: 1000,
+      failed: 2767,
+      revenue: 1000,
+      payment_method: 'Pulsa',
+    },
 
-  // const [summaryType, setSummaryType] = useState<string | undefined>(type)
+    {
+      date: '2021-10-10',
+      total: 1000,
+      success: 3804,
+      pending: 1000,
+      failed: 2767,
+      revenue: 1000,
+      payment_method: 'Pulsa',
+    },
 
-  const names = [
-    'Oliver Hansen',
-    'Van Henry',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
+    {
+      date: '2021-10-10',
+      total: 1000,
+      success: 3804,
+      pending: 1000,
+      failed: 2767,
+      revenue: 1000,
+      payment_method: 'Qris',
+    },
   ]
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault()
-    console.log('Form data submitted:', formData)
-  }
-
-  const handleChange = (e: any) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
-  }
-
-  const handlePaymentChange = (event: any) => {
-    const {
-      target: { value },
-    } = event
-    setPaymentMethod(typeof value === 'string' ? value.split(',') : value)
-  }
+  const columns = [
+    {
+      title: 'Date',
+      dataIndex: 'date',
+      key: 'date',
+      render: (value: number) => dayjs(new Date(value)).format('DD MMM YYYY'),
+    },
+    {
+      title: 'Total',
+      dataIndex: 'total',
+      key: 'total',
+      render: (value: number) => formatNumber(value),
+    },
+    {
+      title: 'Success',
+      dataIndex: 'success',
+      key: 'success',
+      render: (value: number) => formatNumber(value),
+    },
+    {
+      title: 'Pending',
+      dataIndex: 'pending',
+      key: 'pending',
+      render: (value: number) => formatNumber(value),
+    },
+    {
+      title: 'Failed',
+      dataIndex: 'failed',
+      key: 'failed',
+      render: (value: number) => formatNumber(value),
+    },
+    {
+      title: 'Revenue',
+      dataIndex: 'revenue',
+      key: 'revenue',
+      render: (value: number) => formatNumber(value),
+    },
+    {
+      title: 'Payment Method',
+      dataIndex: 'payment_method',
+      key: 'payment_method',
+    },
+  ]
 
   return (
-    <>
-      <CssBaseline enableColorScheme />
-
-      <Box
-        component='main'
-        sx={(theme) => ({
-          flexGrow: 1,
-          backgroundColor: theme.vars ? `white` : alpha(theme.palette.background.default, 1),
-          overflow: 'auto',
-          pt: 4,
-        })}
-      >
-        <Stack
-          spacing={2}
-          sx={{
-            alignItems: 'center',
-            mx: 3,
-            pb: 5,
-            mt: { xs: 8, md: 0 },
-          }}
-        >
-          {/* <Header /> */}
-          <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
-            {/* cards */}
-            <Typography component='h2' variant='h6' sx={{ mb: 2 }}>
-              Summary {capitalizeLetter(type)}
-            </Typography>
-            <Card variant='outlined'>
-              <span className='font-semibold'>Filter Transaction</span>
-              <div>
-                <form onSubmit={handleSubmit}>
-                  <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                    <Grid size={6}>
-                      <FormLabel className='font-medium'>User MDN</FormLabel>
-                      <TextField
-                        variant='outlined'
-                        fullWidth
-                        name='user_mdn'
-                        type='number'
-                        value={formData.user_mdn}
-                        onChange={handleChange}
-                        required
-                      />
-                    </Grid>
-                    <Grid size={6}>
-                      <FormLabel className='font-medium'>User ID</FormLabel>
-                      <TextField
-                        variant='outlined'
-                        fullWidth
-                        name='user'
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                    <Grid size={6}>
-                      <FormLabel className='font-medium'>Merchant Trx ID</FormLabel>
-                      <TextField
-                        variant='outlined'
-                        fullWidth
-                        name='merchant_trx_id'
-                        value={formData.merchant_trx_id}
-                        onChange={handleChange}
-                        required
-                      />
-                    </Grid>
-                    <Grid size={6}>
-                      <FormLabel className='font-medium'>Transaction ID</FormLabel>
-                      <TextField
-                        variant='outlined'
-                        fullWidth
-                        name='trx_id'
-                        value={formData.trx_id}
-                        onChange={handleChange}
-                        required
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                    <Grid size={6} className='flex flex-col'>
-                      <FormLabel className='font-medium'>Start Date</FormLabel>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        {/* <DatePicker
-                          label='Select date'
-                          value={value}
-                          onChange={(newValue) => {
-                            setValue(newValue)
-                          }}
-                          renderInput={(params: any) => <TextField {...params} />}
-                        /> */}
-                      </LocalizationProvider>
-                    </Grid>
-                    <Grid size={6} className='flex flex-col'>
-                      <FormLabel className='font-medium'>End Date</FormLabel>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        {/* <DatePicker
-                          label='Select date'
-                          value={value}
-                          onChange={(newValue) => {
-                            setValue(newValue)
-                          }}
-                          renderInput={(params) => <TextField {...params} />}
-                        /> */}
-                      </LocalizationProvider>
-                    </Grid>
-                  </Grid>
-                  <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                    <Grid size={6} className='flex flex-col'>
-                      <FormLabel className='font-medium'>Payment Method</FormLabel>
-
-                      <Select
-                        labelId='demo-multiple-name-label'
-                        id='demo-multiple-name'
-                        multiple
-                        value={paymentMethod}
-                        onChange={handlePaymentChange}
-                        input={<OutlinedInput label='Name' />}
-                        // MenuProps={MenuProps}
-                      >
-                        {names.map((name) => (
-                          <MenuItem key={name} value={name}>
-                            {name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </Grid>
-                    <Grid size={6} className='flex flex-col'>
-                      <FormLabel className='font-medium'>Status</FormLabel>
-
-                      <Select
-                        labelId='demo-multiple-name-label'
-                        id='demo-multiple-name'
-                        multiple
-                        value={paymentMethod}
-                        onChange={handlePaymentChange}
-                        input={<OutlinedInput label='Name' />}
-                        // MenuProps={MenuProps}
-                      >
-                        {names.map((name) => (
-                          <MenuItem key={name} value={name}>
-                            {name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </Grid>
-                  </Grid>
-                  <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                    <Grid size={6} className='flex flex-col'>
-                      <FormLabel className='font-medium'>Merchant</FormLabel>
-
-                      <Select
-                        labelId='demo-multiple-name-label'
-                        id='demo-multiple-name'
-                        value={paymentMethod}
-                        onChange={handlePaymentChange}
-                        input={<OutlinedInput label='Name' />}
-                        // MenuProps={MenuProps}
-                      >
-                        {names.map((name) => (
-                          <MenuItem key={name} value={name}>
-                            {name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </Grid>
-                    <Grid size={6} className='flex flex-col'>
-                      <FormLabel className='font-medium'>App</FormLabel>
-
-                      <Select
-                        labelId='demo-multiple-name-label'
-                        id='demo-multiple-name'
-                        value={paymentMethod}
-                        onChange={handlePaymentChange}
-                        input={<OutlinedInput label='Name' />}
-                      >
-                        {names.map((name) => (
-                          <MenuItem key={name} value={name}>
-                            {name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </Grid>
-                  </Grid>
-                  <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                    <Grid size={6}>
-                      <FormLabel className='font-medium'>Item Name</FormLabel>
-                      <TextField
-                        variant='outlined'
-                        fullWidth
-                        name='item_name'
-                        type='number'
-                        value={formData.item_name}
-                        onChange={handleChange}
-                        required
-                      />
-                    </Grid>
-                    <Grid size={6}>
-                      <FormLabel className='font-medium'>Denom</FormLabel>
-                      <TextField
-                        variant='outlined'
-                        fullWidth
-                        name='denom'
-                        value={formData.denom}
-                        onChange={handleChange}
-                        required
-                      />
-                    </Grid>
-                  </Grid>
-                  <Button type='submit' className='mt-4' variant='contained' color='primary'>
-                    Submit
-                  </Button>
-                </form>
-              </div>
-            </Card>
-            <Grid container spacing={2} columns={12} sx={{ mb: (theme) => theme.spacing(2) }}>
-              {/* {data.map((card, index) => (
-                  <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
-                    <StatCard {...card} />
-                  </Grid>
-                ))} */}
-              <Grid size={{ xs: 12, sm: 6, lg: 3 }}>{/* <HighlightedCard /> */}</Grid>
-              <Grid size={{ xs: 12, md: 6 }}>{/* <SessionsChart /> */}</Grid>
-              <Grid size={{ xs: 12, md: 6 }}>{/* <PageViewsBarChart /> */}</Grid>
-            </Grid>
-            <Typography component='h2' variant='h6' sx={{ mb: 2 }}>
-              Details
-            </Typography>
-            <Grid container spacing={2} columns={2}>
-              <Grid size={{ xs: 12, lg: 9 }}>
-                <CustomizedDataGrid />
-              </Grid>
-            </Grid>
-          </Box>
-        </Stack>
-      </Box>
-    </>
+    <Box
+      component='main'
+      sx={(theme) => ({
+        flexGrow: 1,
+        backgroundColor: theme.vars ? `white` : alpha(theme.palette.background.default, 1),
+        overflow: 'auto',
+        p: 3,
+      })}
+    >
+      <div className='flex gap-4 items-end justify-between mb-6'>
+        <Typography variant='h2' fontWeight='bold' fontSize={18}>
+          Summary {capitalizeLetter(type)}
+        </Typography>
+        <Form className='flex gap-4 items-end justify-between'>
+          <Form.Item label='Date' layout='vertical'>
+            <DatePicker.RangePicker />
+          </Form.Item>
+          <Form.Item label='Status' layout='vertical' className='w-40'>
+            <Select defaultValue='success'>
+              <Select.Option value='all'>All</Select.Option>
+              <Select.Option value='success'>Success</Select.Option>
+              <Select.Option value='pending'>Pending</Select.Option>
+              <Select.Option value='failed'>Failed</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item label='Payment Method' layout='vertical' className='w-40'>
+            <Select defaultValue='all'>
+              <Select.Option value='all'>All</Select.Option>
+              <Select.Option value='ovo'>OVO</Select.Option>
+              <Select.Option value='qris'>Qris</Select.Option>
+              <Select.Option value='pulsa'>Pulsa</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </div>
+      <div className='flex flex-col gap-4'>
+        <div className='2xl:w-3/4'>
+          <SummaryChart keyToLabel={keyToLabel} dataset={mockDataChart} />
+        </div>
+        <Table dataSource={dataSource} columns={columns} />
+      </div>
+    </Box>
   )
 }

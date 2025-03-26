@@ -76,7 +76,7 @@ const router = createBrowserRouter([
             path: 'summary/hourly',
             element: (
               <PrivateRoute>
-                <Summary />
+                <Summary type='hourly' />
               </PrivateRoute>
             ),
           },
@@ -84,13 +84,17 @@ const router = createBrowserRouter([
             path: 'summary/daily',
             element: (
               <PrivateRoute>
-                <Summary />
+                <Summary type='daily' />
               </PrivateRoute>
             ),
           },
           {
             path: 'summary/monthly',
-            element: <Summary />,
+            element: (
+              <PrivateRoute>
+                <Summary type='monthly' />,
+              </PrivateRoute>
+            ),
           },
         ],
       },
