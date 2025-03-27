@@ -358,7 +358,10 @@ export default function TransactionsMerchant() {
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', 'transactions.csv')
+
+      const extension = type == 'csv' ? 'csv' : 'xlsx'
+
+      link.setAttribute('download', `transactions.${extension}`)
       document.body.appendChild(link)
       link.click()
       link.remove()
