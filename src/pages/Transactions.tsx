@@ -511,6 +511,8 @@ export default function Transactions() {
                       /> */}
                     <RangePicker
                       size='large'
+                      showTime={{ format: 'HH:mm' }} // Menampilkan pilihan jam dan menit
+                      format='YYYY-MM-DD HH:mm' // Format tampilan dengan jam & menit
                       onChange={handleDateChange}
                       value={[
                         formData.start_date ? dayjs(formData.start_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
