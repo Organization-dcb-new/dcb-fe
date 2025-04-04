@@ -269,7 +269,7 @@ export default function Transactions() {
     { id: 15, name: 'Duoleworld' },
   ]
 
-  const denomList = [3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 100000]
+  const denomList = [3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 60000, 70000, 75000, 100000, 200000]
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
@@ -675,7 +675,7 @@ export default function Transactions() {
               pagination={{
                 current: currentPage,
                 pageSize: pageSize,
-                total: total >= 20000 ? 20000 : total,
+                total: total,
                 onChange: handlePageChange,
               }}
               size='small'
