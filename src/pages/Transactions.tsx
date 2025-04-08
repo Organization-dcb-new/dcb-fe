@@ -269,7 +269,9 @@ export default function Transactions() {
     { id: 15, name: 'Duoleworld' },
   ]
 
-  const denomList = [3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 60000, 70000, 75000, 100000, 200000]
+  const denomList = [
+    3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 60000, 70000, 75000, 100000, 150000, 200000, 250000, 500000,
+  ]
 
   const fetchData = async (page = 1, limit = 10) => {
     try {

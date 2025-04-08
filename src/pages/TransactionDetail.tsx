@@ -223,6 +223,8 @@ const TransactionDetail: React.FC = () => {
       break
   }
 
+  const checkCharging = transaction.payment_method == 'xl_airtime'
+
   return (
     <div>
       <Card className='bg-slate-100' sx={{ padding: 2 }}>
@@ -395,7 +397,14 @@ const TransactionDetail: React.FC = () => {
         </Box>
       </Card>
       <div className='flex pl-4 pt-2'>
-        <Button type='button' className='mt-3 mr-4' onClick={handleCheckCharging} variant='contained' color='info'>
+        <Button
+          type='button'
+          className='mt-3 mr-4'
+          onClick={handleCheckCharging}
+          disabled={!checkCharging}
+          variant='contained'
+          color='info'
+        >
           Check Charging
         </Button>
         <Button
