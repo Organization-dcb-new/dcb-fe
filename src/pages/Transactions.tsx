@@ -201,8 +201,8 @@ export default function Transactions() {
     payment_method: string[]
     payment_status: string
     status: number | null
-    start_date: string | null // Pastikan ini adalah string | null
-    end_date: string | null // Pastikan ini adalah string | null
+    start_date: dayjs.Dayjs | null
+    end_date: dayjs.Dayjs | null
     app_name: string
     item_name: string
     denom: number | null
@@ -275,9 +275,13 @@ export default function Transactions() {
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
-      const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
+      const start_date = formData.start_date
+        ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
 
-      const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
+      const end_date = formData.end_date
+        ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
       const response = await axios.get(`${apiUrl}/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -361,8 +365,8 @@ export default function Transactions() {
     const [start, end] = dates
     setFormData({
       ...formData,
-      start_date: start ? start.format('ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
-      end_date: end ? end.format('ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+      start_date: start,
+      end_date: end,
     })
   }
 
@@ -388,9 +392,13 @@ export default function Transactions() {
 
   const handleExport = async (type: string) => {
     try {
-      const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
+      const start_date = formData.start_date
+        ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
 
-      const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
+      const end_date = formData.end_date
+        ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
       const response = await axios.get(`${apiUrl}/export`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -516,10 +524,7 @@ export default function Transactions() {
                       showTime={{ format: 'HH:mm' }} // Menampilkan pilihan jam dan menit
                       format='YYYY-MM-DD HH:mm' // Format tampilan dengan jam & menit
                       onChange={handleDateChange}
-                      value={[
-                        formData.start_date ? dayjs(formData.start_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
-                        formData.end_date ? dayjs(formData.end_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
-                      ]}
+                      value={[formData.start_date, formData.end_date]}
                     />
                     {/* </LocalizationProvider> */}
                   </Grid>
