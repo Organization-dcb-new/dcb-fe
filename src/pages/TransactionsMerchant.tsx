@@ -302,6 +302,7 @@ export default function TransactionsMerchant() {
     { name: 'Gopay', value: 'gopay' },
     { name: 'Shopeepay', value: 'shopeepay' },
     { name: 'Qris', value: 'qris' },
+    { name: 'Ovo', value: 'ovo' },
   ]
 
   const status = [
