@@ -249,6 +249,7 @@ export default function Transactions() {
     { id: 13, name: 'SHAKE GAME PTE.LTD' },
     { id: 14, name: 'Pt Beta Karya Transaksi (TWIG)' },
     { id: 15, name: 'Spofeed' },
+    { id: 16, name: 'Artha Mandala' },
   ]
 
   const appList = [
@@ -267,6 +268,12 @@ export default function Transactions() {
     { id: 13, name: 'Spofeed' },
     { id: 14, name: 'PG777' },
     { id: 15, name: 'Duoleworld' },
+    { id: 16, name: 'Mandala' },
+    { id: 17, name: 'JPE1' },
+    { id: 18, name: 'JPE2' },
+    { id: 19, name: 'JPE3' },
+    { id: 20, name: 'JPE4' },
+    { id: 21, name: 'JPE5' },
   ]
 
   const denomList = [
