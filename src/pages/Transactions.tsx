@@ -338,6 +338,7 @@ export default function Transactions() {
     { name: 'Shopeepay', value: 'shopeepay' },
     { name: 'Qris', value: 'qris' },
     { name: 'Ovo', value: 'ovo' },
+    { name: 'Dana', value: 'dana' },
   ]
 
   const status = [
