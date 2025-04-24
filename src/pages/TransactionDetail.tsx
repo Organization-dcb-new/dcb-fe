@@ -41,7 +41,11 @@ const TransactionDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>() // Ambil u_id dari URL
   const [transaction, setTransaction] = useState<Transaction | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
-  const [transactionStatus, setTransactionStatus] = useState<{ status: string; responseDesc: string } | null>(null)
+  const [transactionStatus, setTransactionStatus] = useState<{
+    status: string
+    responseDesc: string
+    json: string
+  } | null>(null)
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
@@ -66,11 +70,13 @@ const TransactionDetail: React.FC = () => {
         setTransactionStatus({
           status: 'Success',
           responseDesc: result.data.transactionInquiryStatusTO.responseDesc,
+          json: '',
         })
       } else {
         setTransactionStatus({
           status: 'error',
           responseDesc: 'Transaction failed',
+          json: '',
         })
       }
 
@@ -80,7 +86,46 @@ const TransactionDetail: React.FC = () => {
       setTransactionStatus({
         status: 'Error',
         responseDesc: 'Failed to fetch transaction status',
+        json: '',
       })
+      setOpen(true)
+    }
+  }
+
+  const handleCheckStatusDana = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/check-status/dana/${transaction?.reference_id}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const result = await response.json()
+      console.log('result: ', result)
+      if (response.ok && result.data?.response?.body?.statusDetail?.acquirementStatus == 'SUCCESS') {
+        setTransactionStatus({
+          status: 'Success',
+          responseDesc: '',
+          json: result.data?.response,
+        })
+      } else {
+        setTransactionStatus({
+          status: 'Failed',
+          // responseDesc: result.data?.response || 'Transaction failed or unknown response',
+          responseDesc: '',
+          json: result.data?.response,
+        })
+      }
+    } catch (error) {
+      console.error('Error checking DANA transaction:', error)
+      setTransactionStatus({
+        status: 'Error',
+        responseDesc: 'Failed to check transaction status with DANA.',
+        json: '',
+      })
+    } finally {
       setOpen(true)
     }
   }
@@ -223,7 +268,7 @@ const TransactionDetail: React.FC = () => {
       break
   }
 
-  const checkCharging = transaction.payment_method == 'xl_airtime'
+  const checkCharging = transaction.payment_method == 'xl_airtime' || transaction.payment_method == 'dana'
 
   return (
     <div>
@@ -400,7 +445,13 @@ const TransactionDetail: React.FC = () => {
         <Button
           type='button'
           className='mt-3 mr-4'
-          onClick={handleCheckCharging}
+          onClick={() => {
+            if (transaction.payment_method === 'dana') {
+              handleCheckStatusDana()
+            } else {
+              handleCheckCharging()
+            }
+          }}
           disabled={!checkCharging}
           variant='contained'
           color='info'
@@ -424,6 +475,12 @@ const TransactionDetail: React.FC = () => {
       <Modal title='Transaction' open={open} onOk={handleOk} width={400} onCancel={handleCancel} centered>
         <p>Status : {transactionStatus?.status}</p>
         <p>Desc : {transactionStatus?.responseDesc}</p>
+        <p>Response Json:</p>
+        <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '400px', overflowY: 'auto' }}>
+          {typeof transactionStatus?.json === 'string'
+            ? transactionStatus.json
+            : JSON.stringify(transactionStatus?.json, null, 2)}
+        </pre>
       </Modal>
     </div>
   )
