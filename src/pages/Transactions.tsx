@@ -687,6 +687,7 @@ export default function Transactions() {
 
               <Button
                 size='small'
+                disabled
                 className='border-sky-400 ml-4'
                 variant='contained'
                 color='info'
