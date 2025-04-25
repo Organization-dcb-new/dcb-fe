@@ -230,6 +230,9 @@ export default function Transactions() {
   const [isFiltered, setIsFiltered] = useState(false)
   const [resetTrigger, setResetTrigger] = useState(0)
   const { token, apiUrl } = useAuth()
+  const [filterMode, setFilterMode] = useState<'all' | 'jpe' | 'non-jpe'>('all')
+  const [jpeData, setJpeData] = useState([])
+  const [nonJpeData, setNonJpeData] = useState([])
   const decoded: any = jwtDecode(token as string)
   const { RangePicker } = DatePicker
 
@@ -311,7 +314,14 @@ export default function Transactions() {
           denom: formData.denom,
         },
       })
-      setData(response.data.data)
+
+      const allData = response.data.data || []
+      const jpeOnly = allData.filter((item: any) => item.merchant_name === 'PT Jaya Permata Elektro')
+      const nonJpeOnly = allData.filter((item: any) => item.merchant_name != 'PT Jaya Permata Elektro')
+
+      setData(allData)
+      setJpeData(jpeOnly)
+      setNonJpeData(nonJpeOnly)
 
       setTotal(response.data.pagination.total_items)
     } catch (error) {
@@ -442,6 +452,12 @@ export default function Transactions() {
   const handlePageChange = (page: number, pageSize: number) => {
     setCurrentPage(page)
     setPageSize(pageSize)
+  }
+
+  const getFilteredData = () => {
+    if (filterMode === 'jpe') return jpeData
+    if (filterMode === 'non-jpe') return nonJpeData
+    return data
   }
 
   return (
@@ -679,7 +695,36 @@ export default function Transactions() {
                 Export Excel
               </Button>
             </div>
-            {isFiltered && <Typography variant='subtitle1'>Total Items: {total}</Typography>}
+            <div className='flex gap-2 mb-4'>
+              <Button
+                variant={filterMode === 'all' ? 'contained' : 'outlined'}
+                color='primary'
+                onClick={() => setFilterMode('all')}
+              >
+                All
+              </Button>
+
+              <Button
+                variant={filterMode === 'non-jpe' ? 'contained' : 'outlined'}
+                color='primary'
+                onClick={() => setFilterMode('non-jpe')}
+              >
+                Non-JPE
+              </Button>
+
+              <Button
+                variant={filterMode === 'jpe' ? 'contained' : 'outlined'}
+                color='primary'
+                onClick={() => setFilterMode('jpe')}
+              >
+                JPE Only
+              </Button>
+            </div>
+          </div>
+          <div className='flex '>
+            <span className='ml-auto'>
+              {isFiltered && <Typography variant='subtitle1'>Total Items: {total}</Typography>}
+            </span>
           </div>
 
           {/* 1540px */}
@@ -687,7 +732,7 @@ export default function Transactions() {
           <div className='mt-5'>
             <Table
               columns={columns}
-              dataSource={data}
+              dataSource={getFilteredData()}
               pagination={{
                 current: currentPage,
                 pageSize: pageSize,
