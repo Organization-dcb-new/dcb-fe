@@ -606,6 +606,7 @@ export default function TransactionsMerchant() {
 
               <Button
                 size='small'
+                disabled
                 className='border-sky-400 ml-3'
                 variant='contained'
                 color='info'
