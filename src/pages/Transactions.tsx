@@ -489,8 +489,8 @@ export default function Transactions() {
             <span className='font-semibold'>Filter Transaction</span>
             <div className='mt-3'>
               <form onSubmit={handleSubmit}>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6}>
+                <Grid container rowSpacing={2} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                  <Grid size={4}>
                     <FormLabel className='font-medium'>User MDN</FormLabel>
                     <TextField
                       variant='outlined'
@@ -501,7 +501,17 @@ export default function Transactions() {
                       onChange={handleChange}
                     />
                   </Grid>
-                  <Grid size={6}>
+                  <Grid size={4}>
+                    <FormLabel className='font-medium'>Merchant Trx ID</FormLabel>
+                    <TextField
+                      variant='outlined'
+                      fullWidth
+                      name='merchant_transaction_id'
+                      value={formData.merchant_transaction_id}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid size={4}>
                     <FormLabel className='font-medium'>User ID</FormLabel>
                     <TextField
                       variant='outlined'
@@ -513,29 +523,7 @@ export default function Transactions() {
                   </Grid>
                 </Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6}>
-                    <FormLabel className='font-medium'>Merchant Trx ID</FormLabel>
-                    <TextField
-                      variant='outlined'
-                      fullWidth
-                      name='merchant_transaction_id'
-                      value={formData.merchant_transaction_id}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid size={6}>
-                    <FormLabel className='font-medium'>Transaction ID</FormLabel>
-                    <TextField
-                      variant='outlined'
-                      fullWidth
-                      name='transaction_id'
-                      value={formData.transaction_id}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6} className='flex flex-col'>
+                  <Grid size={4} className='flex flex-col'>
                     <FormLabel className='font-medium'>Filter Date</FormLabel>
                     {/* <LocalizationProvider dateAdapter={AdapterDayjs}> */}
                     {/* <DatePicker
@@ -553,7 +541,18 @@ export default function Transactions() {
                     />
                     {/* </LocalizationProvider> */}
                   </Grid>
-                  <Grid size={6} className='flex flex-col'>
+                  <Grid size={4}>
+                    <FormLabel className='font-medium'>Transaction ID</FormLabel>
+                    <TextField
+                      variant='outlined'
+                      fullWidth
+                      name='transaction_id'
+                      value={formData.transaction_id}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+
+                  <Grid size={4} className='flex flex-col'>
                     <FormLabel className='font-medium'>App</FormLabel>
                     <Select
                       labelId='merchant-label'
@@ -571,8 +570,9 @@ export default function Transactions() {
                     </Select>
                   </Grid>
                 </Grid>
+                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6} className='flex flex-col'>
+                  <Grid size={4} className='flex flex-col'>
                     <FormLabel className='font-medium'>Payment Method</FormLabel>
                     <Select
                       multiple
@@ -591,7 +591,7 @@ export default function Transactions() {
                       ))}
                     </Select>
                   </Grid>
-                  <Grid size={6} className='flex flex-col'>
+                  <Grid size={4} className='flex flex-col'>
                     <FormLabel className='font-medium'>Status</FormLabel>
 
                     <Select
@@ -609,9 +609,7 @@ export default function Transactions() {
                       ))}
                     </Select>
                   </Grid>
-                </Grid>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6} className='flex flex-col'>
+                  <Grid size={4} className='flex flex-col'>
                     <FormLabel className='font-medium'>Merchant</FormLabel>
 
                     <Select
@@ -631,7 +629,9 @@ export default function Transactions() {
                       ))}
                     </Select>
                   </Grid>
-                  <Grid size={6}>
+                </Grid>
+                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                  <Grid size={4}>
                     <FormLabel className='font-medium'>Denom</FormLabel>
                     <Select
                       style={{ marginTop: '6px' }}
