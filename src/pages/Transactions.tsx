@@ -236,6 +236,8 @@ export default function Transactions() {
   const decoded: any = jwtDecode(token as string)
   const { RangePicker } = DatePicker
 
+  const isAlif = decoded.username == 'alifadmin'
+
   const merchantList = [
     { id: 1, name: 'HIGO GAME PTE LTD' },
     { id: 2, name: 'Redigame' },
@@ -253,6 +255,16 @@ export default function Transactions() {
     { id: 14, name: 'Pt Beta Karya Transaksi (TWIG)' },
     { id: 15, name: 'Spofeed' },
     { id: 16, name: 'Artha Mandala' },
+  ]
+
+  const merchantListAlif = [
+    { id: 1, name: 'Evos Store' },
+    { id: 2, name: 'Coda' },
+  ]
+
+  const appListAlif = [
+    { id: 1, name: 'Evos Top Up' },
+    { id: 2, name: 'Codashop' },
   ]
 
   const appList = [
@@ -562,11 +574,17 @@ export default function Transactions() {
                       onChange={handleChange}
                       input={<OutlinedInput label='app_name' />}
                     >
-                      {appList.map((app) => (
-                        <MenuItem key={app.id} value={app.name}>
-                          {app.name}
-                        </MenuItem>
-                      ))}
+                      {isAlif
+                        ? appListAlif.map((app) => (
+                            <MenuItem key={app.id} value={app.name}>
+                              {app.name}
+                            </MenuItem>
+                          ))
+                        : appList.map((app) => (
+                            <MenuItem key={app.id} value={app.name}>
+                              {app.name}
+                            </MenuItem>
+                          ))}
                     </Select>
                   </Grid>
                 </Grid>
@@ -622,11 +640,17 @@ export default function Transactions() {
                       renderValue={(selected) => selected.join(', ')}
                       input={<OutlinedInput label='merchant_name' />}
                     >
-                      {merchantList.map((merchant) => (
-                        <MenuItem key={merchant.id} value={merchant.name}>
-                          {merchant.name}
-                        </MenuItem>
-                      ))}
+                      {isAlif
+                        ? merchantListAlif.map((merchant) => (
+                            <MenuItem key={merchant.id} value={merchant.name}>
+                              {merchant.name}
+                            </MenuItem>
+                          ))
+                        : merchantList.map((merchant) => (
+                            <MenuItem key={merchant.id} value={merchant.name}>
+                              {merchant.name}
+                            </MenuItem>
+                          ))}
                     </Select>
                   </Grid>
                 </Grid>
