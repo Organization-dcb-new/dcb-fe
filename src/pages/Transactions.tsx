@@ -234,6 +234,7 @@ export default function Transactions() {
   const [jpeData, setJpeData] = useState([])
   const [nonJpeData, setNonJpeData] = useState([])
   const decoded: any = jwtDecode(token as string)
+  const [loadingExport, setLoadingExport] = useState(false)
   const { RangePicker } = DatePicker
 
   const isAlif = decoded.username == 'alifadmin'
@@ -423,6 +424,7 @@ export default function Transactions() {
 
   const handleExport = async (type: string) => {
     try {
+      setLoadingExport(true)
       const start_date = formData.start_date
         ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
         : null
@@ -430,6 +432,7 @@ export default function Transactions() {
       const end_date = formData.end_date
         ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
         : null
+
       const response = await axios.get(`${apiUrl}/export`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -452,12 +455,14 @@ export default function Transactions() {
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', `transactions.${extension}`) // Nama file yang diunduh
+      link.setAttribute('download', `transactions.${extension}`)
       document.body.appendChild(link)
       link.click()
       link.remove()
     } catch (error) {
       console.error('Error exporting CSV:', error)
+    } finally {
+      setLoadingExport(false)
     }
   }
 
@@ -703,21 +708,22 @@ export default function Transactions() {
                 size='small'
                 className='border-sky-400'
                 variant='outlined'
+                disabled={loadingExport}
                 color='info'
                 onClick={() => handleExport('csv')}
               >
-                Export Csv
+                {loadingExport ? 'Processing...' : 'Export CSV'}
               </Button>
 
               <Button
                 size='small'
-                disabled
+                // disabled
                 className='border-sky-400 ml-4'
                 variant='contained'
                 color='info'
                 onClick={() => handleExport('excel')}
               >
-                Export Excel
+                {loadingExport ? 'Processing...' : 'Export Excel'}
               </Button>
             </div>
             <div className='flex gap-2 mb-4'>
