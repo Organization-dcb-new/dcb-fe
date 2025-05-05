@@ -215,8 +215,8 @@ export default function Transactions() {
     payment_method: [],
     payment_status: '',
     status: null,
-    start_date: null,
-    end_date: null,
+    start_date: dayjs().startOf('day'),
+    end_date: dayjs().endOf('day'),
     app_name: '',
     item_name: '',
     denom: null,
@@ -415,8 +415,8 @@ export default function Transactions() {
       status: null,
       item_name: '',
       denom: null,
-      start_date: null,
-      end_date: null,
+      start_date: dayjs().startOf('day'),
+      end_date: dayjs().endOf('day'),
     })
     setIsFiltered(false)
     setResetTrigger((prev) => prev + 1)
@@ -542,21 +542,14 @@ export default function Transactions() {
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={4} className='flex flex-col'>
                     <FormLabel className='font-medium'>Filter Date</FormLabel>
-                    {/* <LocalizationProvider dateAdapter={AdapterDayjs}> */}
-                    {/* <DatePicker
-                        label='Select Start Date'
-                        value={formData.start_date}
-                        onChange={handleDateChange('start_date')}
-                        renderInput={(params) => <TextField {...params} />}
-                      /> */}
+
                     <RangePicker
                       size='large'
-                      showTime={{ format: 'HH:mm:ss' }} // Menampilkan pilihan jam dan menit
-                      format='YYYY-MM-DD HH:mm' // Format tampilan dengan jam & menit
+                      showTime={{ format: 'HH:mm:ss' }}
+                      format='YYYY-MM-DD HH:mm'
                       onChange={handleDateChange}
                       value={[formData.start_date, formData.end_date]}
                     />
-                    {/* </LocalizationProvider> */}
                   </Grid>
                   <Grid size={4}>
                     <FormLabel className='font-medium'>Transaction ID</FormLabel>
