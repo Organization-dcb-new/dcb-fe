@@ -230,8 +230,9 @@ export default function Transactions() {
   const [isFiltered, setIsFiltered] = useState(false)
   const [resetTrigger, setResetTrigger] = useState(0)
   const { token, apiUrl } = useAuth()
-  const [filterMode, setFilterMode] = useState<'all' | 'jpe' | 'non-jpe'>('all')
+  const [filterMode, setFilterMode] = useState<'all' | 'jpe' | 'higo' | 'non-jpe'>('all')
   const [jpeData, setJpeData] = useState([])
+  const [higoData, setHigoData] = useState([])
   const [nonJpeData, setNonJpeData] = useState([])
   const decoded: any = jwtDecode(token as string)
   const [loadingExport, setLoadingExport] = useState(false)
@@ -331,10 +332,12 @@ export default function Transactions() {
 
       const allData = response.data.data || []
       const jpeOnly = allData.filter((item: any) => item.merchant_name === 'PT Jaya Permata Elektro')
+      const higoOnly = allData.filter((item: any) => item.merchant_name === 'HIGO GAME PTE LTD')
       const nonJpeOnly = allData.filter((item: any) => item.merchant_name != 'PT Jaya Permata Elektro')
 
       setData(allData)
       setJpeData(jpeOnly)
+      setHigoData(higoOnly)
       setNonJpeData(nonJpeOnly)
 
       setTotal(response.data.pagination.total_items)
@@ -475,6 +478,7 @@ export default function Transactions() {
 
   const getFilteredData = () => {
     if (filterMode === 'jpe') return jpeData
+    if (filterMode === 'higo') return higoData
     if (filterMode === 'non-jpe') return nonJpeData
     return data
   }
@@ -744,6 +748,13 @@ export default function Transactions() {
                 onClick={() => setFilterMode('jpe')}
               >
                 JPE Only
+              </Button>
+              <Button
+                variant={filterMode === 'higo' ? 'contained' : 'outlined'}
+                color='primary'
+                onClick={() => setFilterMode('higo')}
+              >
+                Higo Only
               </Button>
             </div>
           </div>
