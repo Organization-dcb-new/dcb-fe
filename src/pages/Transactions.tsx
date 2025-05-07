@@ -293,7 +293,8 @@ export default function Transactions() {
   ]
 
   const denomList = [
-    3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 60000, 70000, 75000, 100000, 150000, 200000, 250000, 500000,
+    3000, 5000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 70000, 75000, 100000, 150000, 200000, 250000,
+    300000, 325000, 500000,
   ]
 
   const fetchData = async (page = 1, limit = 10) => {
@@ -362,6 +363,7 @@ export default function Transactions() {
     { name: 'Qris', value: 'qris' },
     { name: 'Ovo', value: 'ovo' },
     { name: 'Dana', value: 'dana' },
+    { name: 'Va Bca', value: 'va_bca' },
   ]
 
   const status = [
