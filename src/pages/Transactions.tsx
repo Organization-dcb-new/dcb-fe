@@ -8,6 +8,7 @@ import { alpha } from '@mui/material/styles'
 // import CssBaseline from '@mui/material/CssBaseline'
 import { TextField, OutlinedInput, Select, MenuItem, Tooltip } from '@mui/material'
 import Button from '@mui/material/Button'
+import { Button as ButtonAnt } from 'antd'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 // import AppNavbar from '../components/AppNavbar'
@@ -21,7 +22,7 @@ import { FormLabel } from '@mui/material'
 
 import Typography from '@mui/material/Typography'
 // import AppTheme from '../styles/theme/shared-theme/AppTheme'
-import { Table, DatePicker } from 'antd'
+import { Table, DatePicker, Modal } from 'antd'
 import { ColumnType } from 'antd/es/table'
 
 import Badge from '../components/Badge'
@@ -236,6 +237,8 @@ export default function Transactions() {
   const [nonJpeData, setNonJpeData] = useState([])
   const decoded: any = jwtDecode(token as string)
   const [loadingExport, setLoadingExport] = useState(false)
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
+  const [selectedRows, setSelectedRows] = useState<any[]>([])
   const { RangePicker } = DatePicker
 
   const isAlif = decoded.username == 'alifadmin'
@@ -297,6 +300,11 @@ export default function Transactions() {
     3000, 5000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 70000, 75000, 100000, 150000, 200000, 250000,
     300000, 325000, 500000,
   ]
+
+  // const denomList = [
+  //   3000, 5000, 6000, 10000, 14000, 15000, 15800, 16338, 20000, 25000, 30000, 33000, 40000, 50000, 60000, 65000, 70000,
+  //   75000, 100000, 125000, 130000, 150000, 200000, 250000, 300000, 325000, 500000, 700000, 1000000,
+  // ]
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
@@ -481,6 +489,64 @@ export default function Transactions() {
     if (filterMode === 'higo') return higoData
     if (filterMode === 'non-jpe') return nonJpeData
     return data
+  }
+
+  const handleBatchManualCallback = async () => {
+    try {
+      const confirmed = window.confirm(
+        `Kamu yakin ingin mengirim manual callback untuk ${selectedRows.length} transaksi?`,
+      )
+      if (!confirmed) return
+
+      const promises = selectedRows.map((transaction) =>
+        fetch(`${apiUrl}/manual-callback/${transaction.u_id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            transaction_id: transaction.u_id,
+            merchant_transaction_id: transaction.merchant_transaction_id,
+            status_code: 1000,
+            message: 'Transaction updated',
+          }),
+        })
+          .then((res) => res.json())
+          .then((res) => ({
+            transactionId: transaction.u_id,
+            success: res.status === 200 || res.code === 200 || res.success === true,
+            message: res.message,
+          })),
+      )
+
+      const results = await Promise.all(promises)
+      const failed = results.filter((r) => !r.success)
+
+      if (failed.length === 0) {
+        Modal.success({
+          title: 'Batch Manual Callback Success',
+          content: `${results.length} transaksi berhasil dikirim manual callback.`,
+        })
+      } else {
+        Modal.warning({
+          title: 'Sebagian Gagal',
+          content: `${failed.length} dari ${results.length} transaksi gagal dikirim. Cek log untuk detail.`,
+        })
+        console.error('Failed callbacks:', failed)
+      }
+
+      // Refresh data
+      fetchData(currentPage, pageSize)
+      setSelectedRowKeys([])
+      setSelectedRows([])
+    } catch (error) {
+      console.error('Batch callback error:', error)
+      Modal.error({
+        title: 'Batch Callback Error',
+        content: 'Terjadi kesalahan saat menjalankan batch callback.',
+      })
+    }
   }
 
   return (
@@ -765,11 +831,27 @@ export default function Transactions() {
           </div>
 
           {/* 1540px */}
-
+          {formData.status === 1003 && isFiltered && (
+            <ButtonAnt
+              type='primary'
+              disabled={formData.status !== 1003 || selectedRows.length === 0}
+              onClick={handleBatchManualCallback}
+            >
+              Manual Callback Selected
+            </ButtonAnt>
+          )}
           <div className='mt-5'>
             <Table
+              rowKey='u_id'
               columns={columns}
               dataSource={getFilteredData()}
+              rowSelection={{
+                selectedRowKeys,
+                onChange: (keys, rows) => {
+                  setSelectedRowKeys(keys)
+                  setSelectedRows(rows)
+                },
+              }}
               pagination={{
                 current: currentPage,
                 pageSize: pageSize,
@@ -777,8 +859,7 @@ export default function Transactions() {
                 onChange: handlePageChange,
               }}
               size='small'
-              className='transactions-table '
-              rowKey='key'
+              className='transactions-table'
               scroll={{ x: 'max-content' }}
             />
           </div>
