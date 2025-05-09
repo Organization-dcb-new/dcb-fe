@@ -36,12 +36,48 @@ const TransactionMerchantDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const navigate = useNavigate()
 
-  const { token, apiUrl, appId, appKey } = useAuth()
+  const { token, apiUrl, appId, appKey, isDev } = useAuth()
 
   let paymentMethod
 
   let status
   let failReason
+
+  const handleMarkSuccess = async () => {
+    if (!transaction) return
+    try {
+      await axios.get(`${apiUrl}/mark-paid/${transaction.u_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          appid: appId,
+          appkey: appKey,
+        },
+      })
+      alert('Marked as success')
+      navigate(0) // reload halaman
+    } catch (error) {
+      console.error('Failed to mark as success:', error)
+      alert('Gagal mark success')
+    }
+  }
+
+  const handleMarkFailed = async () => {
+    if (!transaction) return
+    try {
+      await axios.get(`${apiUrl}/mark-failed/${transaction.u_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          appid: appId,
+          appkey: appKey,
+        },
+      })
+      alert('Marked as failed')
+      navigate(0)
+    } catch (error) {
+      console.error('Failed to mark as failed:', error)
+      alert('Gagal mark failed')
+    }
+  }
 
   useEffect(() => {
     const fetchTransactionDetail = async () => {
@@ -251,6 +287,21 @@ const TransactionMerchantDetail: React.FC = () => {
           </Box>
         </Box>
       </Card>
+      {/* <div className='flex pl-4 pt-2'>
+        <Button
+          type='button'
+          className='mt-3 mr-4'
+          size='small'
+          variant='contained'
+          color='info'
+          onClick={() => navigate(-1)}
+        >
+          Back
+        </Button>
+        <Button type='button' disabled className='mt-3 mr-4' variant='contained' color='success'>
+          Make Success
+        </Button>
+      </div> */}
       <div className='flex pl-4 pt-2'>
         <Button
           type='button'
@@ -262,9 +313,36 @@ const TransactionMerchantDetail: React.FC = () => {
         >
           Back
         </Button>
-        {/* <Button type='button' disabled className='mt-3 mr-4' variant='contained' color='success'>
-          Make Success
-        </Button> */}
+
+        {isDev && (
+          <>
+            {transaction.status_code !== 1000 && (
+              <Button
+                type='button'
+                className='mt-3 mr-4'
+                variant='contained'
+                color='success'
+                size='small'
+                onClick={handleMarkSuccess}
+              >
+                Mark Success
+              </Button>
+            )}
+
+            {transaction.status_code !== 1005 && (
+              <Button
+                type='button'
+                className='mt-3 mr-4'
+                variant='contained'
+                color='error'
+                size='small'
+                onClick={handleMarkFailed}
+              >
+                Mark Failed
+              </Button>
+            )}
+          </>
+        )}
       </div>
     </div>
   )
