@@ -260,6 +260,7 @@ export default function Transactions() {
     { id: 14, name: 'Pt Beta Karya Transaksi (TWIG)' },
     { id: 15, name: 'Spofeed' },
     { id: 16, name: 'Artha Mandala' },
+    { id: 17, name: 'Surat Sakit' },
   ]
 
   const merchantListAlif = [
