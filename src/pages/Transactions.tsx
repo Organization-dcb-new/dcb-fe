@@ -783,7 +783,8 @@ export default function Transactions() {
 
               <Button
                 size='small'
-                disabled={loadingExport || total > 80000}
+                disabled
+                // disabled={loadingExport || total > 80000}
                 className='border-sky-400 ml-4'
                 variant='contained'
                 color='info'
