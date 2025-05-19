@@ -774,7 +774,7 @@ export default function Transactions() {
                 size='small'
                 className='border-sky-400'
                 variant='outlined'
-                disabled={loadingExport}
+                disabled={loadingExport || total > 200000}
                 color='info'
                 onClick={() => handleExport('csv')}
               >
@@ -783,8 +783,7 @@ export default function Transactions() {
 
               <Button
                 size='small'
-                disabled
-                // disabled={loadingExport || total > 80000}
+                disabled={loadingExport || total > 50000}
                 className='border-sky-400 ml-4'
                 variant='contained'
                 color='info'
