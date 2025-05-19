@@ -189,8 +189,8 @@ export default function TransactionsMerchant() {
     transaction_id: '',
     payment_method: [],
     status: null,
-    start_date: null,
-    end_date: null,
+    start_date: dayjs().startOf('day'),
+    end_date: dayjs().endOf('day'),
     app_name: '',
     item_name: '',
     denom: null,
@@ -204,8 +204,8 @@ export default function TransactionsMerchant() {
       transaction_id: '',
       payment_method: [],
       status: null,
-      start_date: null,
-      end_date: null,
+      start_date: dayjs().startOf('day'),
+      end_date: dayjs().endOf('day'),
       app_name: '',
       item_name: '',
       denom: null,
@@ -502,8 +502,8 @@ export default function TransactionsMerchant() {
 
                     <RangePicker
                       size='large'
-                      showTime={{ format: 'HH:mm' }} // Menampilkan pilihan jam dan menit
-                      format='YYYY-MM-DD HH:mm' // Format tampilan dengan jam & menit
+                      showTime={{ format: 'HH:mm:ss' }}
+                      format='YYYY-MM-DD HH:mm'
                       onChange={handleDateChange}
                       value={[formData.start_date, formData.end_date]}
                     />
