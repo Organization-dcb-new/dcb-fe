@@ -98,23 +98,12 @@ const columns: ColumnType<any>[] = [
     title: 'Merchant',
     dataIndex: 'merchant_name',
     key: 'merchant_name',
-    render: (merchantName: string) => {
-      switch (merchantName) {
-        case 'PT Jaya Permata Elektro':
-          merchantName = 'PT Jaya Permata Elektro'
-          break
-        default:
-          merchantName = 'Redigame'
-          break
-      }
-      return merchantName
-    },
   },
-  // {
-  //   title: 'App',
-  //   dataIndex: 'app_name',
-  //   key: 'app_name',
-  // },
+  {
+    title: 'App',
+    dataIndex: 'app_name',
+    key: 'app_name',
+  },
   {
     title: 'Denom',
     width: 100,
@@ -149,13 +138,13 @@ const columns: ColumnType<any>[] = [
     },
   },
 
-  // {
-  //   title: 'Item Name',
-  //   width: 170,
-  //   align: 'center',
-  //   dataIndex: 'item_name',
-  //   key: 'item_name',
-  // },
+  {
+    title: 'Item Name',
+    width: 170,
+    align: 'center',
+    dataIndex: 'item_name',
+    key: 'item_name',
+  },
   {
     title: 'Fail Reason',
     width: 120,
@@ -255,23 +244,23 @@ export default function Transactions() {
   const isAlif = decoded.username == 'alifadmin'
 
   const merchantList = [
-    // { id: 1, name: 'HIGO GAME PTE LTD' },
+    { id: 1, name: 'HIGO GAME PTE LTD' },
     { id: 2, name: 'Redigame' },
-    // { id: 3, name: 'PT WAHANA VENTURINDO GALAMEGA' },
+    { id: 3, name: 'PT WAHANA VENTURINDO GALAMEGA' },
     { id: 4, name: 'PT Jaya Permata Elektro' },
-    // { id: 5, name: 'Evos Store' },
-    // { id: 6, name: 'Zingplay International PTE,. LTD' },
-    // { id: 7, name: 'CYNKING' },
-    // { id: 8, name: 'Coda' },
-    // { id: 9, name: 'EMGLINK' },
-    // { id: 10, name: 'FUNBID' },
-    // { id: 11, name: 'WEIDIAN TECHNOLOGY CO' },
-    // { id: 12, name: 'PM Max' },
-    // { id: 13, name: 'SHAKE GAME PTE.LTD' },
-    // { id: 14, name: 'Pt Beta Karya Transaksi (TWIG)' },
-    // { id: 15, name: 'Spofeed' },
-    // { id: 16, name: 'Artha Mandala' },
-    // { id: 17, name: 'Surat Sakit' },
+    { id: 5, name: 'Evos Store' },
+    { id: 6, name: 'Zingplay International PTE,. LTD' },
+    { id: 7, name: 'CYNKING' },
+    { id: 8, name: 'Coda' },
+    { id: 9, name: 'EMGLINK' },
+    { id: 10, name: 'FUNBID' },
+    { id: 11, name: 'WEIDIAN TECHNOLOGY CO' },
+    { id: 12, name: 'PM Max' },
+    { id: 13, name: 'SHAKE GAME PTE.LTD' },
+    { id: 14, name: 'Pt Beta Karya Transaksi (TWIG)' },
+    { id: 15, name: 'Spofeed' },
+    { id: 16, name: 'Artha Mandala' },
+    { id: 17, name: 'Surat Sakit' },
   ]
 
   const merchantListAlif = [
@@ -285,27 +274,27 @@ export default function Transactions() {
   ]
 
   const appList = [
-    // { id: 1, name: 'Royal Domino' },
+    { id: 1, name: 'Royal Domino' },
     { id: 2, name: 'Redigame' },
-    // { id: 3, name: 'Wavegame - 3 Kingdom' },
-    // { id: 4, name: 'Evos Top Up' },
-    // { id: 5, name: 'Zingplay games' },
+    { id: 3, name: 'Wavegame - 3 Kingdom' },
+    { id: 4, name: 'Evos Top Up' },
+    { id: 5, name: 'Zingplay games' },
     { id: 6, name: 'Full Electricals' },
-    // { id: 7, name: 'Codashop' },
-    // { id: 8, name: 'Cynking' },
-    // { id: 9, name: 'EMG' },
-    // { id: 10, name: 'Funbid' },
-    // { id: 11, name: 'PM Max' },
-    // { id: 12, name: 'Topfun' },
-    // { id: 13, name: 'Spofeed' },
-    // { id: 14, name: 'PG777' },
-    // { id: 15, name: 'Duoleworld' },
-    // { id: 16, name: 'Mandala' },
-    // { id: 17, name: 'JPE1' },
-    // { id: 18, name: 'JPE2' },
-    // { id: 19, name: 'JPE3' },
-    // { id: 20, name: 'JPE4' },
-    // { id: 21, name: 'JPE5' },
+    { id: 7, name: 'Codashop' },
+    { id: 8, name: 'Cynking' },
+    { id: 9, name: 'EMG' },
+    { id: 10, name: 'Funbid' },
+    { id: 11, name: 'PM Max' },
+    { id: 12, name: 'Topfun' },
+    { id: 13, name: 'Spofeed' },
+    { id: 14, name: 'PG777' },
+    { id: 15, name: 'Duoleworld' },
+    { id: 16, name: 'Mandala' },
+    { id: 17, name: 'JPE1' },
+    { id: 18, name: 'JPE2' },
+    { id: 19, name: 'JPE3' },
+    { id: 20, name: 'JPE4' },
+    { id: 21, name: 'JPE5' },
   ]
 
   const denomList = [
@@ -827,13 +816,13 @@ export default function Transactions() {
               >
                 JPE Only
               </Button>
-              {/* <Button
+              <Button
                 variant={filterMode === 'higo' ? 'contained' : 'outlined'}
                 color='primary'
                 onClick={() => setFilterMode('higo')}
               >
                 Higo Only
-              </Button> */}
+              </Button>
             </div>
           </div>
           <div className='flex '>
