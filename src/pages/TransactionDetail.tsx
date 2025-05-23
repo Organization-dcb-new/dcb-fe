@@ -103,7 +103,7 @@ const TransactionDetail: React.FC = () => {
       })
 
       const result = await response.json()
-      console.log('result: ', result)
+
       if (response.ok && result.data?.response?.body?.statusDetail?.acquirementStatus == 'SUCCESS') {
         setTransactionStatus({
           status: 'Success',
@@ -503,7 +503,7 @@ const TransactionDetail: React.FC = () => {
         </Button>
         <Button
           type='button'
-          disabled={transaction.status_code != 1003}
+          disabled={transaction.status_code != 1003 && transaction.status_code != 1000}
           className='mt-3 mr-4'
           onClick={handleManualCallback}
           variant='contained'
