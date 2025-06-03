@@ -282,11 +282,11 @@ export default function Transactions() {
     { id: 6, name: 'Full Electricals' },
     { id: 7, name: 'Codashop' },
     { id: 8, name: 'Cynking' },
-    { id: 9, name: 'EMG' },
-    { id: 10, name: 'Funbid' },
-    { id: 11, name: 'PM Max' },
-    { id: 12, name: 'Topfun' },
-    { id: 13, name: 'Spofeed' },
+    { id: 9, name: 'Cynking2' },
+    { id: 10, name: 'EMG' },
+    { id: 11, name: 'Funbid' },
+    { id: 12, name: 'PM Max' },
+    { id: 13, name: 'Topfun' },
     { id: 14, name: 'PG777' },
     { id: 15, name: 'Duoleworld' },
     { id: 16, name: 'Mandala' },
@@ -295,6 +295,7 @@ export default function Transactions() {
     { id: 19, name: 'JPE3' },
     { id: 20, name: 'JPE4' },
     { id: 21, name: 'JPE5' },
+    { id: 22, name: 'Spofeed' },
   ]
 
   const denomList = [
