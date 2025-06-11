@@ -261,6 +261,7 @@ export default function Transactions() {
     { id: 15, name: 'Spofeed' },
     { id: 16, name: 'Artha Mandala' },
     { id: 17, name: 'Surat Sakit' },
+    { id: 18, name: 'H2 GAMES PTE. LTD' },
   ]
 
   const merchantListAlif = [
@@ -296,6 +297,7 @@ export default function Transactions() {
     { id: 20, name: 'JPE4' },
     { id: 21, name: 'JPE5' },
     { id: 22, name: 'Spofeed' },
+    { id: 23, name: 'HIGGS GAMES' },
   ]
 
   const denomList = [
