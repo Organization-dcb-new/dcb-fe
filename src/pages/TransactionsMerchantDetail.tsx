@@ -7,7 +7,7 @@ import dayjs from 'dayjs'
 import { Typography, Card, CircularProgress, Box } from '@mui/material'
 import { useAuth } from '../provider/AuthProvider'
 import { useNavigate } from 'react-router-dom'
-import { jwtDecode } from 'jwt-decode'
+import formatRupiah from '../utils/FormatRupiah'
 
 interface Transaction {
   u_id: string
@@ -36,23 +36,58 @@ const TransactionMerchantDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const navigate = useNavigate()
 
-  const { token } = useAuth()
-  const decoded: any = jwtDecode(token as string)
+  const { token, apiUrl, appId, appKey, isDev } = useAuth()
 
   let paymentMethod
 
   let status
   let failReason
 
+  const handleMarkSuccess = async () => {
+    if (!transaction) return
+    try {
+      await axios.get(`${apiUrl}/mark-paid/${transaction.u_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          appid: appId,
+          appkey: appKey,
+        },
+      })
+      alert('Marked as success')
+      navigate(0) // reload halaman
+    } catch (error) {
+      console.error('Failed to mark as success:', error)
+      alert('Gagal mark success')
+    }
+  }
+
+  const handleMarkFailed = async () => {
+    if (!transaction) return
+    try {
+      await axios.get(`${apiUrl}/mark-failed/${transaction.u_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          appid: appId,
+          appkey: appKey,
+        },
+      })
+      alert('Marked as failed')
+      navigate(0)
+    } catch (error) {
+      console.error('Failed to mark as failed:', error)
+      alert('Gagal mark failed')
+    }
+  }
+
   useEffect(() => {
     const fetchTransactionDetail = async () => {
       try {
-        const response = await axios.get(`https://sandbox-payment.redision.com/api/merchant/transaction/${id}`, {
+        const response = await axios.get(`${apiUrl}/merchant/transaction/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
-            appid: decoded.appid,
-            appkey: decoded.appkey,
+            appid: appId,
+            appkey: appKey,
           },
         })
         setTransaction(response.data.data)
@@ -103,6 +138,15 @@ const TransactionMerchantDetail: React.FC = () => {
       break
     case 'tri_airtime':
       paymentMethod = 'Tri'
+      break
+    case 'qris':
+      paymentMethod = 'Qris'
+      break
+    case 'gopay':
+      paymentMethod = 'Gopay'
+      break
+    case 'shopeepay':
+      paymentMethod = 'Shopeepay'
       break
   }
 
@@ -162,7 +206,7 @@ const TransactionMerchantDetail: React.FC = () => {
               <div className='w-1/4'>
                 <strong> Amount :</strong>
               </div>
-              <div> {transaction.amount}</div>
+              <div> {formatRupiah(transaction.amount)}</div>
             </div>
             <div className='w-full flex'>
               <div className='w-1/4'>
@@ -183,7 +227,7 @@ const TransactionMerchantDetail: React.FC = () => {
               <div className='w-1/4'>
                 <strong>Price:</strong>
               </div>
-              <div>{transaction.price}</div>
+              <div>{formatRupiah(transaction.price)}</div>
             </div>
           </Box>
           <Box display='flex'>
@@ -243,6 +287,21 @@ const TransactionMerchantDetail: React.FC = () => {
           </Box>
         </Box>
       </Card>
+      {/* <div className='flex pl-4 pt-2'>
+        <Button
+          type='button'
+          className='mt-3 mr-4'
+          size='small'
+          variant='contained'
+          color='info'
+          onClick={() => navigate(-1)}
+        >
+          Back
+        </Button>
+        <Button type='button' disabled className='mt-3 mr-4' variant='contained' color='success'>
+          Make Success
+        </Button>
+      </div> */}
       <div className='flex pl-4 pt-2'>
         <Button
           type='button'
@@ -254,9 +313,36 @@ const TransactionMerchantDetail: React.FC = () => {
         >
           Back
         </Button>
-        {/* <Button type='button' disabled className='mt-3 mr-4' variant='contained' color='success'>
-          Make Success
-        </Button> */}
+
+        {isDev && (
+          <>
+            {transaction.status_code !== 1000 && (
+              <Button
+                type='button'
+                className='mt-3 mr-4'
+                variant='contained'
+                color='success'
+                size='small'
+                onClick={handleMarkSuccess}
+              >
+                Mark Success
+              </Button>
+            )}
+
+            {transaction.status_code !== 1005 && (
+              <Button
+                type='button'
+                className='mt-3 mr-4'
+                variant='contained'
+                color='error'
+                size='small'
+                onClick={handleMarkFailed}
+              >
+                Mark Failed
+              </Button>
+            )}
+          </>
+        )}
       </div>
     </div>
   )
