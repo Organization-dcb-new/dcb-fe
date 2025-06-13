@@ -359,12 +359,25 @@ export default function Transactions() {
   }
 
   useEffect(() => {
-    if (decoded.role == 'merchant') {
+    if (decoded.role === 'merchant') {
       window.location.href = '/merchant-transactions'
+      return
     }
 
     fetchData(currentPage, pageSize)
-  }, [currentPage, pageSize, resetTrigger])
+
+    let interval: ReturnType<typeof setInterval> | undefined
+
+    if (!isFiltered) {
+      interval = setInterval(() => {
+        fetchData(currentPage, pageSize)
+      }, 20000)
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [currentPage, pageSize, resetTrigger, isFiltered, decoded.role])
 
   const routes = [
     { name: 'All', value: '' },
