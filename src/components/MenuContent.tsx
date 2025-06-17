@@ -16,6 +16,7 @@ import {
   ListOutlined,
   ExpandLess,
   ExpandMore,
+  BarChartOutlined,
   // StarBorder,
 } from '@mui/icons-material'
 
@@ -40,7 +41,10 @@ export default function MenuContent() {
       text: 'Redpay',
       icon: <BusinessOutlined />,
       path: '/merchant',
-      nestedItems: [{ text: 'Merchant', icon: <StoreMallDirectoryOutlined />, path: '/merchant' }],
+      nestedItems: [
+        { text: 'Merchant', icon: <StoreMallDirectoryOutlined />, path: '/merchant' },
+        { text: 'Summary', icon: <BarChartOutlined />, path: '/admin/summary' },
+      ],
     },
   ]
 
