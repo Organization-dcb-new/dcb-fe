@@ -29,6 +29,7 @@ interface Transaction {
   updated_at: Date
   ximpay_id: string
   reference_id: string
+  otp: number
   midtrans_transaction_id: string
   timestamp_request_date: Date
   receive_callback_date: Date
@@ -480,6 +481,17 @@ const TransactionDetail: React.FC = () => {
               <div>{transaction.timestamp_callback_result}</div>
             </div>
           </Box>
+          {transaction.payment_method === 'telkomsel_airtime' && (
+            <Box display='flex'>
+              <div className='w-full flex'>
+                <div className='w-1/4'>
+                  <strong>SMS Code:</strong>
+                </div>
+                <div>{transaction.otp}</div>
+              </div>
+              <div className='w-full flex'></div>
+            </Box>
+          )}
         </Box>
       </Card>
       <div className='flex pl-4 pt-2'>
