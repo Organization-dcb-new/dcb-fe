@@ -261,7 +261,8 @@ export default function Transactions() {
     { id: 15, name: 'Spofeed' },
     { id: 16, name: 'Artha Mandala' },
     { id: 17, name: 'Surat Sakit' },
-    { id: 18, name: 'H2 GAMES PTE. LTD' },
+    { id: 18, name: 'TutuReels' },
+    { id: 19, name: 'H2 GAMES PTE. LTD' },
   ]
 
   const merchantListAlif = [
@@ -297,7 +298,8 @@ export default function Transactions() {
     { id: 20, name: 'JPE4' },
     { id: 21, name: 'JPE5' },
     { id: 22, name: 'Spofeed' },
-    { id: 23, name: 'HIGGS GAMES' },
+    { id: 23, name: 'TutuReels' },
+    { id: 24, name: 'HIGGS GAMES' },
   ]
 
   const denomList = [
@@ -790,7 +792,7 @@ export default function Transactions() {
                 size='small'
                 className='border-sky-400'
                 variant='outlined'
-                disabled={loadingExport || total > 200000}
+                disabled={loadingExport || total > 350000}
                 color='info'
                 onClick={() => handleExport('csv')}
               >
