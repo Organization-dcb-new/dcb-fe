@@ -93,9 +93,9 @@ const columns: ColumnType<any>[] = [
       return paymentMethod
     },
   },
-
   {
     title: 'Merchant',
+    width: 220,
     dataIndex: 'merchant_name',
     key: 'merchant_name',
   },
@@ -137,20 +137,27 @@ const columns: ColumnType<any>[] = [
       return <Badge color={color} text={text} />
     },
   },
-
   {
-    title: 'Item Name',
+    title: 'Route',
     width: 170,
     align: 'center',
-    dataIndex: 'item_name',
-    key: 'item_name',
+    dataIndex: 'route',
+    key: 'route',
   },
+
   {
     title: 'Fail Reason',
     width: 120,
     align: 'center',
     dataIndex: 'fail_reason',
     key: 'fail_reason',
+  },
+  {
+    title: 'Item Name',
+    width: 170,
+    align: 'center',
+    dataIndex: 'item_name',
+    key: 'item_name',
   },
   // {
   //   title: 'User ID',
