@@ -301,6 +301,7 @@ export default function Transactions() {
     { id: 22, name: 'Spofeed' },
     { id: 23, name: 'TutuReels' },
     { id: 24, name: 'HIGGS GAMES' },
+    { id: 25, name: 'BINTANG' },
   ]
 
   const denomList = [
