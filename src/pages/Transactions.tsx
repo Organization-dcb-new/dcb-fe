@@ -264,6 +264,7 @@ export default function Transactions() {
     { id: 17, name: 'Surat Sakit' },
     { id: 18, name: 'TutuReels' },
     { id: 19, name: 'H2 GAMES PTE. LTD' },
+    { id: 20, name: 'BINTANG' },
   ]
 
   const merchantListAlif = [
@@ -301,7 +302,7 @@ export default function Transactions() {
     { id: 22, name: 'Spofeed' },
     { id: 23, name: 'TutuReels' },
     { id: 24, name: 'HIGGS GAMES' },
-    { id: 25, name: 'BINTANG' },
+    { id: 25, name: 'PT  BINTANG GADING CEMERTANG' },
   ]
 
   const denomList = [
