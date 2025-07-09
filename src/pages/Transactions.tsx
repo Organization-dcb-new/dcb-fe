@@ -153,19 +153,6 @@ const columns: ColumnType<any>[] = [
     key: 'fail_reason',
   },
   {
-    title: 'Item Name',
-    width: 170,
-    align: 'center',
-    dataIndex: 'item_name',
-    key: 'item_name',
-  },
-  // {
-  //   title: 'User ID',
-  //   width: 150,
-  //   dataIndex: 'user_id',
-  //   key: 'user_id',
-  // },
-  {
     title: 'Merchant Trx ID',
     width: 200,
     dataIndex: 'merchant_transaction_id',
@@ -177,6 +164,13 @@ const columns: ColumnType<any>[] = [
         </div>
       </Tooltip>
     ),
+  },
+  {
+    title: 'Item Name',
+    width: 170,
+    align: 'center',
+    dataIndex: 'item_name',
+    key: 'item_name',
   },
   {
     title: 'Action',
