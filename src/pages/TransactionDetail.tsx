@@ -30,6 +30,7 @@ interface Transaction {
   ximpay_id: string
   reference_id: string
   otp: number
+  route: string
   midtrans_transaction_id: string
   timestamp_request_date: Date
   receive_callback_date: Date
@@ -408,7 +409,7 @@ const TransactionDetail: React.FC = () => {
               <div className='w-1/4'>
                 <strong>Route :</strong>
               </div>
-              <div> {transaction.payment_method}</div>
+              <div> {transaction.route}</div>
             </div>
             <div className='w-full flex'>
               <div className='w-1/4'>
