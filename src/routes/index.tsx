@@ -10,6 +10,8 @@ import PrivateRoute from '../components/PrivateRoute'
 import TransactionDetail from '../pages/TransactionDetail'
 import TransactionsMerchant from '../pages/TransactionsMerchant'
 import TransactionMerchantDetail from '../pages/TransactionsMerchantDetail'
+import Report from '../pages/Report'
+// import SummaryDaily from '../pages/SummaryDaily'
 
 const router = createBrowserRouter([
   {
@@ -56,6 +58,14 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+      // {
+      //   path: 'report-transactions',
+      //   element: (
+      //     <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+      //       <ReportTransactions />
+      //     </PrivateRoute>
+      //   ),
+      // },
       {
         path: 'merchant-transaction/:id',
         element: (
@@ -65,12 +75,12 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'summary/:type',
-        element: (
-          <PrivateRoute>
-            <Summary />
-          </PrivateRoute>
-        ),
+        // path: 'summary/:type',
+        // element: (
+        //   <PrivateRoute>
+        //     <Summary />
+        //   </PrivateRoute>
+        // ),
         children: [
           {
             path: 'summary/hourly',
@@ -80,19 +90,27 @@ const router = createBrowserRouter([
               </PrivateRoute>
             ),
           },
-          {
-            path: 'summary/daily',
-            element: (
-              <PrivateRoute>
-                <Summary />
-              </PrivateRoute>
-            ),
-          },
+          // {
+          //   path: 'summary/daily',
+          //   element: (
+          //     <PrivateRoute>
+          //       <SummaryDaily />
+          //     </PrivateRoute>
+          //   ),
+          // },
           {
             path: 'summary/monthly',
             element: <Summary />,
           },
         ],
+      },
+      {
+        path: 'report',
+        element: (
+          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+            <Report />
+          </PrivateRoute>
+        ),
       },
     ],
   },
