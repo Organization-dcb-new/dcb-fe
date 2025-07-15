@@ -174,6 +174,7 @@ const Report: React.FC = () => {
   const [filteredClient, setFilteredClient] = useState<string | undefined>()
   const [filteredPaymentMethod, setFilteredPaymentMethod] = useState<{ name: string; value: string } | undefined>()
   const [filteredMonth, setFilteredMonth] = useState<Dayjs | null>(dayjs())
+  const { apiUrl } = useAuth()
 
   // const [clientUid, setClientUid] = useState<string>('0196ed48-bca0-792a-a9d3-f00c53b0c395')
   // const [appId, setAppId] = useState<string>('SiO8o3xKcdgUHRsydUBTzQ')
@@ -189,7 +190,6 @@ const Report: React.FC = () => {
     const { app_id, client_uid } = clientMap[filteredClient]
     const start = filteredMonth.startOf('month')
     const end = filteredMonth.endOf('month')
-    const { apiUrl } = useAuth()
 
     const start_date = encodeURIComponent(start.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]'))
     const end_date = encodeURIComponent(end.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]'))

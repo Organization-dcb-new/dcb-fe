@@ -57,11 +57,11 @@ export default function MenuContent() {
         },
       ],
     },
-    {
-      text: 'Report Transactions',
-      icon: <ListAltOutlined />,
-      path: '/report-transactions',
-    },
+    // {
+    //   text: 'Report Transactions',
+    //   icon: <ListAltOutlined />,
+    //   path: '/report-transactions',
+    // },
     {
       text: 'Summary',
       icon: <ListAltOutlined />,
