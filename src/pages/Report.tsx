@@ -4,6 +4,7 @@ import axios from 'axios'
 import type { TableColumnsType } from 'antd'
 import Typography from '@mui/material/Typography'
 import dayjs, { Dayjs } from 'dayjs'
+import { useAuth } from '../provider/AuthProvider'
 
 import pdfMake from 'pdfmake/build/pdfmake'
 import numberToWords from 'number-to-words'
@@ -188,6 +189,7 @@ const Report: React.FC = () => {
     const { app_id, client_uid } = clientMap[filteredClient]
     const start = filteredMonth.startOf('month')
     const end = filteredMonth.endOf('month')
+    const { apiUrl } = useAuth()
 
     const start_date = encodeURIComponent(start.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]'))
     const end_date = encodeURIComponent(end.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]'))
@@ -195,7 +197,7 @@ const Report: React.FC = () => {
     setLoading(true)
     try {
       const res = await axios.get(
-        `http://localhost:4000/api/report/merchant?start_date=${start_date}&end_date=${end_date}&payment_method=${filteredPaymentMethod.value}&client_uid=${client_uid}&app_id=${app_id}`,
+        `${apiUrl}/report/merchant?start_date=${start_date}&end_date=${end_date}&payment_method=${filteredPaymentMethod.value}&client_uid=${client_uid}&app_id=${app_id}`,
       )
       setData(res.data)
     } catch (error) {
