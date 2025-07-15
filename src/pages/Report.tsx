@@ -174,13 +174,13 @@ const Report: React.FC = () => {
   const [filteredPaymentMethod, setFilteredPaymentMethod] = useState<{ name: string; value: string } | undefined>()
   const [filteredMonth, setFilteredMonth] = useState<Dayjs | null>(dayjs())
 
-  const [clientUid, setClientUid] = useState<string>('0196ed48-bca0-792a-a9d3-f00c53b0c395')
-  const [appId, setAppId] = useState<string>('SiO8o3xKcdgUHRsydUBTzQ')
-  const [paymentMethod, setPaymentMethod] = useState<string>('')
-  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
-    dayjs().startOf('month'),
-    dayjs().endOf('month'),
-  ])
+  // const [clientUid, setClientUid] = useState<string>('0196ed48-bca0-792a-a9d3-f00c53b0c395')
+  // const [appId, setAppId] = useState<string>('SiO8o3xKcdgUHRsydUBTzQ')
+  // const [paymentMethod, setPaymentMethod] = useState<string>('')
+  // const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
+  //   dayjs().startOf('month'),
+  //   dayjs().endOf('month'),
+  // ])
 
   const fetchReport = async () => {
     if (!filteredClient || !filteredPaymentMethod || !filteredMonth) return
