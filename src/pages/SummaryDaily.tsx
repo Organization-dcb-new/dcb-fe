@@ -31,7 +31,7 @@ const TransactionSummaryPage: React.FC = () => {
   const [status, setStatus] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('')
   const [route, setRoute] = useState('')
-  const { token, apiUrl } = useAuth()
+  const { apiUrl } = useAuth()
 
   const fetchSummary = async () => {
     setLoading(true)
