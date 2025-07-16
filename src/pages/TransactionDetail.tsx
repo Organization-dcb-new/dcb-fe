@@ -339,6 +339,9 @@ const TransactionDetail: React.FC = () => {
       referenceId = transaction.midtrans_transaction_id
       break
     case 'qris':
+      if (transaction.route == 'qris_harsya') {
+        transaction.reference_id
+      }
       referenceId = transaction.midtrans_transaction_id
       break
     default:
