@@ -170,6 +170,44 @@ const TransactionDetail: React.FC = () => {
     }
   }
 
+  const handleCheckStatusQrisHarsya = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/check-status/qris-harsya/${transaction?.reference_id}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const result = await response.json()
+      console.log('result: ', result)
+      if (response.ok && result.data?.data?.status == 'PAID') {
+        setTransactionStatus({
+          status: 'Success',
+          responseDesc: '',
+          json: result.data,
+        })
+      } else {
+        setTransactionStatus({
+          status: 'Failed',
+          // responseDesc: result.data?.response || 'Transaction failed or unknown response',
+          responseDesc: '',
+          json: result.data,
+        })
+      }
+    } catch (error) {
+      console.error('Error checking OVO transaction:', error)
+      setTransactionStatus({
+        status: 'Error',
+        responseDesc: 'Failed to check transaction status with OVO.',
+        json: '',
+      })
+    } finally {
+      setOpen(true)
+    }
+  }
+
   const handleManualCallback = async () => {
     try {
       const response = await fetch(`${apiUrl}/manual-callback/${id}`, {
@@ -311,7 +349,8 @@ const TransactionDetail: React.FC = () => {
   const checkCharging =
     transaction.payment_method == 'xl_airtime' ||
     transaction.payment_method == 'dana' ||
-    transaction.payment_method == 'ovo'
+    transaction.payment_method == 'ovo' ||
+    transaction.route == 'qris_harsya'
 
   return (
     <div>
@@ -504,6 +543,8 @@ const TransactionDetail: React.FC = () => {
               handleCheckStatusDana()
             } else if (transaction.payment_method === 'ovo') {
               handleCheckStatusOvo()
+            } else if (transaction.payment_method === 'qris_harsya' || transaction.route === 'qris_harsya') {
+              handleCheckStatusQrisHarsya()
             } else {
               handleCheckCharging()
             }
