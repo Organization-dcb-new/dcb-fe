@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Table, Tag, Typography, Spin, message, DatePicker, Select, Input, Button, Row, Col, Space } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useAuth } from '../provider/AuthProvider'
+import { useMerchants } from '../context/MerchantContext'
 
 import axios from 'axios'
 import dayjs, { Dayjs } from 'dayjs'
@@ -21,9 +22,25 @@ export interface TransactionDailySummary {
   revenue: number
 }
 
+const paymentMethods = [
+  { name: 'All', value: '' },
+  { name: 'Xl', value: 'xl_airtime' },
+  { name: 'Telkomsel', value: 'telkomsel_airtime' },
+  { name: 'Tri', value: 'three_airtime' },
+  { name: 'Indosat', value: 'indosat_airtime' },
+  { name: 'Smartfren', value: 'smartfren_airtime' },
+  { name: 'Gopay', value: 'gopay' },
+  { name: 'Shopeepay', value: 'shopeepay' },
+  { name: 'Qris', value: 'qris' },
+  { name: 'Ovo', value: 'ovo' },
+  { name: 'Dana', value: 'dana' },
+  { name: 'Va Bca', value: 'va_bca' },
+]
+
 const TransactionSummaryPage: React.FC = () => {
   const [data, setData] = useState<TransactionDailySummary[]>([])
   const [loading, setLoading] = useState(false)
+  const { merchants, error } = useMerchants()
 
   // Filter state
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null)
@@ -42,7 +59,7 @@ const TransactionSummaryPage: React.FC = () => {
         params.start_date = dateRange[0].toISOString()
         params.end_date = dateRange[1].toISOString()
       }
-      if (merchantName) params.merchant_name = merchantName
+      if (merchantName) params.merchant = merchantName
       if (status) params.status = status
       if (paymentMethod) params.payment_method = paymentMethod
       if (route) params.route = route
@@ -55,6 +72,25 @@ const TransactionSummaryPage: React.FC = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleExport = (format: 'csv' | 'excel') => {
+    const params = new URLSearchParams()
+
+    if (dateRange) {
+      if (dateRange[0]) params.append('start_date', dayjs(dateRange[0]).format('YYYY-MM-DD'))
+      if (dateRange[1]) params.append('end_date', dayjs(dateRange[1]).format('YYYY-MM-DD'))
+    }
+
+    if (merchantName) params.append('merchant', merchantName)
+    if (status) params.append('status', status)
+    if (paymentMethod) params.append('payment_method', paymentMethod)
+    if (route) params.append('route', route)
+
+    params.append('format', format)
+
+    const url = `${apiUrl}/summary/transaction?${params.toString()}`
+    window.open(url, '_blank')
   }
 
   useEffect(() => {
@@ -143,7 +179,25 @@ const TransactionSummaryPage: React.FC = () => {
         </Col>
         <Col span={6}>
           <Text>Merchant</Text>
-          <Input placeholder='Merchant name' value={merchantName} onChange={(e) => setMerchantName(e.target.value)} />
+          <Select
+            showSearch
+            placeholder='Select merchant'
+            value={merchantName}
+            onChange={(value) => setMerchantName(value)}
+            allowClear
+            style={{ width: '100%' }}
+            optionFilterProp='children'
+            filterOption={(input, option) =>
+              (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
+            }
+            loading={!merchants.length && !error}
+          >
+            {merchants.map((merchant) => (
+              <Option key={merchant.u_id} value={merchant.client_name}>
+                {merchant.client_name}
+              </Option>
+            ))}
+          </Select>
         </Col>
       </Row>
 
@@ -163,13 +217,23 @@ const TransactionSummaryPage: React.FC = () => {
             <Option value='failed'>Failed</Option>
           </Select>
         </Col>
-        <Col span={6}>
+        <Col span={6} className='flex flex-col'>
           <Text>Payment Method</Text>
-          <Input
-            placeholder='Payment method'
+          <Select
+            // style={{ width: 200 }}
+            placeholder='Select Payment Method'
             value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-          />
+            onChange={(value) => setPaymentMethod(value)}
+            allowClear
+            showSearch
+            optionFilterProp='children'
+          >
+            {paymentMethods.map((pm) => (
+              <Select.Option key={pm.value} value={pm.value}>
+                {pm.name}
+              </Select.Option>
+            ))}
+          </Select>
         </Col>
       </Row>
 
@@ -187,6 +251,19 @@ const TransactionSummaryPage: React.FC = () => {
             </Button>
             <Button onClick={handleReset}>Reset</Button>
           </Space>
+        </Col>
+      </Row>
+
+      <Row justify='start' gutter={8} style={{ marginBottom: 16, marginTop: 16 }}>
+        <Col>
+          <Button variant='outlined' color='primary' onClick={() => handleExport('csv')}>
+            Export CSV
+          </Button>
+        </Col>
+        <Col>
+          <Button variant='solid' color='default' onClick={() => handleExport('excel')}>
+            Export Excel
+          </Button>
         </Col>
       </Row>
 

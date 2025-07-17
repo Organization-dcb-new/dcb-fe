@@ -6,12 +6,13 @@ import MainLayout from '../layout/MainLayout'
 import Transactions from '../pages/Transactions'
 import Summary from '../pages/Summary'
 import PrivateRoute from '../components/PrivateRoute'
+import { MerchantProvider } from '../context/MerchantContext'
 
 import TransactionDetail from '../pages/TransactionDetail'
 import TransactionsMerchant from '../pages/TransactionsMerchant'
 import TransactionMerchantDetail from '../pages/TransactionsMerchantDetail'
 import Report from '../pages/Report'
-// import SummaryDaily from '../pages/SummaryDaily'
+import SummaryDaily from '../pages/SummaryDaily'
 
 const router = createBrowserRouter([
   {
@@ -90,14 +91,16 @@ const router = createBrowserRouter([
               </PrivateRoute>
             ),
           },
-          // {
-          //   path: 'summary/daily',
-          //   element: (
-          //     <PrivateRoute>
-          //       <SummaryDaily />
-          //     </PrivateRoute>
-          //   ),
-          // },
+          {
+            path: 'summary/daily',
+            element: (
+              <PrivateRoute>
+                <MerchantProvider>
+                  <SummaryDaily />
+                </MerchantProvider>
+              </PrivateRoute>
+            ),
+          },
           {
             path: 'summary/monthly',
             element: <Summary />,
