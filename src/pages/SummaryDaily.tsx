@@ -168,7 +168,12 @@ const TransactionSummaryPage: React.FC = () => {
       title: 'Revenue',
       dataIndex: 'revenue',
       key: 'revenue',
-      render: (revenue: number) => `Rp ${revenue?.toLocaleString('id-ID')}`,
+      render: (revenue: number, record) => {
+        if (record.status?.toLowerCase() !== 'success') {
+          return '-'
+        }
+        return `Rp ${revenue?.toLocaleString('id-ID')}`
+      },
     },
   ]
 
