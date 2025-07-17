@@ -125,6 +125,27 @@ const TransactionSummaryPage: React.FC = () => {
       title: 'Payment Method',
       dataIndex: 'payment_method',
       key: 'payment_method',
+
+      render: (paymentMethod: string) => {
+        switch (paymentMethod) {
+          case 'xl_airtime':
+            paymentMethod = 'XL'
+            break
+          case 'telkomsel_airtime':
+            paymentMethod = 'Telkomsel'
+            break
+          case 'smartfren_airtime':
+            paymentMethod = 'Smartfren'
+            break
+          case 'indosat_airtime':
+            paymentMethod = 'Indosat'
+            break
+          case 'three_airtime':
+            paymentMethod = 'Tri'
+            break
+        }
+        return paymentMethod
+      },
     },
     {
       title: 'Channel',
