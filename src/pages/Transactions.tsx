@@ -27,7 +27,6 @@ import { ColumnType } from 'antd/es/table'
 
 import Badge from '../components/Badge'
 
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { useAuth } from '../provider/AuthProvider'
@@ -265,6 +264,7 @@ export default function Transactions() {
     { id: 18, name: 'TutuReels' },
     { id: 19, name: 'H2 GAMES PTE. LTD' },
     { id: 20, name: 'PT  BINTANG GADING CEMERTANG' },
+    { id: 21, name: 'Oneverse Technology Pte. Ltd' },
   ]
 
   const merchantListAlif = [
@@ -303,6 +303,7 @@ export default function Transactions() {
     { id: 23, name: 'TutuReels' },
     { id: 24, name: 'HIGGS GAMES' },
     { id: 25, name: 'BINTANG' },
+    { id: 26, name: 'BINTANG' },
   ]
 
   const denomList = [
