@@ -16,6 +16,7 @@ export interface TransactionDailySummary {
   status: string
   payment_method: string
   amount: number
+  price: number
   route: string
   merchant_name: string
   total: number
@@ -56,8 +57,8 @@ const TransactionSummaryPage: React.FC = () => {
       const params: any = {}
 
       if (dateRange) {
-        params.start_date = dateRange[0].toISOString()
-        params.end_date = dateRange[1].toISOString()
+        params.start_date = dateRange[0].format('YYYY-MM-DD')
+        params.end_date = dateRange[1].format('YYYY-MM-DD')
       }
       if (merchantName) params.merchant = merchantName
       if (status) params.status = status
@@ -155,9 +156,9 @@ const TransactionSummaryPage: React.FC = () => {
     },
     {
       title: 'Price',
-      dataIndex: 'amount',
-      key: 'amount',
-      render: (amount: number) => `Rp ${amount?.toLocaleString('id-ID')}`,
+      dataIndex: 'price',
+      key: 'price',
+      render: (price: number) => `Rp ${price?.toLocaleString('id-ID')}`,
     },
     {
       title: 'Total',
