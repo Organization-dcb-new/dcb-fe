@@ -34,6 +34,7 @@ import { jwtDecode } from 'jwt-decode'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import formatRupiah from '../utils/FormatRupiah'
+import { useMerchants } from '../context/MerchantContext'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -239,33 +240,10 @@ export default function Transactions() {
   const [loadingExport, setLoadingExport] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [selectedRows, setSelectedRows] = useState<any[]>([])
+  const { merchants, error } = useMerchants()
   const { RangePicker } = DatePicker
 
   const isAlif = decoded.username == 'alifadmin'
-
-  const merchantList = [
-    { id: 1, name: 'HIGO GAME PTE LTD' },
-    { id: 2, name: 'Redigame' },
-    { id: 3, name: 'PT WAHANA VENTURINDO GALAMEGA' },
-    { id: 4, name: 'PT Jaya Permata Elektro' },
-    { id: 5, name: 'Evos Store' },
-    { id: 6, name: 'Zingplay International PTE,. LTD' },
-    { id: 7, name: 'CYNKING' },
-    { id: 8, name: 'Coda' },
-    { id: 9, name: 'EMGLINK' },
-    { id: 10, name: 'FUNBID' },
-    { id: 11, name: 'WEIDIAN TECHNOLOGY CO' },
-    { id: 12, name: 'PM Max' },
-    { id: 13, name: 'SHAKE GAME PTE.LTD' },
-    { id: 14, name: 'Pt Beta Karya Transaksi (TWIG)' },
-    { id: 15, name: 'Spofeed' },
-    { id: 16, name: 'Artha Mandala' },
-    { id: 17, name: 'Surat Sakit' },
-    { id: 18, name: 'TutuReels' },
-    { id: 19, name: 'H2 GAMES PTE. LTD' },
-    { id: 20, name: 'PT  BINTANG GADING CEMERTANG' },
-    { id: 21, name: 'Oneverse Technology Pte. Ltd' },
-  ]
 
   const merchantListAlif = [
     { id: 1, name: 'Evos Store' },
@@ -277,34 +255,7 @@ export default function Transactions() {
     { id: 2, name: 'Codashop' },
   ]
 
-  const appList = [
-    { id: 1, name: 'Royal Domino' },
-    { id: 2, name: 'Redigame' },
-    { id: 3, name: 'Wavegame - 3 Kingdom' },
-    { id: 4, name: 'Evos Top Up' },
-    { id: 5, name: 'Zingplay games' },
-    { id: 6, name: 'Full Electricals' },
-    { id: 7, name: 'Codashop' },
-    { id: 8, name: 'Cynking' },
-    { id: 9, name: 'Cynking2' },
-    { id: 10, name: 'EMG' },
-    { id: 11, name: 'Funbid' },
-    { id: 12, name: 'PM Max' },
-    { id: 13, name: 'Topfun' },
-    { id: 14, name: 'PG777' },
-    { id: 15, name: 'Duoleworld' },
-    { id: 16, name: 'Mandala' },
-    { id: 17, name: 'JPE1' },
-    { id: 18, name: 'JPE2' },
-    { id: 19, name: 'JPE3' },
-    { id: 20, name: 'JPE4' },
-    { id: 21, name: 'JPE5' },
-    { id: 22, name: 'Spofeed' },
-    { id: 23, name: 'TutuReels' },
-    { id: 24, name: 'HIGGS GAMES' },
-    { id: 25, name: 'BINTANG' },
-    { id: 26, name: 'BINTANG' },
-  ]
+  const appList = merchants.flatMap((m) => m.apps)
 
   const denomList = [
     3000, 5000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 70000, 75000, 100000, 150000, 200000, 250000,
@@ -514,6 +465,8 @@ export default function Transactions() {
     return data
   }
 
+  console.log('merchants:', merchants)
+
   const handleBatchManualCallback = async () => {
     try {
       const confirmed = window.confirm(
@@ -666,6 +619,13 @@ export default function Transactions() {
                       value={formData.app_name}
                       onChange={handleChange}
                       input={<OutlinedInput label='app_name' />}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 350,
+                          },
+                        },
+                      }}
                     >
                       {isAlif
                         ? appListAlif.map((app) => (
@@ -674,8 +634,8 @@ export default function Transactions() {
                             </MenuItem>
                           ))
                         : appList.map((app) => (
-                            <MenuItem key={app.id} value={app.name}>
-                              {app.name}
+                            <MenuItem key={app.id} value={app.app_name}>
+                              {app.app_name}
                             </MenuItem>
                           ))}
                     </Select>
@@ -732,6 +692,13 @@ export default function Transactions() {
                       onChange={handleChange}
                       renderValue={(selected) => selected.join(', ')}
                       input={<OutlinedInput label='merchant_name' />}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 350,
+                          },
+                        },
+                      }}
                     >
                       {isAlif
                         ? merchantListAlif.map((merchant) => (
@@ -739,9 +706,9 @@ export default function Transactions() {
                               {merchant.name}
                             </MenuItem>
                           ))
-                        : merchantList.map((merchant) => (
-                            <MenuItem key={merchant.id} value={merchant.name}>
-                              {merchant.name}
+                        : merchants.map((merchant) => (
+                            <MenuItem key={merchant.u_id} value={merchant.client_name}>
+                              {merchant.client_name}
                             </MenuItem>
                           ))}
                     </Select>

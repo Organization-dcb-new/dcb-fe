@@ -2,6 +2,7 @@ import Home from '../pages/Home'
 import Login from '../pages/Login'
 import { createBrowserRouter } from 'react-router-dom'
 import Dashboard from '../pages/Dashboard'
+import DashboardMerchant from '../pages/DashboardMerchant'
 import MainLayout from '../layout/MainLayout'
 import Transactions from '../pages/Transactions'
 import Summary from '../pages/Summary'
@@ -24,15 +25,15 @@ const router = createBrowserRouter([
         path: '/',
         element: (
           <PrivateRoute>
-            <Home />
+            <Dashboard />
           </PrivateRoute>
         ),
       },
       {
-        path: 'dashboard',
+        path: 'merchant-dashboard',
         element: (
           <PrivateRoute>
-            <Dashboard />
+            <DashboardMerchant />
           </PrivateRoute>
         ),
       },
@@ -40,7 +41,9 @@ const router = createBrowserRouter([
         path: 'transactions',
         element: (
           <PrivateRoute allowedRoles={['admin', 'superadmin']}>
-            <Transactions />
+            <MerchantProvider>
+              <Transactions />
+            </MerchantProvider>
           </PrivateRoute>
         ),
       },
@@ -87,7 +90,7 @@ const router = createBrowserRouter([
           {
             path: 'summary/hourly',
             element: (
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['admin', 'superadmin']}>
                 <Summary />
               </PrivateRoute>
             ),
@@ -95,7 +98,7 @@ const router = createBrowserRouter([
           {
             path: 'summary/daily',
             element: (
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['admin', 'superadmin']}>
                 <MerchantProvider>
                   <SummaryDaily />
                 </MerchantProvider>
