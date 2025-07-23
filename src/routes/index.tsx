@@ -11,6 +11,7 @@ import { MerchantProvider } from '../context/MerchantContext'
 import TransactionDetail from '../pages/TransactionDetail'
 import TransactionsMerchant from '../pages/TransactionsMerchant'
 import TransactionMerchantDetail from '../pages/TransactionsMerchantDetail'
+import SummaryAdmin from '../pages/SummaryAdmin'
 import Report from '../pages/Report'
 import SummaryDaily from '../pages/SummaryDaily'
 
@@ -106,6 +107,14 @@ const router = createBrowserRouter([
             element: <Summary />,
           },
         ],
+      },
+      {
+        path: 'admin/summary',
+        element: (
+          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+            <SummaryAdmin />
+          </PrivateRoute>
+        ),
       },
       {
         path: 'report',
