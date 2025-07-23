@@ -12,6 +12,10 @@ const PrivateRoute = ({ children, allowedRoles }: PrivateRouteProps) => {
   const isAuthenticated = !!token // Cek apakah pengguna terautentikasi
   // const hasAccess = allowedRoles ? allowedRoles.includes(role as string) : true // Cek apakah role ada dalam allowedRoles
   // console.log('hasAccess: ', hasAccess)
+  if (role == null) {
+    return <div className='p-4 text-center'>Loading...</div>
+  }
+
   const hasAccess = allowedRoles ? allowedRoles?.includes(role as string) : true
   if (!hasAccess) return <Navigate to='/' />
 
