@@ -29,6 +29,8 @@ interface Transaction {
   updated_at: Date
   ximpay_id: string
   reference_id: string
+  otp: number
+  route: string
   midtrans_transaction_id: string
   timestamp_request_date: Date
   receive_callback_date: Date
@@ -143,6 +145,44 @@ const TransactionDetail: React.FC = () => {
       const result = await response.json()
       console.log('result: ', result)
       if (response.ok && result.data?.responseCode == '00') {
+        setTransactionStatus({
+          status: 'Success',
+          responseDesc: '',
+          json: result.data,
+        })
+      } else {
+        setTransactionStatus({
+          status: 'Failed',
+          // responseDesc: result.data?.response || 'Transaction failed or unknown response',
+          responseDesc: '',
+          json: result.data,
+        })
+      }
+    } catch (error) {
+      console.error('Error checking OVO transaction:', error)
+      setTransactionStatus({
+        status: 'Error',
+        responseDesc: 'Failed to check transaction status with OVO.',
+        json: '',
+      })
+    } finally {
+      setOpen(true)
+    }
+  }
+
+  const handleCheckStatusQrisHarsya = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/check-status/qris-harsya/${transaction?.reference_id}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const result = await response.json()
+      console.log('result: ', result)
+      if (response.ok && result.data?.data?.status == 'PAID') {
         setTransactionStatus({
           status: 'Success',
           responseDesc: '',
@@ -299,6 +339,9 @@ const TransactionDetail: React.FC = () => {
       referenceId = transaction.midtrans_transaction_id
       break
     case 'qris':
+      if (transaction.route == 'qris_harsya') {
+        transaction.reference_id
+      }
       referenceId = transaction.midtrans_transaction_id
       break
     default:
@@ -309,7 +352,8 @@ const TransactionDetail: React.FC = () => {
   const checkCharging =
     transaction.payment_method == 'xl_airtime' ||
     transaction.payment_method == 'dana' ||
-    transaction.payment_method == 'ovo'
+    transaction.payment_method == 'ovo' ||
+    transaction.route == 'qris_harsya'
 
   return (
     <div>
@@ -407,7 +451,7 @@ const TransactionDetail: React.FC = () => {
               <div className='w-1/4'>
                 <strong>Route :</strong>
               </div>
-              <div> {transaction.payment_method}</div>
+              <div> {transaction.route}</div>
             </div>
             <div className='w-full flex'>
               <div className='w-1/4'>
@@ -480,6 +524,17 @@ const TransactionDetail: React.FC = () => {
               <div>{transaction.timestamp_callback_result}</div>
             </div>
           </Box>
+          {transaction.payment_method === 'telkomsel_airtime' && (
+            <Box display='flex'>
+              <div className='w-full flex'>
+                <div className='w-1/4'>
+                  <strong>SMS Code:</strong>
+                </div>
+                <div>{transaction.otp}</div>
+              </div>
+              <div className='w-full flex'></div>
+            </Box>
+          )}
         </Box>
       </Card>
       <div className='flex pl-4 pt-2'>
@@ -491,6 +546,8 @@ const TransactionDetail: React.FC = () => {
               handleCheckStatusDana()
             } else if (transaction.payment_method === 'ovo') {
               handleCheckStatusOvo()
+            } else if (transaction.payment_method === 'qris_harsya' || transaction.route === 'qris_harsya') {
+              handleCheckStatusQrisHarsya()
             } else {
               handleCheckCharging()
             }

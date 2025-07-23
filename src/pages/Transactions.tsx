@@ -27,7 +27,6 @@ import { ColumnType } from 'antd/es/table'
 
 import Badge from '../components/Badge'
 
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { useAuth } from '../provider/AuthProvider'
@@ -93,9 +92,9 @@ const columns: ColumnType<any>[] = [
       return paymentMethod
     },
   },
-
   {
     title: 'Merchant',
+    width: 220,
     dataIndex: 'merchant_name',
     key: 'merchant_name',
   },
@@ -137,14 +136,14 @@ const columns: ColumnType<any>[] = [
       return <Badge color={color} text={text} />
     },
   },
-
   {
-    title: 'Item Name',
+    title: 'Route',
     width: 170,
     align: 'center',
-    dataIndex: 'item_name',
-    key: 'item_name',
+    dataIndex: 'route',
+    key: 'route',
   },
+
   {
     title: 'Fail Reason',
     width: 120,
@@ -152,12 +151,6 @@ const columns: ColumnType<any>[] = [
     dataIndex: 'fail_reason',
     key: 'fail_reason',
   },
-  // {
-  //   title: 'User ID',
-  //   width: 150,
-  //   dataIndex: 'user_id',
-  //   key: 'user_id',
-  // },
   {
     title: 'Merchant Trx ID',
     width: 200,
@@ -170,6 +163,13 @@ const columns: ColumnType<any>[] = [
         </div>
       </Tooltip>
     ),
+  },
+  {
+    title: 'Item Name',
+    width: 170,
+    align: 'center',
+    dataIndex: 'item_name',
+    key: 'item_name',
   },
   {
     title: 'Action',
@@ -261,7 +261,10 @@ export default function Transactions() {
     { id: 15, name: 'Spofeed' },
     { id: 16, name: 'Artha Mandala' },
     { id: 17, name: 'Surat Sakit' },
-    { id: 18, name: 'H2 GAMES PTE. LTD' },
+    { id: 18, name: 'TutuReels' },
+    { id: 19, name: 'H2 GAMES PTE. LTD' },
+    { id: 20, name: 'PT  BINTANG GADING CEMERTANG' },
+    { id: 21, name: 'Oneverse Technology Pte. Ltd' },
   ]
 
   const merchantListAlif = [
@@ -297,7 +300,10 @@ export default function Transactions() {
     { id: 20, name: 'JPE4' },
     { id: 21, name: 'JPE5' },
     { id: 22, name: 'Spofeed' },
-    { id: 23, name: 'HIGGS GAMES' },
+    { id: 23, name: 'TutuReels' },
+    { id: 24, name: 'HIGGS GAMES' },
+    { id: 25, name: 'BINTANG' },
+    { id: 26, name: 'BINTANG' },
   ]
 
   const denomList = [
@@ -359,12 +365,25 @@ export default function Transactions() {
   }
 
   useEffect(() => {
-    if (decoded.role == 'merchant') {
+    if (decoded.role === 'merchant') {
       window.location.href = '/merchant-transactions'
+      return
     }
 
     fetchData(currentPage, pageSize)
-  }, [currentPage, pageSize, resetTrigger])
+
+    let interval: ReturnType<typeof setInterval> | undefined
+
+    if (!isFiltered) {
+      interval = setInterval(() => {
+        fetchData(currentPage, pageSize)
+      }, 20000)
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [currentPage, pageSize, resetTrigger, isFiltered, decoded.role])
 
   const routes = [
     { name: 'All', value: '' },
@@ -777,7 +796,7 @@ export default function Transactions() {
                 size='small'
                 className='border-sky-400'
                 variant='outlined'
-                disabled={loadingExport || total > 200000}
+                disabled={loadingExport || total > 1400000}
                 color='info'
                 onClick={() => handleExport('csv')}
               >
@@ -786,7 +805,7 @@ export default function Transactions() {
 
               <Button
                 size='small'
-                disabled={loadingExport || total > 50000}
+                disabled={loadingExport || total > 120000}
                 className='border-sky-400 ml-4'
                 variant='contained'
                 color='info'

@@ -13,7 +13,6 @@ import {
   BusinessOutlined,
   // Inbox as InboxIcon,
   ReceiptLongOutlined,
-  ListOutlined,
   ExpandLess,
   ExpandMore,
   BarChartOutlined,
@@ -61,16 +60,26 @@ export default function MenuContent() {
         },
       ],
     },
-    {
-      text: 'Summary',
-      icon: <ListAltOutlined />,
-      path: '/transactions',
-      nestedItems: [
-        { text: 'Report Hourly', icon: <ListOutlined />, path: '/summary/hourly' },
-        { text: 'Report Daily', icon: <ListOutlined />, path: '/summary/daily' },
-        { text: 'Report Monthly', icon: <ListOutlined />, path: '/summary/monthly' },
-      ],
-    },
+    // {
+    //   text: 'Report Transactions',
+    //   icon: <ListAltOutlined />,
+    //   path: '/report-transactions',
+    // },
+    ...(decoded.role !== 'merchant' ? [{ text: 'Summary', icon: <ListAltOutlined />, path: '/summary/daily' }] : []),
+    // {
+    //   text: 'Summary',
+    //   icon: <ListAltOutlined />,
+    //   nestedItems: [
+    //     { text: 'Daily', icon: <ListOutlined />, path: '/summary/daily' },
+    //     // { text: 'Monthly', icon: <ListOutlined />, path: '/summary/monthly' },
+    //   ],
+    // },
+    ...(decoded.role !== 'merchant' ? [{ text: 'Report', icon: <ListAltOutlined />, path: '/report' }] : []),
+    // {
+    //   text: 'Report',
+    //   icon: <ListAltOutlined />,
+    //   path: '/report',
+    // },
   ]
 
   return (

@@ -23,3 +23,18 @@
   background: rgb(120, 181, 255);
   color: whitesmoke;
 }
+
+/* .report-table .ant-table-tbody > tr > td {
+  height: 12px !important; 
+  padding: 4px !important; 
+} */
+
+.report-table .ant-table-thead > tr > th {
+  height: 1px;
+  padding: auto;
+}
+
+.report-table .ant-table-tbody > tr > td {
+  height: 1px !important;
+  /* padding: 2px !important; */
+}
