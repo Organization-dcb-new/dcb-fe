@@ -89,7 +89,7 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
         password,
       }
 
-      const response = await axios.post(`https://sandbox-payment.redision.com/api/user/login`, userData, {
+      const response = await axios.post(`${apiUrl}/user/login`, userData, {
         headers: {
           'Content-Type': 'application/json',
         },

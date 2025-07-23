@@ -239,7 +239,7 @@ export default function TransactionsMerchant() {
         ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
         : null
 
-      const response = await axios.get(`https://sandbox-payment.redision.com/api/merchant/transactions`, {
+      const response = await axios.get(`${apiUrl}/merchant/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
