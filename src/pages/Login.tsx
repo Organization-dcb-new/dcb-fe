@@ -101,7 +101,7 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
       setToken(response.data.token)
       // Ganti dengan respons yang sesuai
       // Redirect atau lakukan tindakan lain setelah login berhasil
-      window.location.href = '/dashboard' // Ganti dengan rute yang sesuai
+      window.location.href = '/' // Ganti dengan rute yang sesuai
     } catch (error: unknown) {
       console.error('Login failed:', error)
       // Tangani error, misalnya menampilkan pesan kesalahan
