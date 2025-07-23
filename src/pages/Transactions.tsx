@@ -8,6 +8,7 @@ import { alpha } from '@mui/material/styles'
 // import CssBaseline from '@mui/material/CssBaseline'
 import { TextField, OutlinedInput, Select, MenuItem, Tooltip } from '@mui/material'
 import Button from '@mui/material/Button'
+import { Button as ButtonAnt } from 'antd'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 // import AppNavbar from '../components/AppNavbar'
@@ -21,18 +22,18 @@ import { FormLabel } from '@mui/material'
 
 import Typography from '@mui/material/Typography'
 // import AppTheme from '../styles/theme/shared-theme/AppTheme'
-import { Table, DatePicker } from 'antd'
+import { Table, DatePicker, Modal } from 'antd'
 import { ColumnType } from 'antd/es/table'
 
 import Badge from '../components/Badge'
 
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { useAuth } from '../provider/AuthProvider'
 import { jwtDecode } from 'jwt-decode'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import formatRupiah from '../utils/FormatRupiah'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -91,9 +92,9 @@ const columns: ColumnType<any>[] = [
       return paymentMethod
     },
   },
-
   {
     title: 'Merchant',
+    width: 220,
     dataIndex: 'merchant_name',
     key: 'merchant_name',
   },
@@ -108,6 +109,9 @@ const columns: ColumnType<any>[] = [
     align: 'center',
     dataIndex: 'amount',
     key: 'amount',
+    render: (denom: number) => {
+      return <p>{formatRupiah(denom)}</p>
+    },
   },
   {
     title: 'Status',
@@ -132,14 +136,14 @@ const columns: ColumnType<any>[] = [
       return <Badge color={color} text={text} />
     },
   },
-
   {
-    title: 'Item Name',
+    title: 'Route',
     width: 170,
     align: 'center',
-    dataIndex: 'item_name',
-    key: 'item_name',
+    dataIndex: 'route',
+    key: 'route',
   },
+
   {
     title: 'Fail Reason',
     width: 120,
@@ -147,12 +151,6 @@ const columns: ColumnType<any>[] = [
     dataIndex: 'fail_reason',
     key: 'fail_reason',
   },
-  // {
-  //   title: 'User ID',
-  //   width: 150,
-  //   dataIndex: 'user_id',
-  //   key: 'user_id',
-  // },
   {
     title: 'Merchant Trx ID',
     width: 200,
@@ -165,6 +163,13 @@ const columns: ColumnType<any>[] = [
         </div>
       </Tooltip>
     ),
+  },
+  {
+    title: 'Item Name',
+    width: 170,
+    align: 'center',
+    dataIndex: 'item_name',
+    key: 'item_name',
   },
   {
     title: 'Action',
@@ -197,8 +202,8 @@ export default function Transactions() {
     payment_method: string[]
     payment_status: string
     status: number | null
-    start_date: string | null // Pastikan ini adalah string | null
-    end_date: string | null // Pastikan ini adalah string | null
+    start_date: dayjs.Dayjs | null
+    end_date: dayjs.Dayjs | null
     app_name: string
     item_name: string
     denom: number | null
@@ -211,8 +216,8 @@ export default function Transactions() {
     payment_method: [],
     payment_status: '',
     status: null,
-    start_date: null,
-    end_date: null,
+    start_date: dayjs().startOf('day'),
+    end_date: dayjs().endOf('day'),
     app_name: '',
     item_name: '',
     denom: null,
@@ -226,47 +231,101 @@ export default function Transactions() {
   const [isFiltered, setIsFiltered] = useState(false)
   const [resetTrigger, setResetTrigger] = useState(0)
   const { token, apiUrl } = useAuth()
+  const [filterMode, setFilterMode] = useState<'all' | 'jpe' | 'higo' | 'non-jpe'>('all')
+  const [jpeData, setJpeData] = useState([])
+  const [higoData, setHigoData] = useState([])
+  const [nonJpeData, setNonJpeData] = useState([])
   const decoded: any = jwtDecode(token as string)
+  const [loadingExport, setLoadingExport] = useState(false)
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
+  const [selectedRows, setSelectedRows] = useState<any[]>([])
   const { RangePicker } = DatePicker
+
+  const isAlif = decoded.username == 'alifadmin'
 
   const merchantList = [
     { id: 1, name: 'HIGO GAME PTE LTD' },
     { id: 2, name: 'Redigame' },
     { id: 3, name: 'PT WAHANA VENTURINDO GALAMEGA' },
-    { id: 3, name: 'PT Jaya Permata Elektro' },
+    { id: 4, name: 'PT Jaya Permata Elektro' },
+    { id: 5, name: 'Evos Store' },
+    { id: 6, name: 'Zingplay International PTE,. LTD' },
+    { id: 7, name: 'CYNKING' },
+    { id: 8, name: 'Coda' },
+    { id: 9, name: 'EMGLINK' },
+    { id: 10, name: 'FUNBID' },
+    { id: 11, name: 'WEIDIAN TECHNOLOGY CO' },
+    { id: 12, name: 'PM Max' },
+    { id: 13, name: 'SHAKE GAME PTE.LTD' },
+    { id: 14, name: 'Pt Beta Karya Transaksi (TWIG)' },
+    { id: 15, name: 'Spofeed' },
+    { id: 16, name: 'Artha Mandala' },
+    { id: 17, name: 'Surat Sakit' },
+    { id: 18, name: 'TutuReels' },
+    { id: 19, name: 'H2 GAMES PTE. LTD' },
+    { id: 20, name: 'PT  BINTANG GADING CEMERTANG' },
+    { id: 21, name: 'Oneverse Technology Pte. Ltd' },
+  ]
+
+  const merchantListAlif = [
+    { id: 1, name: 'Evos Store' },
+    { id: 2, name: 'Coda' },
+  ]
+
+  const appListAlif = [
+    { id: 1, name: 'Evos Top Up' },
+    { id: 2, name: 'Codashop' },
   ]
 
   const appList = [
     { id: 1, name: 'Royal Domino' },
     { id: 2, name: 'Redigame' },
     { id: 3, name: 'Wavegame - 3 Kingdom' },
+    { id: 4, name: 'Evos Top Up' },
+    { id: 5, name: 'Zingplay games' },
+    { id: 6, name: 'Full Electricals' },
+    { id: 7, name: 'Codashop' },
+    { id: 8, name: 'Cynking' },
+    { id: 9, name: 'Cynking2' },
+    { id: 10, name: 'EMG' },
+    { id: 11, name: 'Funbid' },
+    { id: 12, name: 'PM Max' },
+    { id: 13, name: 'Topfun' },
+    { id: 14, name: 'PG777' },
+    { id: 15, name: 'Duoleworld' },
+    { id: 16, name: 'Mandala' },
+    { id: 17, name: 'JPE1' },
+    { id: 18, name: 'JPE2' },
+    { id: 19, name: 'JPE3' },
+    { id: 20, name: 'JPE4' },
+    { id: 21, name: 'JPE5' },
+    { id: 22, name: 'Spofeed' },
+    { id: 23, name: 'TutuReels' },
+    { id: 24, name: 'HIGGS GAMES' },
+    { id: 25, name: 'BINTANG' },
+    { id: 26, name: 'BINTANG' },
   ]
 
-  const denomList = [3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 100000]
+  const denomList = [
+    3000, 5000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 70000, 75000, 100000, 150000, 200000, 250000,
+    300000, 325000, 500000,
+  ]
 
-  // const hasFilters = () => {
-  //   return (
-  //     formData.user_mdn ||
-  //     formData.user_id ||
-  //     formData.merchant_transaction_id ||
-  //     formData.transaction_id ||
-  //     formData.merchant_name.length > 0 ||
-  //     formData.app_name ||
-  //     formData.payment_method.length > 0 ||
-  //     formData.status !== null ||
-  //     formData.item_name ||
-  //     formData.denom !== null ||
-  //     formData.start_date ||
-  //     formData.end_date
-  //   )
-  // }
+  // const denomList = [
+  //   3000, 5000, 6000, 10000, 14000, 15000, 15800, 16338, 20000, 25000, 30000, 33000, 40000, 50000, 60000, 65000, 70000,
+  //   75000, 100000, 125000, 130000, 150000, 200000, 250000, 300000, 325000, 500000, 700000, 1000000,
+  // ]
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
-      const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
+      const start_date = formData.start_date
+        ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
 
-      const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
-      const response = await axios.get(`https://sandbox-payment.redision.com/api/transactions`, {
+      const end_date = formData.end_date
+        ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
+      const response = await axios.get(`${apiUrl}/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -288,7 +347,16 @@ export default function Transactions() {
           denom: formData.denom,
         },
       })
-      setData(response.data.data)
+
+      const allData = response.data.data || []
+      const jpeOnly = allData.filter((item: any) => item.merchant_name === 'PT Jaya Permata Elektro')
+      const higoOnly = allData.filter((item: any) => item.merchant_name === 'HIGO GAME PTE LTD')
+      const nonJpeOnly = allData.filter((item: any) => item.merchant_name != 'PT Jaya Permata Elektro')
+
+      setData(allData)
+      setJpeData(jpeOnly)
+      setHigoData(higoOnly)
+      setNonJpeData(nonJpeOnly)
 
       setTotal(response.data.pagination.total_items)
     } catch (error) {
@@ -297,12 +365,25 @@ export default function Transactions() {
   }
 
   useEffect(() => {
-    if (decoded.role == 'merchant') {
+    if (decoded.role === 'merchant') {
       window.location.href = '/merchant-transactions'
+      return
     }
 
     fetchData(currentPage, pageSize)
-  }, [currentPage, pageSize, resetTrigger])
+
+    let interval: ReturnType<typeof setInterval> | undefined
+
+    if (!isFiltered) {
+      interval = setInterval(() => {
+        fetchData(currentPage, pageSize)
+      }, 20000)
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [currentPage, pageSize, resetTrigger, isFiltered, decoded.role])
 
   const routes = [
     { name: 'All', value: '' },
@@ -314,6 +395,9 @@ export default function Transactions() {
     { name: 'Gopay', value: 'gopay' },
     { name: 'Shopeepay', value: 'shopeepay' },
     { name: 'Qris', value: 'qris' },
+    { name: 'Ovo', value: 'ovo' },
+    { name: 'Dana', value: 'dana' },
+    { name: 'Va Bca', value: 'va_bca' },
   ]
 
   const status = [
@@ -349,8 +433,8 @@ export default function Transactions() {
     const [start, end] = dates
     setFormData({
       ...formData,
-      start_date: start ? start.format('ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
-      end_date: end ? end.format('ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+      start_date: start,
+      end_date: end,
     })
   }
 
@@ -367,8 +451,8 @@ export default function Transactions() {
       status: null,
       item_name: '',
       denom: null,
-      start_date: null,
-      end_date: null,
+      start_date: dayjs().startOf('day'),
+      end_date: dayjs().endOf('day'),
     })
     setIsFiltered(false)
     setResetTrigger((prev) => prev + 1)
@@ -376,10 +460,16 @@ export default function Transactions() {
 
   const handleExport = async (type: string) => {
     try {
-      const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
+      setLoadingExport(true)
+      const start_date = formData.start_date
+        ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
 
-      const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
-      const response = await axios.get(`https://sandbox-payment.redision.com/api/export`, {
+      const end_date = formData.end_date
+        ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
+
+      const response = await axios.get(`${apiUrl}/export`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -388,27 +478,98 @@ export default function Transactions() {
           export_csv: type == 'csv' ? 'true' : 'false',
           export_excel: type == 'excel' ? 'true' : 'false',
           status: formData.status,
+          payment_method: formData.payment_method[0],
+          merchant_name: formData.merchant_name[0],
+          app_name: formData.app_name,
           start_date,
           end_date,
         },
         responseType: 'blob',
       })
 
+      const extension = type == 'csv' ? 'csv' : 'xlsx'
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', 'transactions.csv') // Nama file yang diunduh
+      link.setAttribute('download', `transactions.${extension}`)
       document.body.appendChild(link)
       link.click()
       link.remove()
     } catch (error) {
       console.error('Error exporting CSV:', error)
+    } finally {
+      setLoadingExport(false)
     }
   }
 
   const handlePageChange = (page: number, pageSize: number) => {
     setCurrentPage(page)
     setPageSize(pageSize)
+  }
+
+  const getFilteredData = () => {
+    if (filterMode === 'jpe') return jpeData
+    if (filterMode === 'higo') return higoData
+    if (filterMode === 'non-jpe') return nonJpeData
+    return data
+  }
+
+  const handleBatchManualCallback = async () => {
+    try {
+      const confirmed = window.confirm(
+        `Kamu yakin ingin mengirim manual callback untuk ${selectedRows.length} transaksi?`,
+      )
+      if (!confirmed) return
+
+      const promises = selectedRows.map((transaction) =>
+        fetch(`${apiUrl}/manual-callback/${transaction.u_id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            transaction_id: transaction.u_id,
+            merchant_transaction_id: transaction.merchant_transaction_id,
+            status_code: 1000,
+            message: 'Transaction updated',
+          }),
+        })
+          .then((res) => res.json())
+          .then((res) => ({
+            transactionId: transaction.u_id,
+            success: res.status === 200 || res.code === 200 || res.success === true,
+            message: res.message,
+          })),
+      )
+
+      const results = await Promise.all(promises)
+      const failed = results.filter((r) => !r.success)
+
+      if (failed.length === 0) {
+        Modal.success({
+          title: 'Batch Manual Callback Success',
+          content: `${results.length} transaksi berhasil dikirim manual callback.`,
+        })
+      } else {
+        Modal.warning({
+          title: 'Sebagian Gagal',
+          content: `${failed.length} dari ${results.length} transaksi gagal dikirim. Cek log untuk detail.`,
+        })
+        console.error('Failed callbacks:', failed)
+      }
+
+      // Refresh data
+      fetchData(currentPage, pageSize)
+      setSelectedRowKeys([])
+      setSelectedRows([])
+    } catch (error) {
+      console.error('Batch callback error:', error)
+      Modal.error({
+        title: 'Batch Callback Error',
+        content: 'Terjadi kesalahan saat menjalankan batch callback.',
+      })
+    }
   }
 
   return (
@@ -440,8 +601,8 @@ export default function Transactions() {
             <span className='font-semibold'>Filter Transaction</span>
             <div className='mt-3'>
               <form onSubmit={handleSubmit}>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6}>
+                <Grid container rowSpacing={2} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                  <Grid size={4}>
                     <FormLabel className='font-medium'>User MDN</FormLabel>
                     <TextField
                       variant='outlined'
@@ -452,7 +613,17 @@ export default function Transactions() {
                       onChange={handleChange}
                     />
                   </Grid>
-                  <Grid size={6}>
+                  <Grid size={4}>
+                    <FormLabel className='font-medium'>Merchant Trx ID</FormLabel>
+                    <TextField
+                      variant='outlined'
+                      fullWidth
+                      name='merchant_transaction_id'
+                      value={formData.merchant_transaction_id}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid size={4}>
                     <FormLabel className='font-medium'>User ID</FormLabel>
                     <TextField
                       variant='outlined'
@@ -464,17 +635,18 @@ export default function Transactions() {
                   </Grid>
                 </Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6}>
-                    <FormLabel className='font-medium'>Merchant Trx ID</FormLabel>
-                    <TextField
-                      variant='outlined'
-                      fullWidth
-                      name='merchant_transaction_id'
-                      value={formData.merchant_transaction_id}
-                      onChange={handleChange}
+                  <Grid size={4} className='flex flex-col'>
+                    <FormLabel className='font-medium'>Filter Date</FormLabel>
+
+                    <RangePicker
+                      size='large'
+                      showTime={{ format: 'HH:mm:ss' }}
+                      format='YYYY-MM-DD HH:mm'
+                      onChange={handleDateChange}
+                      value={[formData.start_date, formData.end_date]}
                     />
                   </Grid>
-                  <Grid size={6}>
+                  <Grid size={4}>
                     <FormLabel className='font-medium'>Transaction ID</FormLabel>
                     <TextField
                       variant='outlined'
@@ -484,28 +656,8 @@ export default function Transactions() {
                       onChange={handleChange}
                     />
                   </Grid>
-                </Grid>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6} className='flex flex-col'>
-                    <FormLabel className='font-medium'>Filter Date</FormLabel>
-                    {/* <LocalizationProvider dateAdapter={AdapterDayjs}> */}
-                    {/* <DatePicker
-                        label='Select Start Date'
-                        value={formData.start_date}
-                        onChange={handleDateChange('start_date')}
-                        renderInput={(params) => <TextField {...params} />}
-                      /> */}
-                    <RangePicker
-                      size='large'
-                      onChange={handleDateChange}
-                      value={[
-                        formData.start_date ? dayjs(formData.start_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
-                        formData.end_date ? dayjs(formData.end_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
-                      ]}
-                    />
-                    {/* </LocalizationProvider> */}
-                  </Grid>
-                  <Grid size={6} className='flex flex-col'>
+
+                  <Grid size={4} className='flex flex-col'>
                     <FormLabel className='font-medium'>App</FormLabel>
                     <Select
                       labelId='merchant-label'
@@ -515,16 +667,23 @@ export default function Transactions() {
                       onChange={handleChange}
                       input={<OutlinedInput label='app_name' />}
                     >
-                      {appList.map((app) => (
-                        <MenuItem key={app.id} value={app.name}>
-                          {app.name}
-                        </MenuItem>
-                      ))}
+                      {isAlif
+                        ? appListAlif.map((app) => (
+                            <MenuItem key={app.id} value={app.name}>
+                              {app.name}
+                            </MenuItem>
+                          ))
+                        : appList.map((app) => (
+                            <MenuItem key={app.id} value={app.name}>
+                              {app.name}
+                            </MenuItem>
+                          ))}
                     </Select>
                   </Grid>
                 </Grid>
+                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6} className='flex flex-col'>
+                  <Grid size={4} className='flex flex-col'>
                     <FormLabel className='font-medium'>Payment Method</FormLabel>
                     <Select
                       multiple
@@ -543,7 +702,7 @@ export default function Transactions() {
                       ))}
                     </Select>
                   </Grid>
-                  <Grid size={6} className='flex flex-col'>
+                  <Grid size={4} className='flex flex-col'>
                     <FormLabel className='font-medium'>Status</FormLabel>
 
                     <Select
@@ -561,9 +720,7 @@ export default function Transactions() {
                       ))}
                     </Select>
                   </Grid>
-                </Grid>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={6} className='flex flex-col'>
+                  <Grid size={4} className='flex flex-col'>
                     <FormLabel className='font-medium'>Merchant</FormLabel>
 
                     <Select
@@ -576,14 +733,22 @@ export default function Transactions() {
                       renderValue={(selected) => selected.join(', ')}
                       input={<OutlinedInput label='merchant_name' />}
                     >
-                      {merchantList.map((merchant) => (
-                        <MenuItem key={merchant.id} value={merchant.name}>
-                          {merchant.name}
-                        </MenuItem>
-                      ))}
+                      {isAlif
+                        ? merchantListAlif.map((merchant) => (
+                            <MenuItem key={merchant.id} value={merchant.name}>
+                              {merchant.name}
+                            </MenuItem>
+                          ))
+                        : merchantList.map((merchant) => (
+                            <MenuItem key={merchant.id} value={merchant.name}>
+                              {merchant.name}
+                            </MenuItem>
+                          ))}
                     </Select>
                   </Grid>
-                  <Grid size={6}>
+                </Grid>
+                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                  <Grid size={4}>
                     <FormLabel className='font-medium'>Denom</FormLabel>
                     <Select
                       style={{ marginTop: '6px' }}
@@ -631,40 +796,93 @@ export default function Transactions() {
                 size='small'
                 className='border-sky-400'
                 variant='outlined'
+                disabled={loadingExport || total > 1400000}
                 color='info'
                 onClick={() => handleExport('csv')}
               >
-                Export Csv
+                {loadingExport ? 'Processing...' : 'Export CSV'}
               </Button>
 
               <Button
                 size='small'
+                disabled={loadingExport || total > 120000}
                 className='border-sky-400 ml-4'
                 variant='contained'
                 color='info'
                 onClick={() => handleExport('excel')}
               >
-                Export Excel
+                {loadingExport ? 'Processing...' : 'Export Excel'}
               </Button>
             </div>
-            {isFiltered && <Typography variant='subtitle1'>Total Items: {total}</Typography>}
+            <div className='flex gap-2 mb-4'>
+              <Button
+                variant={filterMode === 'all' ? 'contained' : 'outlined'}
+                color='primary'
+                onClick={() => setFilterMode('all')}
+              >
+                All
+              </Button>
+
+              <Button
+                variant={filterMode === 'non-jpe' ? 'contained' : 'outlined'}
+                color='primary'
+                onClick={() => setFilterMode('non-jpe')}
+              >
+                Non-JPE
+              </Button>
+
+              <Button
+                variant={filterMode === 'jpe' ? 'contained' : 'outlined'}
+                color='primary'
+                onClick={() => setFilterMode('jpe')}
+              >
+                JPE Only
+              </Button>
+              <Button
+                variant={filterMode === 'higo' ? 'contained' : 'outlined'}
+                color='primary'
+                onClick={() => setFilterMode('higo')}
+              >
+                Higo Only
+              </Button>
+            </div>
+          </div>
+          <div className='flex '>
+            <span className='ml-auto'>
+              {isFiltered && <Typography variant='subtitle1'>Total Items: {total}</Typography>}
+            </span>
           </div>
 
           {/* 1540px */}
-
+          {formData.status === 1003 && isFiltered && (
+            <ButtonAnt
+              type='primary'
+              disabled={formData.status !== 1003 || selectedRows.length === 0}
+              onClick={handleBatchManualCallback}
+            >
+              Manual Callback Selected
+            </ButtonAnt>
+          )}
           <div className='mt-5'>
             <Table
+              rowKey='u_id'
               columns={columns}
-              dataSource={data}
+              dataSource={getFilteredData()}
+              rowSelection={{
+                selectedRowKeys,
+                onChange: (keys, rows) => {
+                  setSelectedRowKeys(keys)
+                  setSelectedRows(rows)
+                },
+              }}
               pagination={{
                 current: currentPage,
                 pageSize: pageSize,
-                total: total >= 20000 ? 20000 : total,
+                total: total,
                 onChange: handlePageChange,
               }}
               size='small'
-              className='transactions-table '
-              rowKey='key'
+              className='transactions-table'
               scroll={{ x: 'max-content' }}
             />
           </div>

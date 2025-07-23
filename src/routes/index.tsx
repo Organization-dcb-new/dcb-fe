@@ -6,10 +6,13 @@ import MainLayout from '../layout/MainLayout'
 import Transactions from '../pages/Transactions'
 import Summary from '../pages/Summary'
 import PrivateRoute from '../components/PrivateRoute'
+import { MerchantProvider } from '../context/MerchantContext'
 
 import TransactionDetail from '../pages/TransactionDetail'
 import TransactionsMerchant from '../pages/TransactionsMerchant'
 import TransactionMerchantDetail from '../pages/TransactionsMerchantDetail'
+import Report from '../pages/Report'
+import SummaryDaily from '../pages/SummaryDaily'
 
 const router = createBrowserRouter([
   {
@@ -56,6 +59,14 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+      // {
+      //   path: 'report-transactions',
+      //   element: (
+      //     <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+      //       <ReportTransactions />
+      //     </PrivateRoute>
+      //   ),
+      // },
       {
         path: 'merchant-transaction/:id',
         element: (
@@ -65,12 +76,12 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'summary/:type',
-        element: (
-          <PrivateRoute>
-            <Summary />
-          </PrivateRoute>
-        ),
+        // path: 'summary/:type',
+        // element: (
+        //   <PrivateRoute>
+        //     <Summary />
+        //   </PrivateRoute>
+        // ),
         children: [
           {
             path: 'summary/hourly',
@@ -84,7 +95,9 @@ const router = createBrowserRouter([
             path: 'summary/daily',
             element: (
               <PrivateRoute>
-                <Summary />
+                <MerchantProvider>
+                  <SummaryDaily />
+                </MerchantProvider>
               </PrivateRoute>
             ),
           },
@@ -93,6 +106,14 @@ const router = createBrowserRouter([
             element: <Summary />,
           },
         ],
+      },
+      {
+        path: 'report',
+        element: (
+          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+            <Report />
+          </PrivateRoute>
+        ),
       },
     ],
   },

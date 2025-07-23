@@ -20,6 +20,7 @@ import { Table, DatePicker } from 'antd'
 
 import Badge from '../components/Badge'
 import { ColumnType } from 'antd/es/table'
+import formatRupiah from '../utils/FormatRupiah'
 
 // import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 // import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -103,6 +104,9 @@ const columns: ColumnType<any>[] = [
     align: 'center',
     dataIndex: 'amount',
     key: 'amount',
+    render: (denom: number) => {
+      return <p>{formatRupiah(denom)}</p>
+    },
   },
   {
     title: 'Status',
@@ -173,8 +177,8 @@ export default function TransactionsMerchant() {
     transaction_id: string
     payment_method: string[]
     status: number | null
-    start_date: string | null
-    end_date: string | null
+    start_date: dayjs.Dayjs | null
+    end_date: dayjs.Dayjs | null
     app_name: string
     item_name: string
     denom: number | null
@@ -185,8 +189,8 @@ export default function TransactionsMerchant() {
     transaction_id: '',
     payment_method: [],
     status: null,
-    start_date: null,
-    end_date: null,
+    start_date: dayjs().startOf('day'),
+    end_date: dayjs().endOf('day'),
     app_name: '',
     item_name: '',
     denom: null,
@@ -200,8 +204,8 @@ export default function TransactionsMerchant() {
       transaction_id: '',
       payment_method: [],
       status: null,
-      start_date: null,
-      end_date: null,
+      start_date: dayjs().startOf('day'),
+      end_date: dayjs().endOf('day'),
       app_name: '',
       item_name: '',
       denom: null,
@@ -227,9 +231,13 @@ export default function TransactionsMerchant() {
 
   const fetchData = async (page = 1, limit = 10) => {
     try {
-      const start_date = formData.start_date ? dayjs.tz(formData.start_date, 'Asia/Jakarta').startOf('day') : null
+      const start_date = formData.start_date
+        ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
 
-      const end_date = formData.end_date ? dayjs.tz(formData.end_date, 'Asia/Jakarta').endOf('day') : null
+      const end_date = formData.end_date
+        ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
 
       const response = await axios.get(`https://sandbox-payment.redision.com/api/merchant/transactions`, {
         headers: {
@@ -294,6 +302,8 @@ export default function TransactionsMerchant() {
     { name: 'Gopay', value: 'gopay' },
     { name: 'Shopeepay', value: 'shopeepay' },
     { name: 'Qris', value: 'qris' },
+    { name: 'Ovo', value: 'ovo' },
+    { name: 'Dana', value: 'dana' },
   ]
 
   const status = [
@@ -328,7 +338,15 @@ export default function TransactionsMerchant() {
 
   const handleExport = async (type: string) => {
     try {
-      const response = await axios.get(`https://sandbox-payment.redision.com/api/merchant/transactions`, {
+      const start_date = formData.start_date
+        ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
+
+      const end_date = formData.end_date
+        ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
+
+      const response = await axios.get(`${apiUrl}/export/transactions-merchant`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -338,7 +356,11 @@ export default function TransactionsMerchant() {
         params: {
           export_csv: type == 'csv' ? 'true' : 'false',
           export_excel: type == 'excel' ? 'true' : 'false',
-          ...formData,
+          status: formData.status,
+          payment_method: formData.payment_method[0],
+          app_name: formData.app_name,
+          start_date,
+          end_date,
         },
         responseType: 'blob',
       })
@@ -346,7 +368,10 @@ export default function TransactionsMerchant() {
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', 'transactions.csv')
+
+      const extension = type == 'csv' ? 'csv' : 'xlsx'
+
+      link.setAttribute('download', `transactions.${extension}`)
       document.body.appendChild(link)
       link.click()
       link.remove()
@@ -359,8 +384,8 @@ export default function TransactionsMerchant() {
     const [start, end] = dates
     setFormData({
       ...formData,
-      start_date: start ? start.format('ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
-      end_date: end ? end.format('ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
+      start_date: start,
+      end_date: end,
     })
   }
 
@@ -474,13 +499,13 @@ export default function TransactionsMerchant() {
                         onChange={handleDateChange('start_date')}
                         renderInput={(params) => <TextField {...params} />}
                       /> */}
+
                     <RangePicker
                       size='large'
+                      showTime={{ format: 'HH:mm:ss' }}
+                      format='YYYY-MM-DD HH:mm'
                       onChange={handleDateChange}
-                      value={[
-                        formData.start_date ? dayjs(formData.start_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
-                        formData.end_date ? dayjs(formData.end_date, 'ddd, DD MMM YYYY HH:mm:ss [GMT]') : null,
-                      ]}
+                      value={[formData.start_date, formData.end_date]}
                     />
                     {/* </LocalizationProvider> */}
                   </Grid>
@@ -581,6 +606,7 @@ export default function TransactionsMerchant() {
 
               <Button
                 size='small'
+                disabled
                 className='border-sky-400 ml-3'
                 variant='contained'
                 color='info'

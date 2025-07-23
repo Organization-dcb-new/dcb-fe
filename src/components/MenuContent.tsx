@@ -57,15 +57,23 @@ export default function MenuContent() {
         },
       ],
     },
+    // {
+    //   text: 'Report Transactions',
+    //   icon: <ListAltOutlined />,
+    //   path: '/report-transactions',
+    // },
     {
       text: 'Summary',
       icon: <ListAltOutlined />,
-      path: '/transactions',
       nestedItems: [
-        { text: 'Report Hourly', icon: <ListOutlined />, path: '/summary/hourly' },
-        { text: 'Report Daily', icon: <ListOutlined />, path: '/summary/daily' },
-        { text: 'Report Monthly', icon: <ListOutlined />, path: '/summary/monthly' },
+        { text: 'Daily', icon: <ListOutlined />, path: '/summary/daily' },
+        // { text: 'Monthly', icon: <ListOutlined />, path: '/summary/monthly' },
       ],
+    },
+    {
+      text: 'Report',
+      icon: <ListAltOutlined />,
+      path: '/report',
     },
   ]
 
