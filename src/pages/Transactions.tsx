@@ -240,7 +240,7 @@ export default function Transactions() {
   const [loadingExport, setLoadingExport] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [selectedRows, setSelectedRows] = useState<any[]>([])
-  const { merchants, error } = useMerchants()
+  const { merchants } = useMerchants()
   const { RangePicker } = DatePicker
 
   const isAlif = decoded.username == 'alifadmin'
@@ -464,8 +464,6 @@ export default function Transactions() {
     if (filterMode === 'non-jpe') return nonJpeData
     return data
   }
-
-  console.log('merchants:', merchants)
 
   const handleBatchManualCallback = async () => {
     try {

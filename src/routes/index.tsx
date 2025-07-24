@@ -1,4 +1,3 @@
-import Home from '../pages/Home'
 import Login from '../pages/Login'
 import { createBrowserRouter } from 'react-router-dom'
 import Dashboard from '../pages/Dashboard'
@@ -114,7 +113,7 @@ const router = createBrowserRouter([
       {
         path: 'admin/summary',
         element: (
-          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+          <PrivateRoute allowedRoles={['admin', 'superadmin', 'merchant']}>
             <SummaryAdmin />
           </PrivateRoute>
         ),
