@@ -8,7 +8,7 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import AppNavbar from '../components/AppNavbar'
 import Header from '../components/Header'
-import Summary from '../components/Summary'
+import SummaryMerchant from '../components/SummaryMerchant'
 import MainGrid from '../components/MainGrid'
 // import SideMenu from '../components/SideMenu'
 import AppTheme from '../styles/theme/shared-theme/AppTheme'
@@ -52,7 +52,7 @@ export default function DashboardMerchant(props: { disableCustomTheme?: boolean 
             }}
           >
             <Header />
-            <Summary />
+            <SummaryMerchant />
             <MainGrid />
           </Stack>
         </Box>

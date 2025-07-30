@@ -205,7 +205,7 @@ export default function Transactions() {
     status: number | null
     start_date: dayjs.Dayjs | null
     end_date: dayjs.Dayjs | null
-    app_name: string
+    selected_app_id: string
     item_name: string
     denom: number | null
   }>({
@@ -219,7 +219,7 @@ export default function Transactions() {
     status: null,
     start_date: dayjs().startOf('day'),
     end_date: dayjs().endOf('day'),
-    app_name: '',
+    selected_app_id: '',
     item_name: '',
     denom: null,
   })
@@ -244,6 +244,24 @@ export default function Transactions() {
   const { RangePicker } = DatePicker
 
   const isAlif = decoded.username == 'alifadmin'
+
+  // Function to get app_ids from merchant names
+  const getAppIdsFromMerchantNames = (merchantNames: string[]) => {
+    if (isAlif) {
+      return merchantNames // For Alif, return merchant names as is
+    }
+
+    const appIds: string[] = []
+    merchantNames.forEach((merchantName) => {
+      const merchant = merchants.find((m) => m.client_name === merchantName)
+      if (merchant) {
+        merchant.apps.forEach((app) => {
+          appIds.push(app.appid)
+        })
+      }
+    })
+    return appIds
+  }
 
   const merchantListAlif = [
     { id: 1, name: 'Evos Store' },
@@ -290,8 +308,7 @@ export default function Transactions() {
           user_id: formData.user_id,
           merchant_transaction_id: formData.merchant_transaction_id,
           transaction_id: formData.transaction_id,
-          merchant_name: formData.merchant_name.join(','),
-          app_name: formData.app_name,
+          app_id: formData.selected_app_id || getAppIdsFromMerchantNames(formData.merchant_name).join(','),
           payment_method: formData.payment_method.join(','),
           status: formData.status,
           item_name: formData.item_name,
@@ -396,7 +413,7 @@ export default function Transactions() {
       merchant_transaction_id: '',
       transaction_id: '',
       merchant_name: [],
-      app_name: '',
+      selected_app_id: '',
       payment_method: [],
       payment_status: '',
       status: null,
@@ -430,8 +447,7 @@ export default function Transactions() {
           export_excel: type == 'excel' ? 'true' : 'false',
           status: formData.status,
           payment_method: formData.payment_method[0],
-          merchant_name: formData.merchant_name[0],
-          app_name: formData.app_name,
+          app_id: formData.selected_app_id || getAppIdsFromMerchantNames(formData.merchant_name).join(','),
           start_date,
           end_date,
         },
@@ -612,11 +628,11 @@ export default function Transactions() {
                     <FormLabel className='font-medium'>App</FormLabel>
                     <Select
                       labelId='merchant-label'
-                      id='app_name'
-                      name='app_name'
-                      value={formData.app_name}
+                      id='selected_app_id'
+                      name='selected_app_id'
+                      value={formData.selected_app_id}
                       onChange={handleChange}
-                      input={<OutlinedInput label='app_name' />}
+                      input={<OutlinedInput label='app_id' />}
                       MenuProps={{
                         PaperProps: {
                           style: {
@@ -627,12 +643,12 @@ export default function Transactions() {
                     >
                       {isAlif
                         ? appListAlif.map((app) => (
-                            <MenuItem key={app.id} value={app.name}>
+                            <MenuItem key={app.id} value={app.id}>
                               {app.name}
                             </MenuItem>
                           ))
                         : appList.map((app) => (
-                            <MenuItem key={app.id} value={app.app_name}>
+                            <MenuItem key={app.appid} value={app.appid}>
                               {app.app_name}
                             </MenuItem>
                           ))}
@@ -679,10 +695,10 @@ export default function Transactions() {
                     </Select>
                   </Grid>
                   <Grid size={4} className='flex flex-col'>
-                    <FormLabel className='font-medium'>Merchant</FormLabel>
+                    <FormLabel className='font-medium'>Merchant Name</FormLabel>
 
                     <Select
-                      labelId='merchant-label'
+                      labelId='merchant-name-label'
                       multiple
                       id='merchant_name'
                       name='merchant_name'

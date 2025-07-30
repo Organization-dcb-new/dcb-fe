@@ -5,6 +5,7 @@ import type { TableColumnsType } from 'antd'
 import Typography from '@mui/material/Typography'
 import dayjs, { Dayjs } from 'dayjs'
 import { useAuth } from '../provider/AuthProvider'
+import { useMerchants } from '../context/MerchantContext'
 
 import pdfMake from 'pdfmake/build/pdfmake'
 import numberToWords from 'number-to-words'
@@ -25,20 +26,7 @@ pdfMake.fonts = {
 const { Option } = Select
 const { MonthPicker } = DatePicker
 
-const clients = [
-  'HIGO',
-  'JPE',
-  'Topfun',
-  'Evos Store',
-  'Wavegame - 3 Kingdom',
-  'Cynking',
-  'Zingplay',
-  'Duoleworld',
-  'ShakeGame',
-  'PM Max',
-  'Cynking 2',
-  'Surat sakit',
-]
+// Clients will be populated from useMerchants context
 
 const paymentMethods = [
   { name: 'Gopay', value: 'gopay' },
@@ -90,6 +78,7 @@ const columns: TableColumnsType<ReportSummary> = [
   {
     title: '#Trx',
     dataIndex: 'count',
+    width: 100,
     key: 'count',
     align: 'center',
   },
@@ -116,65 +105,41 @@ const columns: TableColumnsType<ReportSummary> = [
   },
 ]
 
-const clientMap: Record<string, { app_id: string; client_uid: string }> = {
-  HIGO: {
-    app_id: 'gAWqjDbWzJ9wavLiaz9SBQ',
-    client_uid: '019416c1-9f40-7883-9f84-435073ce9ddf',
-  },
-  JPE: {
-    app_id: 'JPE_APP_ID',
-    client_uid: 'JPE_CLIENT_UID',
-  },
-  Topfun: {
-    app_id: 'SiO8o3xKcdgUHRsydUBTzQ',
-    client_uid: '0196ed48-bca0-792a-a9d3-f00c53b0c395',
-  },
-  'Evos Store': {
-    app_id: '9rcAHdIH8_ldK_zJJmg-5g',
-    client_uid: '019590dd-8b0a-73b1-8053-c292e9f07d49',
-  },
-  'Wavegame - 3 Kingdom': {
-    app_id: 'N9Cx8WA9wm1q9EBGBo3FJw',
-    client_uid: '0194f3c4-61b8-7664-898a-53b118baedf9',
-  },
-  Cynking: {
-    app_id: 'H1ZfmYe7vKdGnnO4ssSZkg',
-    client_uid: '0195a7de-e7a4-7cb6-a54a-1e0a6a4e89b5',
-  },
-  Zingplay: {
-    app_id: 'CKxpZpt29Cx3BjOJ0CItnQ',
-    client_uid: '0195a2be-7b9c-719e-9b79-1568714beedd',
-  },
-  Duoleworld: {
-    app_id: 'uqP6lp2PMpW1R1R_XEgnbA',
-    client_uid: '0195c7a6-6d7a-7709-96a9-1f11884659d6',
-  },
-  ShakeGame: {
-    app_id: 'yn0tgptmQ4lzQ8Lv-0Amyg',
-    client_uid: '0195b37e-592c-7166-aa5e-6db7757d7599',
-  },
-  'PM Max': {
-    app_id: '6078feb8764f1ba30a8b4569',
-    client_uid: '0195b1ba-bb22-7393-b3c0-9baa8b438fff',
-  },
-  'Cynking 2': {
-    app_id: 'P42AKFaXdfpraIs4W2fj6w',
-    client_uid: '0195a7de-e7a4-7cb6-a54a-1e0a6a4e89b5',
-  },
-  'Surat sakit': {
-    app_id: '1C3G8iQaYGvofX9zUDHccg',
-    client_uid: '0196b49a-8e60-7f3d-be8a-022d0266ba93',
-  },
-}
+// Client map will be generated from useMerchants context
 
 const Report: React.FC = () => {
   const [data, setData] = useState<ReportData>()
   const [loading, setLoading] = useState(false)
 
   const [filteredClient, setFilteredClient] = useState<string | undefined>()
+  const [filteredApp, setFilteredApp] = useState<string | undefined>()
   const [filteredPaymentMethod, setFilteredPaymentMethod] = useState<{ name: string; value: string } | undefined>()
   const [filteredMonth, setFilteredMonth] = useState<Dayjs | null>(dayjs())
   const { apiUrl } = useAuth()
+  const { merchants, loading: merchantsLoading } = useMerchants()
+
+  // Generate app map from merchants context
+  const appMap = merchants.reduce(
+    (acc, merchant) => {
+      merchant.apps.forEach((app) => {
+        acc[app.app_name] = {
+          app_id: app.appid,
+          client_uid: merchant.u_id,
+          merchant_name: merchant.client_name,
+        }
+      })
+      return acc
+    },
+    {} as Record<string, { app_id: string; client_uid: string; merchant_name: string }>,
+  )
+
+  // Generate apps list from merchants
+  const apps = merchants.flatMap((merchant) =>
+    merchant.apps.map((app) => ({
+      name: app.app_name,
+      merchant_name: merchant.client_name,
+    })),
+  )
 
   // const [clientUid, setClientUid] = useState<string>('0196ed48-bca0-792a-a9d3-f00c53b0c395')
   // const [appId, setAppId] = useState<string>('SiO8o3xKcdgUHRsydUBTzQ')
@@ -185,9 +150,14 @@ const Report: React.FC = () => {
   // ])
 
   const fetchReport = async () => {
-    if (!filteredClient || !filteredPaymentMethod || !filteredMonth) return
+    if (!filteredApp || !filteredPaymentMethod || !filteredMonth) return
 
-    const { app_id, client_uid } = clientMap[filteredClient]
+    const appInfo = appMap[filteredApp]
+    if (!appInfo) return
+
+    // Update filteredClient for PDF generation
+    setFilteredClient(appInfo.merchant_name)
+
     const start = filteredMonth.startOf('month')
     const end = filteredMonth.endOf('month')
 
@@ -197,7 +167,7 @@ const Report: React.FC = () => {
     setLoading(true)
     try {
       const res = await axios.get(
-        `${apiUrl}/report/merchant?start_date=${start_date}&end_date=${end_date}&payment_method=${filteredPaymentMethod.value}&client_uid=${client_uid}&app_id=${app_id}`,
+        `${apiUrl}/report/merchant?start_date=${start_date}&end_date=${end_date}&payment_method=${filteredPaymentMethod.value}&client_uid=${appInfo.client_uid}&app_id=${appInfo.app_id}`,
       )
       setData(res.data)
     } catch (error) {
@@ -255,17 +225,60 @@ const Report: React.FC = () => {
         },
         { text: `IDR ${data?.total_merchant?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
       ],
+
+      // Add additional fees if available
+      ...(data?.bhp_uso
+        ? [
+            [
+              {},
+              {},
+              {},
+              {},
+              { text: 'BHP USO', alignment: 'left', bold: true, fontSize: 9 },
+              { text: `IDR ${data.bhp_uso.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+            ],
+          ]
+        : []),
+      ...(data?.tax_23
+        ? [
+            [
+              {},
+              {},
+              {},
+              {},
+              { text: 'TAX 23', alignment: 'left', bold: true, fontSize: 9 },
+              { text: `IDR ${data.tax_23.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+            ],
+          ]
+        : []),
+      ...(data?.additional_fee
+        ? [
+            [
+              {},
+              {},
+              {},
+              {},
+              { text: 'ADDITIONAL FEE', alignment: 'left', bold: true, fontSize: 9 },
+              {
+                text: `IDR ${data.additional_fee.toLocaleString('id-ID')}`,
+                alignment: 'left',
+                bold: true,
+                fontSize: 9,
+              },
+            ],
+          ]
+        : []),
       [
         {},
         {},
         {},
         {},
         { text: 'GRAND TOTAL', alignment: 'left', bold: true, fontSize: 9 },
-        { text: `IDR ${data?.total_merchant?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+        { text: `IDR ${data?.grand_total?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
       ],
     ]
 
-    const grandTotal = data?.summaries.reduce((acc, item) => acc + item.share_merchant, 0)
+    const grandTotal = data?.grand_total
 
     const totalInWords =
       numberToWords.toWords(data?.grand_total || 0).replace(/\b\w/g, (l: any) => l.toUpperCase()) + ' Rupiah'
@@ -307,14 +320,14 @@ const Report: React.FC = () => {
           fontSize: 14,
         },
         {
-          text: `PERIOD: ${startDate?.format('DD MMMM YYYY')} - ${endDate?.format('DD MMMM YYYY')}`,
+          text: `PERIOD: ${startDate?.format('DD')} - ${endDate?.format('DD MMMM YYYY')}`,
           style: 'header',
           alignment: 'center',
           fontSize: 14,
-          margin: [0, 0, 0, 16],
+          margin: [0, 0, 0, 12],
         },
         {
-          text: `Here's the details on the use of channel Indosat Flexible period ${startDate?.format('DD MMMM YYYY')} - ${endDate?.format('DD MMMM YYYY')}:`,
+          text: `Here's the details on the use of channel ${filteredPaymentMethod?.name} period ${startDate?.format('DD')} - ${endDate?.format('DD MMMM YYYY')}:`,
           fontSize: 12,
           margin: [0, 0, 0, -2],
         },
@@ -323,8 +336,14 @@ const Report: React.FC = () => {
           text: ``,
         },
         {
+          text: `${filteredApp}`,
+          margin: [0, 0, 0, 16],
+          fontSize: 14,
+          bold: true,
+        },
+        {
           table: {
-            widths: ['15%', '15%', '15%', '20%', '15%', '20%'],
+            widths: ['15%', '15%', '10%', '20%', '20%', '20%'],
             fontSize: 9,
             body: tableBody,
           },
@@ -407,14 +426,14 @@ const Report: React.FC = () => {
 
     pdfMake
       .createPdf(docDefinition)
-      .download(`Report-${filteredClient}-${filteredPaymentMethod?.name}-${dayjs().format('YYYYMMDD')}.pdf`)
+      .download(`Report-${filteredApp}-${filteredPaymentMethod?.name}-${dayjs().format('YYYYMMDD')}.pdf`)
   }
 
   useEffect(() => {
-    if (filteredClient && filteredPaymentMethod && filteredMonth) {
+    if (filteredApp && filteredPaymentMethod && filteredMonth) {
       fetchReport()
     }
-  }, [filteredClient, filteredPaymentMethod, filteredMonth])
+  }, [filteredApp, filteredPaymentMethod, filteredMonth])
 
   return (
     <div className='flex flex-col p-6'>
@@ -425,19 +444,21 @@ const Report: React.FC = () => {
       {/* Filter Controls */}
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }} className='flex gap-6'>
         <Col className='flex gap-4'>
-          <label htmlFor='client-select' className='text-2xl'>
-            Client :
+          <label htmlFor='app-select' className='text-2xl'>
+            App :
           </label>
           <Select
-            id='client-select'
+            id='app-select'
             allowClear
-            placeholder='Select Client'
-            style={{ width: 150 }}
-            onChange={(val) => setFilteredClient(val)}
+            placeholder={merchantsLoading ? 'Loading...' : 'Select App'}
+            style={{ width: 300 }}
+            onChange={(val) => setFilteredApp(val)}
+            loading={merchantsLoading}
+            disabled={merchantsLoading}
           >
-            {clients.map((client) => (
-              <Option key={client} value={client}>
-                {client}
+            {apps.map((app) => (
+              <Option key={app.name} value={app.name}>
+                {app.name} ({app.merchant_name})
               </Option>
             ))}
           </Select>
@@ -481,7 +502,12 @@ const Report: React.FC = () => {
       <button
         onClick={exportToPDF}
         style={{ marginTop: 16 }}
-        className='py-1 px-2 w-28 bg-green-500 text-white rounded'
+        className={`py-1 px-2 w-28 rounded ${
+          !data || !data.summaries || data.summaries.length === 0
+            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+            : 'bg-green-500 text-white hover:bg-green-600'
+        }`}
+        disabled={!data || !data.summaries || data.summaries.length === 0}
       >
         Export PDF
       </button>

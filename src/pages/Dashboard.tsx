@@ -8,7 +8,7 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import AppNavbar from '../components/AppNavbar'
 import Header from '../components/Header'
-import Summary from '../components/Summary'
+import SummaryMerchant from '../components/SummaryMerchant'
 import MainGrid from '../components/MainGrid'
 // import SideMenu from '../components/SideMenu'
 import AppTheme from '../styles/theme/shared-theme/AppTheme'
@@ -47,13 +47,13 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
             sx={{
               alignItems: 'center',
               mx: 3,
+              pt: 4,
               pb: 5,
               mt: { xs: 8, md: 0 },
             }}
           >
-            <Header />
-            <Summary />
-            <MainGrid />
+            {/* <Header /> */}
+            <SummaryMerchant />
           </Stack>
         </Box>
       </Box>

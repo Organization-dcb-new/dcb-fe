@@ -11,7 +11,7 @@ const { Text } = Typography
 const { RangePicker } = DatePicker
 const { Option } = Select
 
-export interface TransactionDailySummary {
+export interface TypeDailySummary {
   date: string
   status: string
   payment_method: string
@@ -39,7 +39,7 @@ const paymentMethods = [
 ]
 
 const TransactionSummaryPage: React.FC = () => {
-  const [data, setData] = useState<TransactionDailySummary[]>([])
+  const [data, setData] = useState<TypeDailySummary[]>([])
   const [loading, setLoading] = useState(false)
   const { merchants, error } = useMerchants()
 
@@ -65,7 +65,7 @@ const TransactionSummaryPage: React.FC = () => {
       if (paymentMethod) params.payment_method = paymentMethod
       if (route) params.route = route
 
-      const res = await axios.get<{ data: TransactionDailySummary[] }>(`${apiUrl}/summary/transaction`, { params })
+      const res = await axios.get<{ data: TypeDailySummary[] }>(`${apiUrl}/summary/transaction`, { params })
       setData(res.data.data)
     } catch (error) {
       message.error('Failed to fetch summary data')
@@ -98,7 +98,7 @@ const TransactionSummaryPage: React.FC = () => {
     fetchSummary()
   }, [])
 
-  const columns: ColumnsType<TransactionDailySummary> = [
+  const columns: ColumnsType<TypeDailySummary> = [
     {
       title: 'Date',
       dataIndex: 'date',

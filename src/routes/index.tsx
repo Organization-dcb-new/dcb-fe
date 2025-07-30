@@ -7,6 +7,7 @@ import Transactions from '../pages/Transactions'
 import Summary from '../pages/Summary'
 import PrivateRoute from '../components/PrivateRoute'
 import { MerchantProvider } from '../context/MerchantContext'
+import { ClientProvider } from '../context/ClientContext'
 
 import TransactionDetail from '../pages/TransactionDetail'
 import TransactionsMerchant from '../pages/TransactionsMerchant'
@@ -58,7 +59,9 @@ const router = createBrowserRouter([
         path: 'merchant-transactions',
         element: (
           <PrivateRoute allowedRoles={['merchant']}>
-            <TransactionsMerchant />
+            <ClientProvider>
+              <TransactionsMerchant />
+            </ClientProvider>
           </PrivateRoute>
         ),
       },
@@ -122,7 +125,9 @@ const router = createBrowserRouter([
         path: 'report',
         element: (
           <PrivateRoute allowedRoles={['admin', 'superadmin']}>
-            <Report />
+            <MerchantProvider>
+              <Report />
+            </MerchantProvider>
           </PrivateRoute>
         ),
       },

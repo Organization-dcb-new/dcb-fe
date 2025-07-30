@@ -15,20 +15,17 @@ import Card from '@mui/material/Card'
 import { FormLabel } from '@mui/material'
 
 import Typography from '@mui/material/Typography'
-// import AppTheme from '../styles/theme/shared-theme/AppTheme'
 import { Table, DatePicker } from 'antd'
 
 import Badge from '../components/Badge'
 import { ColumnType } from 'antd/es/table'
 import formatRupiah from '../utils/FormatRupiah'
 
-// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { useAuth } from '../provider/AuthProvider'
 import { jwtDecode } from 'jwt-decode'
+import { useClient } from '../context/ClientContext'
 
 const columns: ColumnType<any>[] = [
   {
@@ -93,11 +90,11 @@ const columns: ColumnType<any>[] = [
       return paymentMethod
     },
   },
-  // {
-  //   title: 'App',
-  //   dataIndex: 'app_name',
-  //   key: 'app_name',
-  // },
+  {
+    title: 'App',
+    dataIndex: 'app_name',
+    key: 'app_name',
+  },
   {
     title: 'Denom',
     width: 120,
@@ -224,6 +221,7 @@ export default function TransactionsMerchant() {
   const [resetTrigger, setResetTrigger] = useState(0)
   const [total, setTotal] = useState(0)
   const { token, apiUrl, appId, appKey } = useAuth()
+  const { client, loading: clientLoading } = useClient()
   const decoded: any = jwtDecode(token as string)
   const { RangePicker } = DatePicker
 
@@ -461,17 +459,29 @@ export default function TransactionsMerchant() {
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>App Name</FormLabel>
                     <Select
-                      labelId='demo-multiple-name-label'
-                      id='demo-multiple-name'
-                      value={paymentMethod}
+                      labelId='app-name-label'
+                      id='app_name'
+                      name='app_name'
+                      value={formData.app_name}
                       onChange={handleChange}
-                      input={<OutlinedInput label='Name' />}
+                      input={<OutlinedInput label='App Name' />}
+                      disabled={clientLoading}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 350,
+                          },
+                        },
+                      }}
                     >
-                      {/* {names.map((name) => (
-                        <MenuItem key={name} value={name}>
-                          {name}
+                      <MenuItem value=''>
+                        <em>All Apps</em>
+                      </MenuItem>
+                      {client?.apps?.map((app) => (
+                        <MenuItem key={app.id} value={app.app_name}>
+                          {app.app_name}
                         </MenuItem>
-                      ))} */}
+                      ))}
                     </Select>
                   </Grid>
                 </Grid>
