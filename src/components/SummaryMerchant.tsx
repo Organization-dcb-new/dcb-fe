@@ -322,7 +322,7 @@ const SummaryMerchant = () => {
       message.error('Failed to fetch summary data')
       console.error(error)
     } finally {
-      setLoading(false)
+      // setLoading(false)
     }
   }
 
