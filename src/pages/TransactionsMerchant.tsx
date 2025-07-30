@@ -214,7 +214,7 @@ export default function TransactionsMerchant() {
 
   const [data, setData] = useState([])
   // const [value, setValue] = useState(null)
-  const [paymentMethod] = useState<string[]>([])
+  // const [paymentMethod] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [isFiltered, setIsFiltered] = useState(false)

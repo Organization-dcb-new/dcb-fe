@@ -159,7 +159,6 @@ const SummaryMerchant = () => {
     total: 0,
     revenue: 0,
   })
-  const [loading, setLoading] = useState(false)
   const { apiUrl, token, appId, appKey } = useAuth()
 
   const getDateRange = (frequency: string, customDate?: dayjs.Dayjs | null) => {
@@ -218,7 +217,6 @@ const SummaryMerchant = () => {
   }
 
   const fetchSummary = async () => {
-    setLoading(true)
     try {
       const dateRangeConfig = getDateRange(summaryFreq, summaryDate)
 
