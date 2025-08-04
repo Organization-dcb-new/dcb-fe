@@ -49,7 +49,7 @@ const TransactionSummaryPage: React.FC = () => {
   const [status, setStatus] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('')
   const [route, setRoute] = useState('')
-  const { apiUrl } = useAuth()
+  const { apiUrl, token } = useAuth()
 
   const fetchSummary = async () => {
     setLoading(true)
@@ -65,7 +65,12 @@ const TransactionSummaryPage: React.FC = () => {
       if (paymentMethod) params.payment_method = paymentMethod
       if (route) params.route = route
 
-      const res = await axios.get<{ data: TypeDailySummary[] }>(`${apiUrl}/summary/transaction`, { params })
+      const res = await axios.get<{ data: TypeDailySummary[] }>(`${apiUrl}/summary/transaction`, {
+        params,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       setData(res.data.data)
     } catch (error) {
       message.error('Failed to fetch summary data')
@@ -75,7 +80,7 @@ const TransactionSummaryPage: React.FC = () => {
     }
   }
 
-  const handleExport = (format: 'csv' | 'excel') => {
+  const handleExport = async (format: 'csv' | 'xlsx') => {
     const params = new URLSearchParams()
 
     if (dateRange) {
@@ -91,7 +96,30 @@ const TransactionSummaryPage: React.FC = () => {
     params.append('format', format)
 
     const url = `${apiUrl}/summary/transaction?${params.toString()}`
-    window.open(url, '_blank')
+
+    try {
+      // Buat request dengan token untuk download
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: 'blob',
+      })
+
+      // Buat blob URL dan download
+      const blob = new Blob([response.data])
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.download = `summary-${format}-${dayjs().format('YYYY-MM-DD')}.${format}`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(downloadUrl)
+    } catch (error) {
+      message.error('Failed to export data')
+      console.error(error)
+    }
   }
 
   useEffect(() => {
@@ -288,7 +316,7 @@ const TransactionSummaryPage: React.FC = () => {
           </Button>
         </Col>
         <Col>
-          <Button variant='solid' color='default' onClick={() => handleExport('excel')}>
+          <Button variant='solid' color='default' onClick={() => handleExport('xlsx')}>
             Export Excel
           </Button>
         </Col>
