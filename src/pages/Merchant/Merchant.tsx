@@ -7,6 +7,7 @@ import { ColumnType } from 'antd/es/table'
 import axios from 'axios'
 import { useAuth } from '../../provider/AuthProvider'
 import { Link } from 'react-router-dom'
+import EditMerchant from './components/EditMerchant'
 
 const Merchant = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -138,10 +139,10 @@ const Merchant = () => {
       key: 'action',
       dataIndex: 'clientAppid',
       align: 'center',
-      render: (clientAppid) => (
+      render: (clientAppid, record) => (
         <Stack direction='row' justifyContent='center' spacing={2}>
           <Link to={`/merchant/${clientAppid}`}>View</Link>
-          <a href='#'>Edit</a>
+          <EditMerchant id={clientAppid} data={record} />
           <a href='#'>Delete</a>
         </Stack>
       ),
