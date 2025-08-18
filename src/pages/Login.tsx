@@ -95,18 +95,13 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
         },
       })
 
-      // console.log('response', response)
-      // Simpan token ke localStorage
       console.log('response', response.data)
       setToken(response.data.token)
-      // Ganti dengan respons yang sesuai
-      // Redirect atau lakukan tindakan lain setelah login berhasil
-      window.location.href = '/dashboard' // Ganti dengan rute yang sesuai
+
+      window.location.href = '/'
     } catch (error: unknown) {
       console.error('Login failed:', error)
-      // Tangani error, misalnya menampilkan pesan kesalahan
       if (axios.isAxiosError(error)) {
-        // Memeriksa apakah error memiliki response
         if (error.response) {
           alert(error.response.data.message || 'Login failed. Please try again.')
         } else {
@@ -116,12 +111,11 @@ export default function Login(props: { disableCustomTheme?: boolean }) {
         alert('Login failed. Please check your network connection.')
       }
     } finally {
-      setLoading(false) // Reset loading state
+      setLoading(false)
     }
   }
 
   const validateInputs = () => {
-    // const username = document.getElementById('username') as HTMLInputElement
     const password = document.getElementById('password') as HTMLInputElement
 
     let isValid = true

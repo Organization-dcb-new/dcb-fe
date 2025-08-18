@@ -1,17 +1,22 @@
-import Home from '../pages/Home'
 import Login from '../pages/Login'
 import { createBrowserRouter } from 'react-router-dom'
 import Dashboard from '../pages/Dashboard'
+import DashboardMerchant from '../pages/DashboardMerchant'
 import MainLayout from '../layout/MainLayout'
 import Transactions from '../pages/Transactions'
 import Summary from '../pages/Summary'
 import PrivateRoute from '../components/PrivateRoute'
+import { MerchantProvider } from '../context/MerchantContext'
+import { ClientProvider } from '../context/ClientContext'
 
 import TransactionDetail from '../pages/TransactionDetail'
 import TransactionsMerchant from '../pages/TransactionsMerchant'
 import TransactionMerchantDetail from '../pages/TransactionsMerchantDetail'
 import Merchant from '../pages/Merchant'
 import DetailMerchant from '../pages/Merchant/[id]'
+import SummaryAdmin from '../pages/SummaryAdmin'
+import Report from '../pages/Report'
+import SummaryDaily from '../pages/SummaryDaily'
 
 const router = createBrowserRouter([
   {
@@ -22,15 +27,15 @@ const router = createBrowserRouter([
         path: '/',
         element: (
           <PrivateRoute>
-            <Home />
+            <Dashboard />
           </PrivateRoute>
         ),
       },
       {
-        path: 'dashboard',
+        path: 'merchant-dashboard',
         element: (
           <PrivateRoute>
-            <Dashboard />
+            <DashboardMerchant />
           </PrivateRoute>
         ),
       },
@@ -38,7 +43,9 @@ const router = createBrowserRouter([
         path: 'transactions',
         element: (
           <PrivateRoute allowedRoles={['admin', 'superadmin']}>
-            <Transactions />
+            <MerchantProvider>
+              <Transactions />
+            </MerchantProvider>
           </PrivateRoute>
         ),
       },
@@ -53,7 +60,7 @@ const router = createBrowserRouter([
       {
         path: 'merchant',
         element: (
-          <PrivateRoute allowedRoles={['merchant']}>
+          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
             <Merchant />
           </PrivateRoute>
         ),
@@ -71,7 +78,7 @@ const router = createBrowserRouter([
       {
         path: 'merchant/:id',
         element: (
-          <PrivateRoute>
+          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
             <DetailMerchant />
           </PrivateRoute>
         ),
@@ -80,10 +87,20 @@ const router = createBrowserRouter([
         path: 'merchant-transactions',
         element: (
           <PrivateRoute allowedRoles={['merchant']}>
-            <TransactionsMerchant />
+            <ClientProvider>
+              <TransactionsMerchant />
+            </ClientProvider>
           </PrivateRoute>
         ),
       },
+      // {
+      //   path: 'report-transactions',
+      //   element: (
+      //     <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+      //       <ReportTransactions />
+      //     </PrivateRoute>
+      //   ),
+      // },
       {
         path: 'merchant-transaction/:id',
         element: (
@@ -93,17 +110,17 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'summary/:type',
-        element: (
-          <PrivateRoute>
-            <Summary />
-          </PrivateRoute>
-        ),
+        // path: 'summary/:type',
+        // element: (
+        //   <PrivateRoute>
+        //     <Summary />
+        //   </PrivateRoute>
+        // ),
         children: [
           {
             path: 'summary/hourly',
             element: (
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={['admin', 'superadmin']}>
                 <Summary />
               </PrivateRoute>
             ),
@@ -111,8 +128,10 @@ const router = createBrowserRouter([
           {
             path: 'summary/daily',
             element: (
-              <PrivateRoute>
-                <Summary />
+              <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+                <MerchantProvider>
+                  <SummaryDaily />
+                </MerchantProvider>
               </PrivateRoute>
             ),
           },
@@ -121,6 +140,24 @@ const router = createBrowserRouter([
             element: <Summary />,
           },
         ],
+      },
+      {
+        path: 'admin/summary',
+        element: (
+          <PrivateRoute allowedRoles={['admin', 'superadmin', 'merchant']}>
+            <SummaryAdmin />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'report',
+        element: (
+          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+            <MerchantProvider>
+              <Report />
+            </MerchantProvider>
+          </PrivateRoute>
+        ),
       },
     ],
   },
