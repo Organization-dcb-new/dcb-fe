@@ -53,8 +53,11 @@ const Merchant = () => {
         paymentMethods: item.payment_methods.map((method) => ({
           id: method.id,
           name: method.name,
-                    route: Array.isArray(method.route) 
-            ? method.route.reduce((acc, routeName, index) => ({ ...acc, [index]: [routeName] }), {} as { [key: string]: any[] })
+          route: Array.isArray(method.route)
+            ? method.route.reduce(
+                (acc, routeName, index) => ({ ...acc, [index]: [routeName] }),
+                {} as { [key: string]: any[] },
+              )
             : (method.route as { [key: string]: any[] }) || {},
           flexible: method.flexible,
           status: method.status,

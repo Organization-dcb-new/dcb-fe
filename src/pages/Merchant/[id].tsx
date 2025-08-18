@@ -434,6 +434,40 @@ const DetailMerchant = () => {
               )}
             </Card>
 
+            {/* Route Weights */}
+            <Card title='Route Weights' loading={isLoading} style={{ marginBottom: '24px' }}>
+              {merchantDetail ? (
+                <div>
+                  {!merchantDetail.route_weights || merchantDetail.route_weights.length === 0 ? (
+                    <Typography.Text type='secondary'>Tidak ada route weights</Typography.Text>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {merchantDetail.route_weights.map((rw, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            padding: '8px 12px',
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: '6px',
+                            border: '1px solid #d9d9d9',
+                          }}
+                        >
+                          <div style={{ fontWeight: 600, fontSize: '12px', color: '#1677ff', marginBottom: '4px' }}>
+                            {rw.payment_method.replace(/_/g, ' ').toUpperCase()}
+                          </div>
+                          <div style={{ fontSize: '12px' }}>
+                            <span style={{ fontWeight: 500 }}>{rw.route}</span>: {rw.weight}%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Skeleton active paragraph={{ rows: 2 }} />
+              )}
+            </Card>
+
             {/* Timestamps */}
             <Card
               title={

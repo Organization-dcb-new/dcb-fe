@@ -380,8 +380,13 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
         weight: 100,
       }))
     } else if (processedRoutes.length > 1) {
-      // Validate total weight = 100% for multiple routes
-      const totalWeight = processedRoutes.reduce((sum: number, route: any) => sum + (Number(route.weight) || 0), 0)
+      // Convert weights to numbers and validate total weight = 100%
+      processedRoutes = processedRoutes.map((route: any) => ({
+        ...route,
+        weight: Number(route.weight) || 0,
+      }))
+
+      const totalWeight = processedRoutes.reduce((sum: number, route: any) => sum + route.weight, 0)
       if (totalWeight !== 100) {
         message.error(`Total weight harus 100%. Saat ini: ${totalWeight}%`)
         return
@@ -953,7 +958,14 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
                             marginBottom: 16,
                           }}
                         >
-                          <label style={{ fontWeight: 'bold' }}>Routes & Weight</label>
+                          <div>
+                            <label style={{ fontWeight: 'bold' }}>Routes & Weight</label>
+                            {fields.length > 1 && (
+                              <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                                Total weight harus 100%
+                              </div>
+                            )}
+                          </div>
                           <Button type='dashed' onClick={() => add()} icon={<PlusOutlined />}>
                             Add Route
                           </Button>
@@ -984,7 +996,15 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
                                     ? []
                                     : [
                                         { required: true, message: 'Weight wajib diisi!' },
-                                        { type: 'number', min: 1, max: 100, message: 'Weight harus antara 1-100!' },
+                                        {
+                                          validator: (_, value) => {
+                                            const numValue = Number(value)
+                                            if (isNaN(numValue) || numValue < 1 || numValue > 100) {
+                                              return Promise.reject(new Error('Weight harus antara 1-100!'))
+                                            }
+                                            return Promise.resolve()
+                                          },
+                                        },
                                       ]
                                 }
                               >

@@ -169,35 +169,32 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
           // Handle different route structures with better logic
           let selectedRoutes: SelectedRoute[] = []
 
-          // Common route mappings for known payment methods based on API data
-          const routeMapping: Record<string, string> = {
-            qris: 'qris',
-            gopay: 'gopay_midtrans',
-            shopeepay: 'shopeepay_midtrans',
-            dana: 'dana',
-            ovo: 'ovo',
-            indosat_airtime: 'route1',
-            xl_airtime: 'xl_airtime',
-            telkomsel_airtime: 'telkomsel_airtime_sms',
-            smartfren_airtime: 'smartfren_triyakom',
-            three_airtime: 'three_triyakom',
-          }
+          // Use route_weights data if available for accurate weight
+          const paymentMethodRouteWeights =
+            detail.route_weights?.filter((rw: any) => rw.payment_method === pm.name) || []
 
           if (pm.route && typeof pm.route === 'object') {
-            // console.log('pm.route structure:', pm.route)
-
             if (Array.isArray(pm.route)) {
               // Handle array routes
               if (pm.route.length > 0 && pm.route[0] !== null && pm.route[0] !== '') {
-                selectedRoutes = pm.route.map((routeName: string) => ({
-                  route: routeName,
-                  weight: pm.route.length === 1 ? 100 : Math.floor(100 / pm.route.length),
-                }))
+                selectedRoutes = pm.route.map((routeName: string) => {
+                  // Find weight from route_weights data
+                  const routeWeightData = paymentMethodRouteWeights.find((rw: any) => rw.route === routeName)
+                  const weight = routeWeightData
+                    ? routeWeightData.weight
+                    : pm.route.length === 1
+                      ? 100
+                      : Math.floor(100 / pm.route.length)
+
+                  return {
+                    route: routeName,
+                    weight: weight,
+                  }
+                })
               }
             } else {
               // Handle object routes
               const routeKeys = Object.keys(pm.route)
-              // console.log('routeKeys for', pm.name, ':', routeKeys)
 
               // Filter out numeric keys, empty keys, and '0'
               const validRouteKeys = routeKeys.filter((key) => {
@@ -206,34 +203,45 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                 const isNotZero = key !== '0'
                 return isNotNumeric && isNotEmpty && isNotZero
               })
-              // console.log('validRouteKeys for', pm.name, ':', validRouteKeys)
 
               if (validRouteKeys.length > 0) {
-                selectedRoutes = validRouteKeys.map((routeName) => ({
-                  route: routeName,
-                  weight: validRouteKeys.length === 1 ? 100 : Math.floor(100 / validRouteKeys.length),
-                }))
+                selectedRoutes = validRouteKeys.map((routeName) => {
+                  // Find weight from route_weights data
+                  const routeWeightData = paymentMethodRouteWeights.find((rw: any) => rw.route === routeName)
+                  const weight = routeWeightData
+                    ? routeWeightData.weight
+                    : validRouteKeys.length === 1
+                      ? 100
+                      : Math.floor(100 / validRouteKeys.length)
 
-                // Validate total weight equals 100 for multiple routes
-                if (selectedRoutes.length > 1) {
-                  const totalWeight = selectedRoutes.reduce((sum, route) => sum + route.weight, 0)
-                  if (totalWeight !== 100) {
-                    const remainder = 100 - totalWeight + selectedRoutes[selectedRoutes.length - 1].weight
-                    selectedRoutes[selectedRoutes.length - 1].weight = remainder
+                  return {
+                    route: routeName,
+                    weight: weight,
                   }
-                }
+                })
               }
             }
           }
 
-          // If no valid routes found, use mapping or fallback to payment method name
+          // If no valid routes found, use fallback
           if (selectedRoutes.length === 0) {
+            // Common route mappings for known payment methods based on API data
+            const routeMapping: Record<string, string> = {
+              qris: 'qris',
+              gopay: 'gopay_midtrans',
+              shopeepay: 'shopeepay_midtrans',
+              dana: 'dana',
+              ovo: 'ovo',
+              indosat_airtime: 'route1',
+              xl_airtime: 'xl_airtime',
+              telkomsel_airtime: 'telkomsel_airtime_sms',
+              smartfren_airtime: 'smartfren_triyakom',
+              three_airtime: 'three_triyakom',
+            }
+
             const defaultRoute = routeMapping[pm.name] || pm.name
             selectedRoutes = [{ route: defaultRoute, weight: 100 }]
-            // console.log('Using fallback route for', pm.name, ':', defaultRoute)
           }
-
-          // console.log('Final selectedRoutes for', pm.name, ':', selectedRoutes)
 
           return {
             payment_method_slug: pm.name,
@@ -392,8 +400,13 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
         weight: 100,
       }))
     } else if (processedRoutes.length > 1) {
-      // Validate total weight = 100% for multiple routes
-      const totalWeight = processedRoutes.reduce((sum: number, route: any) => sum + (Number(route.weight) || 0), 0)
+      // Convert weights to numbers and validate total weight = 100%
+      processedRoutes = processedRoutes.map((route: any) => ({
+        ...route,
+        weight: Number(route.weight) || 0,
+      }))
+
+      const totalWeight = processedRoutes.reduce((sum: number, route: any) => sum + route.weight, 0)
       if (totalWeight !== 100) {
         message.error(`Total weight harus 100%. Saat ini: ${totalWeight}%`)
         return
@@ -993,7 +1006,14 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                             marginBottom: 16,
                           }}
                         >
-                          <label style={{ fontWeight: 'bold' }}>Routes & Weight</label>
+                          <div>
+                            <label style={{ fontWeight: 'bold' }}>Routes & Weight</label>
+                            {fields.length > 1 && (
+                              <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                                Total weight harus 100%
+                              </div>
+                            )}
+                          </div>
                           <Button type='dashed' onClick={() => add()} icon={<PlusOutlined />}>
                             Add Route
                           </Button>
@@ -1024,7 +1044,15 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                                     ? []
                                     : [
                                         { required: true, message: 'Weight wajib diisi!' },
-                                        { type: 'number', min: 1, max: 100, message: 'Weight harus antara 1-100!' },
+                                        {
+                                          validator: (_, value) => {
+                                            const numValue = Number(value)
+                                            if (isNaN(numValue) || numValue < 1 || numValue > 100) {
+                                              return Promise.reject(new Error('Weight harus antara 1-100!'))
+                                            }
+                                            return Promise.resolve()
+                                          },
+                                        },
                                       ]
                                 }
                               >
