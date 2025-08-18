@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react'
-import { Button, Form, Modal, Input, Switch, Select, Divider, Card, Row, Col, message, Space, Table } from 'antd'
+import { useState } from 'react'
+import { Button, Form, Modal, Input, Select, Card, Row, Col, message, Space, Table } from 'antd'
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { useAuth } from '../../../provider/AuthProvider'
 
 const { Option } = Select
-const { TextArea } = Input
 
 interface EditMerchantProps {
   id: string
@@ -110,7 +109,7 @@ interface MerchantFormData {
   isdcb: string
 }
 
-const EditMerchant = ({ id, data }: EditMerchantProps) => {
+const EditMerchant = ({ id }: EditMerchantProps) => {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [fetchLoading, setFetchLoading] = useState(false)
@@ -124,7 +123,6 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
   const [paymentConfigModalOpen, setPaymentConfigModalOpen] = useState(false)
   const [editingPaymentIndex, setEditingPaymentIndex] = useState<number | null>(null)
   const [paymentConfigForm] = Form.useForm()
-  const [merchantDetail, setMerchantDetail] = useState<MerchantDetailData | null>(null)
 
   const { token, apiUrl } = useAuth()
 
@@ -143,7 +141,6 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
 
       if (response.data.success) {
         const detail = response.data.data
-        setMerchantDetail(detail)
 
         // Populate form with existing data
         form.setFieldsValue({
@@ -327,7 +324,6 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
     setPaymentConfigModalOpen(false)
     setEditingPaymentIndex(null)
     paymentConfigForm.resetFields()
-    setMerchantDetail(null)
   }
 
   const handleAddApp = () => {
