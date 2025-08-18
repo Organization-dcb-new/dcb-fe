@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Form, Modal, Input, Switch, Select, Divider, Card, Row, Col, message, Space, Table } from 'antd'
+import { Button, Form, Modal, Input, Select, Card, Row, Col, message, Space, Table } from 'antd'
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { useAuth } from '../../../provider/AuthProvider'
@@ -22,14 +22,6 @@ interface PaymentMethodAPI {
   denom: string[] | null
   prefix: string[] | null
   route: string[] | null
-}
-
-interface PaymentMethod {
-  name: string
-  route: Record<string, any>
-  status: number
-  msisdn: number
-  flexible: boolean
 }
 
 interface SelectedRoute {
@@ -59,20 +51,6 @@ interface SelectedPaymentMethod {
   status: number
   msisdn: number
   settlement_config: SettlementConfig
-}
-
-interface Settlement {
-  name: string
-  is_bhpuso: string
-  servicecharge: string
-  tax23: string
-  mdr: string
-  mdr_type: string
-  additional_percent: number
-  payment_type: string
-  share_redision: number
-  share_partner: number
-  is_divide_1poin1: string
 }
 
 interface ClientApp {
