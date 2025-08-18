@@ -64,36 +64,116 @@ export default function SideMenu({ open }: SideMenuProps) {
         <Box
           sx={{
             display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             mt: 'calc(var(--template-frame-height, 0px) + 4px)',
-            p: 1.5,
+            px: 2,
+            py: 3,
           }}
-          className='pt-[32px]'
         >
-          {/* <SelectContent /> */}
-          <div className='text-3xl mx-auto'>Redpay Panel</div>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mb: 2,
+            }}
+          >
+            <Typography
+              variant='h5'
+              sx={{
+                color: 'white',
+                fontWeight: 'bold',
+                fontFamily: 'monospace',
+              }}
+            >
+              RP
+            </Typography>
+          </Box>
+          <Typography
+            variant='h6'
+            sx={{
+              fontWeight: 600,
+              textAlign: 'center',
+              color: 'text.primary',
+              letterSpacing: '-0.5px',
+            }}
+          >
+            Redpay Panel
+          </Typography>
+          <Typography
+            variant='caption'
+            sx={{
+              color: 'text.secondary',
+              textAlign: 'center',
+              mt: 0.5,
+            }}
+          >
+            Payment Management
+          </Typography>
         </Box>
         <Divider />
         <MenuContent />
         {/* <CardAlert /> */}
-        <Stack
-          direction='row'
+        <Box
           sx={{
-            p: 2,
-            gap: 1,
-            alignItems: 'center',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
             borderTop: '1px solid',
             borderColor: 'divider',
+            backgroundColor: 'background.paper',
           }}
         >
-          {/* <Avatar sizes='small' alt='Riley Carter' src='/static/images/avatar/7.jpg' sx={{ width: 36, height: 36 }} /> */}
-          <Avatar style={{ backgroundColor: '#87d068' }} icon={<UserOutlined />} />
-          <Box sx={{ mr: 'auto' }}>
-            <Typography variant='body2' sx={{ fontWeight: 500, lineHeight: '16px' }}>
-              {decoded.username}
-            </Typography>
-          </Box>
-          <OptionsMenu />
-        </Stack>
+          <Stack
+            direction='row'
+            sx={{
+              p: 2,
+              gap: 1.5,
+              alignItems: 'center',
+            }}
+          >
+            <Avatar
+              style={{
+                backgroundColor: '#667eea',
+                width: 40,
+                height: 40,
+              }}
+              icon={<UserOutlined style={{ fontSize: '16px' }} />}
+            />
+            <Box sx={{ mr: 'auto', overflow: 'hidden' }}>
+              <Typography
+                variant='body2'
+                sx={{
+                  fontWeight: 600,
+                  lineHeight: '16px',
+                  color: 'text.primary',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {decoded.username}
+              </Typography>
+              <Typography
+                variant='caption'
+                sx={{
+                  color: 'text.secondary',
+                  lineHeight: '14px',
+                  textTransform: 'capitalize',
+                }}
+              >
+                {decoded.role}
+              </Typography>
+            </Box>
+            <OptionsMenu />
+          </Stack>
+        </Box>
       </Drawer>
     </Box>
   )

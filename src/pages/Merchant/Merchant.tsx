@@ -2,16 +2,22 @@ import { useEffect, useState } from 'react'
 
 import { Box, Stack, Typography } from '@mui/material'
 import { alpha } from '@mui/material/styles'
-import { Table } from 'antd'
+import { Table, Button, Input, Space } from 'antd'
 import { ColumnType } from 'antd/es/table'
 import axios from 'axios'
 import { useAuth } from '../../provider/AuthProvider'
 import { Link } from 'react-router-dom'
 import EditMerchant from './components/EditMerchant'
+import AddMerchant from './components/AddMerchant'
+import { EyeOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons'
+
+const { Search } = Input
 
 const Merchant = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [data, setData] = useState<MerchantListDataModel[]>([])
+  const [filteredData, setFilteredData] = useState<MerchantListDataModel[]>([])
+  const [searchText, setSearchText] = useState<string>('')
   const { token, apiUrl } = useAuth()
 
   const onGetMerchant = async () => {
@@ -90,10 +96,35 @@ const Merchant = () => {
       }))
 
       setData(data)
+      setFilteredData(data)
     } catch (error) {
       console.log('aaa', error)
     }
     setIsLoading(false)
+  }
+
+  const handleSearch = (value: string) => {
+    setSearchText(value)
+    if (!value.trim()) {
+      setFilteredData(data)
+      return
+    }
+
+    const filtered = data.filter((merchant) => {
+      const searchLower = value.toLowerCase()
+      const firstApp = merchant.apps && merchant.apps.length > 0 ? merchant.apps[0] : null
+
+      return (
+        merchant.clientName?.toLowerCase().includes(searchLower) ||
+        merchant.uid?.toLowerCase().includes(searchLower) ||
+        merchant.email?.toLowerCase().includes(searchLower) ||
+        merchant.phone?.toLowerCase().includes(searchLower) ||
+        merchant.appName?.toLowerCase().includes(searchLower) ||
+        firstApp?.appName?.toLowerCase().includes(searchLower)
+      )
+    })
+
+    setFilteredData(filtered)
   }
 
   const columns: ColumnType<any>[] = [
@@ -101,18 +132,20 @@ const Merchant = () => {
       title: 'Merchant Name',
       dataIndex: 'appName',
       key: 'appName',
+      align: 'center',
       render: (text) => {
-        if (!text) return '-'
-        return text
+        if (!text) return <span style={{ paddingLeft: '8px' }}>-</span>
+        return <span style={{ paddingLeft: '8px' }}>{text}</span>
       },
     },
     {
       title: 'User ID',
       dataIndex: 'uid',
       key: 'uid',
+      align: 'center',
       render: (text) => {
-        if (!text) return '-'
-        return text
+        if (!text) return <span style={{ paddingLeft: '8px' }}>-</span>
+        return <span style={{ paddingLeft: '8px' }}>{text}</span>
       },
     },
 
@@ -120,30 +153,79 @@ const Merchant = () => {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
+      align: 'center',
       render: (text) => {
-        if (!text) return '-'
-        return text
+        if (!text) return <span style={{ paddingLeft: '8px' }}>-</span>
+        return <span style={{ paddingLeft: '8px' }}>{text}</span>
       },
     },
     {
       title: 'Phone',
       dataIndex: 'phone',
       key: 'phone',
+      align: 'center',
       render: (text) => {
-        if (!text) return '-'
-        return text
+        if (!text) return <span style={{ paddingLeft: '8px' }}>-</span>
+        return <span style={{ paddingLeft: '8px' }}>{text}</span>
+      },
+    },
+    {
+      title: 'App Name',
+      dataIndex: 'apps',
+      key: 'firstAppName',
+      align: 'center',
+      render: (apps) => {
+        const firstApp = apps && apps.length > 0 ? apps[0] : null
+        const appName = firstApp?.appName || '-'
+        return <span style={{ paddingLeft: '8px' }}>{appName}</span>
       },
     },
     {
       title: 'Action',
       key: 'action',
       dataIndex: 'clientAppid',
+      width: 300,
       align: 'center',
       render: (clientAppid, record) => (
-        <Stack direction='row' justifyContent='center' spacing={2}>
-          <Link to={`/merchant/${clientAppid}`}>View</Link>
+        <Stack direction='row' justifyContent='center' alignItems='center' spacing={1} sx={{ minHeight: 40 }}>
+          <Link to={`/merchant/${clientAppid}`}>
+            <Button
+              type='primary'
+              size='small'
+              icon={<EyeOutlined />}
+              style={{
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: 600,
+                height: 28,
+                minWidth: 70,
+              }}
+            >
+              View
+            </Button>
+          </Link>
+
           <EditMerchant id={clientAppid} data={record} />
-          <a href='#'>Delete</a>
+
+          <Button
+            type='primary'
+            danger
+            size='small'
+            icon={<DeleteOutlined />}
+            style={{
+              borderRadius: '6px',
+              fontSize: '11px',
+              fontWeight: 600,
+              height: 28,
+              minWidth: 70,
+            }}
+            onClick={() => {
+              // TODO: Implement delete functionality
+              console.log('Delete merchant:', clientAppid)
+            }}
+          >
+            Delete
+          </Button>
         </Stack>
       ),
     },
@@ -176,7 +258,42 @@ const Merchant = () => {
           <Typography component='h2' variant='h6' sx={{ mb: 2 }}>
             Merchant Data
           </Typography>
-          <Table columns={columns} dataSource={data} loading={isLoading} size='small' className='transactions-table ' />
+
+          <Space direction='vertical' style={{ width: '100%', marginBottom: 16 }}>
+            <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+              <AddMerchant onSuccess={onGetMerchant} />
+              <Search
+                placeholder='Cari merchant (nama, email, phone, UID, app name...)'
+                allowClear
+                enterButton={<SearchOutlined />}
+                size='middle'
+                style={{ width: 400 }}
+                onSearch={handleSearch}
+                onChange={(e) => {
+                  setSearchText(e.target.value)
+                  if (!e.target.value) {
+                    handleSearch('')
+                  }
+                }}
+                value={searchText}
+              />
+            </Space>
+          </Space>
+
+          <Table
+            columns={columns}
+            dataSource={filteredData}
+            loading={isLoading}
+            size='small'
+            className='transactions-table'
+            pagination={{
+              total: filteredData.length,
+              pageSize: 10,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total} merchant`,
+            }}
+          />
         </Box>
       </Stack>
     </Box>

@@ -5,6 +5,7 @@ interface MerchantListDataApi {
   client_secret: string
   client_appid: string
   app_name: string
+  address: string
   mobile: string
   client_status: number
   phone: string
@@ -19,9 +20,7 @@ interface MerchantListDataApi {
   payment_methods: {
     id: number
     name: string
-    route: {
-      [key: string]: any[]
-    }
+    route: string[] | { [key: string]: any[] }
     flexible: boolean
     status: number
     msisdn: number
@@ -58,6 +57,15 @@ interface MerchantListDataApi {
     mobile: string
     fail_callback: string
     client_id: string
+    created_at: string
+    updated_at: string
+  }[]
+  route_weights: {
+    id: number
+    client_id: string
+    payment_method: string
+    route: string
+    weight: number
     created_at: string
     updated_at: string
   }[]

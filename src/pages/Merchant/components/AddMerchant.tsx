@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button, Form, Modal, Input, Switch, Select, Divider, Card, Row, Col, message, Space, Table } from 'antd'
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
@@ -7,9 +7,8 @@ import { useAuth } from '../../../provider/AuthProvider'
 const { Option } = Select
 const { TextArea } = Input
 
-interface EditMerchantProps {
-  id: string
-  data: MerchantListDataModel
+interface AddMerchantProps {
+  onSuccess?: () => void
 }
 
 interface PaymentMethodAPI {
@@ -23,6 +22,14 @@ interface PaymentMethodAPI {
   denom: string[] | null
   prefix: string[] | null
   route: string[] | null
+}
+
+interface PaymentMethod {
+  name: string
+  route: Record<string, any>
+  status: number
+  msisdn: number
+  flexible: boolean
 }
 
 interface SelectedRoute {
@@ -54,44 +61,27 @@ interface SelectedPaymentMethod {
   settlement_config: SettlementConfig
 }
 
+interface Settlement {
+  name: string
+  is_bhpuso: string
+  servicecharge: string
+  tax23: string
+  mdr: string
+  mdr_type: string
+  additional_percent: number
+  payment_type: string
+  share_redision: number
+  share_partner: number
+  is_divide_1poin1: string
+}
+
 interface ClientApp {
-  id?: number
   app_name: string
-  appid?: string
-  appkey?: string
   callback_url: string
   testing: number
   status: number
   mobile: string
   fail_callback?: string
-  client_id?: string
-  created_at?: string
-  updated_at?: string
-}
-
-interface MerchantDetailData {
-  u_id: string
-  client_name: string
-  client_appkey: string
-  client_secret: string
-  client_appid: string
-  app_name: string
-  mobile: string
-  client_status: number
-  phone: string
-  email: string
-  testing: number
-  lang: string
-  callback_url: string
-  fail_callback: string
-  isdcb: string
-  address?: string
-  updated_at: string
-  created_at: string
-  payment_methods: any[]
-  settlements: any[]
-  apps: ClientApp[]
-  route_weights: any[]
 }
 
 interface MerchantFormData {
@@ -110,10 +100,9 @@ interface MerchantFormData {
   isdcb: string
 }
 
-const EditMerchant = ({ id, data }: EditMerchantProps) => {
+const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [fetchLoading, setFetchLoading] = useState(false)
   const [form] = Form.useForm<MerchantFormData>()
   const [apps, setApps] = useState<ClientApp[]>([])
   const [appModalOpen, setAppModalOpen] = useState(false)
@@ -124,168 +113,8 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
   const [paymentConfigModalOpen, setPaymentConfigModalOpen] = useState(false)
   const [editingPaymentIndex, setEditingPaymentIndex] = useState<number | null>(null)
   const [paymentConfigForm] = Form.useForm()
-  const [merchantDetail, setMerchantDetail] = useState<MerchantDetailData | null>(null)
 
   const { token, apiUrl } = useAuth()
-
-  const fetchMerchantDetail = async () => {
-    try {
-      setFetchLoading(true)
-      const response = await axios.get<{ data: MerchantDetailData; success: boolean }>(
-        `${apiUrl}/admin/merchant/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-
-      if (response.data.success) {
-        const detail = response.data.data
-        setMerchantDetail(detail)
-
-        // Populate form with existing data
-        form.setFieldsValue({
-          client_name: detail.client_name,
-          app_name: detail.app_name,
-          mobile: detail.mobile,
-          client_status: detail.client_status,
-          testing: detail.testing,
-          address: detail.address || '',
-          lang: detail.lang,
-          callback_url: detail.callback_url,
-          email: detail.email,
-          phone: detail.phone,
-          fail_callback: detail.fail_callback && detail.fail_callback !== '' ? '1' : '0',
-          fail_callback_url: detail.fail_callback || '',
-          isdcb: detail.isdcb,
-        })
-
-        // Set apps data
-        setApps(detail.apps || [])
-
-        // Convert existing payment methods and settlements to the expected format
-        const convertedPaymentMethods: SelectedPaymentMethod[] = detail.payment_methods.map((pm: any) => {
-          const settlement = detail.settlements.find((s: any) => s.name === pm.name)
-
-          // Handle different route structures with better logic
-          let selectedRoutes: SelectedRoute[] = []
-
-          // Common route mappings for known payment methods based on API data
-          const routeMapping: Record<string, string> = {
-            qris: 'qris',
-            gopay: 'gopay_midtrans',
-            shopeepay: 'shopeepay_midtrans',
-            dana: 'dana',
-            ovo: 'ovo',
-            indosat_airtime: 'route1',
-            xl_airtime: 'xl_airtime',
-            telkomsel_airtime: 'telkomsel_airtime_sms',
-            smartfren_airtime: 'smartfren_triyakom',
-            three_airtime: 'three_triyakom',
-          }
-
-          if (pm.route && typeof pm.route === 'object') {
-            // console.log('pm.route structure:', pm.route)
-
-            if (Array.isArray(pm.route)) {
-              // Handle array routes
-              if (pm.route.length > 0 && pm.route[0] !== null && pm.route[0] !== '') {
-                selectedRoutes = pm.route.map((routeName: string) => ({
-                  route: routeName,
-                  weight: pm.route.length === 1 ? 100 : Math.floor(100 / pm.route.length),
-                }))
-              }
-            } else {
-              // Handle object routes
-              const routeKeys = Object.keys(pm.route)
-              // console.log('routeKeys for', pm.name, ':', routeKeys)
-
-              // Filter out numeric keys, empty keys, and '0'
-              const validRouteKeys = routeKeys.filter((key) => {
-                const isNotNumeric = isNaN(Number(key))
-                const isNotEmpty = key.trim() !== ''
-                const isNotZero = key !== '0'
-                return isNotNumeric && isNotEmpty && isNotZero
-              })
-              // console.log('validRouteKeys for', pm.name, ':', validRouteKeys)
-
-              if (validRouteKeys.length > 0) {
-                selectedRoutes = validRouteKeys.map((routeName) => ({
-                  route: routeName,
-                  weight: validRouteKeys.length === 1 ? 100 : Math.floor(100 / validRouteKeys.length),
-                }))
-
-                // Validate total weight equals 100 for multiple routes
-                if (selectedRoutes.length > 1) {
-                  const totalWeight = selectedRoutes.reduce((sum, route) => sum + route.weight, 0)
-                  if (totalWeight !== 100) {
-                    const remainder = 100 - totalWeight + selectedRoutes[selectedRoutes.length - 1].weight
-                    selectedRoutes[selectedRoutes.length - 1].weight = remainder
-                  }
-                }
-              }
-            }
-          }
-
-          // If no valid routes found, use mapping or fallback to payment method name
-          if (selectedRoutes.length === 0) {
-            const defaultRoute = routeMapping[pm.name] || pm.name
-            selectedRoutes = [{ route: defaultRoute, weight: 100 }]
-            // console.log('Using fallback route for', pm.name, ':', defaultRoute)
-          }
-
-          // console.log('Final selectedRoutes for', pm.name, ':', selectedRoutes)
-
-          return {
-            payment_method_slug: pm.name,
-            selected_routes: selectedRoutes,
-            status: pm.status,
-            msisdn: pm.msisdn,
-            settlement_config: settlement
-              ? {
-                  is_bhpuso: settlement.is_bhpuso,
-                  servicecharge: settlement.servicecharge,
-                  tax23: settlement.tax23,
-                  ppn: settlement.ppn,
-                  mdr: settlement.mdr,
-                  mdr_type: settlement.mdr_type || '',
-                  additionalfee: settlement.additionalfee || 0,
-                  additional_percent: settlement.additional_percent,
-                  additionalfee_type: settlement.additionalfee_type,
-                  payment_type: settlement.payment_type,
-                  share_redision: settlement.share_redision,
-                  share_partner: settlement.share_partner,
-                  is_divide_1poin1: settlement.is_divide_1poin1,
-                }
-              : {
-                  is_bhpuso: '0',
-                  servicecharge: '0',
-                  tax23: '0',
-                  ppn: null,
-                  mdr: '0',
-                  mdr_type: '',
-                  additionalfee: 0,
-                  additional_percent: 11,
-                  additionalfee_type: null,
-                  payment_type: 'idr',
-                  share_redision: 10,
-                  share_partner: 90,
-                  is_divide_1poin1: '0',
-                },
-          }
-        })
-
-        setSelectedPaymentMethods(convertedPaymentMethods)
-      }
-    } catch (error) {
-      console.error('Error fetching merchant detail:', error)
-      message.error('Gagal memuat detail merchant')
-    } finally {
-      setFetchLoading(false)
-    }
-  }
 
   const fetchPaymentMethods = async () => {
     try {
@@ -301,20 +130,20 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
 
       if (response.data.success) {
         setAvailablePaymentMethods(response.data.data)
+        // Initialize selected payment methods as empty - user will select manually
+        setSelectedPaymentMethods([])
       }
     } catch (error) {
       console.error('Error fetching payment methods:', error)
       message.error('Gagal memuat metode pembayaran')
+      setSelectedPaymentMethods([])
     }
   }
 
-  const handleOpen = async () => {
+  const handleOpen = () => {
     setOpen(true)
-    // Fetch payment methods first, then merchant detail
-    await fetchPaymentMethods()
-    fetchMerchantDetail()
+    fetchPaymentMethods()
   }
-
   const handleClose = () => {
     setOpen(false)
     form.resetFields()
@@ -327,8 +156,176 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
     setPaymentConfigModalOpen(false)
     setEditingPaymentIndex(null)
     paymentConfigForm.resetFields()
-    setMerchantDetail(null)
   }
+
+  //   const defaultPaymentMethods: PaymentMethod[] = [
+  //     { name: 'qris', route: { qris_midtrans: [] }, status: 1, msisdn: 1, flexible: true },
+  //     { name: 'gopay', route: { gopay_midtrans: [] }, status: 1, msisdn: 1, flexible: true },
+  //     { name: 'shopeepay', route: { shopeepay_midtrans: [] }, status: 1, msisdn: 1, flexible: true },
+  //     { name: 'dana', route: { dana: [] }, status: 1, msisdn: 1, flexible: true },
+  //     { name: 'ovo', route: { ovo: [] }, status: 1, msisdn: 1, flexible: true },
+  //     { name: 'telkomsel_airtime', route: { telkomsel_airtime_sms: [] }, status: 1, msisdn: 1, flexible: true },
+  //     { name: 'xl_airtime', route: { xl_twt: [] }, status: 1, msisdn: 1, flexible: true },
+  //     { name: 'indosat_airtime', route: { indosat_triyakom: [] }, status: 1, msisdn: 1, flexible: true },
+  //     { name: 'smartfren_airtime', route: { smartfren_triyakom: [] }, status: 1, msisdn: 1, flexible: true },
+  //     {
+  //       name: 'three_airtime',
+  //       route: {
+  //         three_triyakom: [
+  //           '1000',
+  //           '2000',
+  //           '3000',
+  //           '5000',
+  //           '10000',
+  //           '20000',
+  //           '25000',
+  //           '30000',
+  //           '50000',
+  //           '60000',
+  //           '100000',
+  //           '200000',
+  //           '250000',
+  //           '500000',
+  //         ],
+  //       },
+  //       status: 1,
+  //       msisdn: 1,
+  //       flexible: false,
+  //     },
+  //   ]
+
+  //   const defaultSettlements: Settlement[] = [
+  //     {
+  //       name: 'gopay',
+  //       is_bhpuso: '0',
+  //       servicecharge: '0',
+  //       tax23: '0',
+  //       mdr: '0',
+  //       mdr_type: '',
+  //       additional_percent: 11,
+  //       payment_type: 'idr',
+  //       share_redision: 10,
+  //       share_partner: 90,
+  //       is_divide_1poin1: '0',
+  //     },
+  //     {
+  //       name: 'shopeepay',
+  //       is_bhpuso: '0',
+  //       servicecharge: '0',
+  //       tax23: '0',
+  //       mdr: '0',
+  //       mdr_type: '',
+  //       additional_percent: 11,
+  //       payment_type: 'idr',
+  //       share_redision: 10,
+  //       share_partner: 90,
+  //       is_divide_1poin1: '0',
+  //     },
+  //     {
+  //       name: 'dana',
+  //       is_bhpuso: '0',
+  //       servicecharge: '0',
+  //       tax23: '0',
+  //       mdr: '0',
+  //       mdr_type: '',
+  //       additional_percent: 0,
+  //       payment_type: 'idr',
+  //       share_redision: 10,
+  //       share_partner: 90,
+  //       is_divide_1poin1: '0',
+  //     },
+  //     {
+  //       name: 'qris',
+  //       is_bhpuso: '0',
+  //       servicecharge: '0',
+  //       tax23: '0',
+  //       mdr: '0',
+  //       mdr_type: '',
+  //       additional_percent: 0,
+  //       payment_type: 'idr',
+  //       share_redision: 10,
+  //       share_partner: 90,
+  //       is_divide_1poin1: '0',
+  //     },
+  //     {
+  //       name: 'ovo',
+  //       is_bhpuso: '0',
+  //       servicecharge: '0',
+  //       tax23: '0',
+  //       mdr: '0',
+  //       mdr_type: '',
+  //       additional_percent: 0,
+  //       payment_type: 'idr',
+  //       share_redision: 25,
+  //       share_partner: 75,
+  //       is_divide_1poin1: '0',
+  //     },
+  //     {
+  //       name: 'telkomsel_airtime',
+  //       is_bhpuso: '0',
+  //       servicecharge: '0',
+  //       tax23: '0',
+  //       mdr: '0',
+  //       mdr_type: '',
+  //       additional_percent: 11,
+  //       payment_type: 'idr',
+  //       share_redision: 10,
+  //       share_partner: 90,
+  //       is_divide_1poin1: '0',
+  //     },
+  //     {
+  //       name: 'xl_airtime',
+  //       is_bhpuso: '0',
+  //       servicecharge: '0',
+  //       tax23: '0',
+  //       mdr: '0',
+  //       mdr_type: '',
+  //       additional_percent: 11,
+  //       payment_type: 'idr',
+  //       share_redision: 10,
+  //       share_partner: 90,
+  //       is_divide_1poin1: '0',
+  //     },
+  //     {
+  //       name: 'indosat_airtime',
+  //       is_bhpuso: '0',
+  //       servicecharge: '0',
+  //       tax23: '0',
+  //       mdr: '0',
+  //       mdr_type: '',
+  //       additional_percent: 11,
+  //       payment_type: 'idr',
+  //       share_redision: 10,
+  //       share_partner: 90,
+  //       is_divide_1poin1: '0',
+  //     },
+  //     {
+  //       name: 'smartfren_airtime',
+  //       is_bhpuso: '0',
+  //       servicecharge: '0',
+  //       tax23: '0',
+  //       mdr: '0',
+  //       mdr_type: '',
+  //       additional_percent: 11,
+  //       payment_type: 'idr',
+  //       share_redision: 10,
+  //       share_partner: 90,
+  //       is_divide_1poin1: '0',
+  //     },
+  //     {
+  //       name: 'three_airtime',
+  //       is_bhpuso: '0',
+  //       servicecharge: '0',
+  //       tax23: '0',
+  //       mdr: '0',
+  //       mdr_type: '',
+  //       additional_percent: 11,
+  //       payment_type: 'idr',
+  //       share_redision: 10,
+  //       share_partner: 90,
+  //       is_divide_1poin1: '0',
+  //     },
+  //   ]
 
   const handleAddApp = () => {
     setEditingApp(null)
@@ -351,7 +348,7 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
     if (editingApp !== null) {
       // Edit existing app
       const newApps = [...apps]
-      newApps[editingApp] = { ...newApps[editingApp], ...values }
+      newApps[editingApp] = values
       setApps(newApps)
     } else {
       // Add new app
@@ -372,11 +369,20 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
     setEditingPaymentIndex(index)
     const payment = selectedPaymentMethods[index]
 
+    // Prepare routes for editing - if single route, don't show weight as it will be auto-set to 100
+    let routesForEdit = payment.selected_routes
+    if (routesForEdit.length === 1) {
+      routesForEdit = routesForEdit.map((route) => ({
+        ...route,
+        // Remove weight for single route as it will be auto-handled
+      }))
+    }
+
     paymentConfigForm.setFieldsValue({
       payment_method_slug: payment.payment_method_slug,
       status: payment.status,
       msisdn: payment.msisdn,
-      selected_routes: payment.selected_routes,
+      selected_routes: routesForEdit,
       settlement_config: payment.settlement_config,
     })
     setPaymentConfigModalOpen(true)
@@ -455,7 +461,6 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
         isdcb: values.isdcb,
         selected_payment_methods: selectedPaymentMethods,
         client_app: apps.map((app) => ({
-          id: app.id,
           app_name: app.app_name,
           callback_url: app.callback_url,
           testing: app.testing,
@@ -465,22 +470,23 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
         })),
       }
 
-      console.log('Update Merchant Payload:', payload)
+      console.log('Add Merchant Payload:', payload)
 
-      await axios.put(`${apiUrl}/admin/merchant/v2/${id}`, payload, {
+      await axios.post(`${apiUrl}/admin/merchant/v2`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       })
 
-      message.success('Merchant berhasil diupdate!')
+      message.success('Merchant berhasil ditambahkan!')
       handleClose()
-      // Refresh parent component if needed
-      window.location.reload()
+      if (onSuccess) {
+        onSuccess()
+      }
     } catch (error: any) {
-      console.error('Error updating merchant:', error)
-      message.error(error.response?.data?.message || 'Gagal mengupdate merchant')
+      console.error('Error adding merchant:', error)
+      message.error(error.response?.data?.message || 'Gagal menambahkan merchant')
     }
     setLoading(false)
   }
@@ -601,26 +607,20 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
   return (
     <>
       <Button
-        type='default'
-        size='small'
-        icon={<EditOutlined />}
+        type='primary'
+        icon={<PlusOutlined />}
         onClick={handleOpen}
         style={{
+          marginBottom: 16,
           borderRadius: '6px',
-          fontSize: '11px',
           fontWeight: 600,
-          height: 28,
-          minWidth: 70,
-          backgroundColor: '#ff9800',
-          borderColor: '#ff9800',
-          color: 'white',
         }}
       >
-        Edit
+        Tambah Merchant
       </Button>
 
       <Modal
-        title='Edit Merchant'
+        title='Tambah Merchant Baru'
         open={open}
         onCancel={handleClose}
         width={800}
@@ -629,7 +629,7 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
             Batal
           </Button>,
           <Button key='submit' type='primary' loading={loading} onClick={() => form.submit()}>
-            Update
+            Simpan
           </Button>,
         ]}
       >
@@ -645,195 +645,173 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
             isdcb: '1',
           }}
         >
-          {fetchLoading ? (
-            <div style={{ textAlign: 'center', padding: '40px' }}>
-              <span>Loading merchant data...</span>
-            </div>
-          ) : (
-            <>
-              <Card title='Informasi Dasar' style={{ marginBottom: 16 }}>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      label='Nama Client'
-                      name='client_name'
-                      rules={[{ required: true, message: 'Nama client wajib diisi!' }]}
-                    >
-                      <Input placeholder='Masukkan nama client' />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      label='Nama Aplikasi'
-                      name='app_name'
-                      rules={[{ required: true, message: 'Nama aplikasi wajib diisi!' }]}
-                    >
-                      <Input placeholder='Masukkan nama aplikasi' />
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      label='Email'
-                      name='email'
-                      rules={[
-                        { required: true, message: 'Email wajib diisi!' },
-                        { type: 'email', message: 'Format email tidak valid!' },
-                      ]}
-                    >
-                      <Input placeholder='Masukkan email' />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      label='Nomor Telepon'
-                      name='phone'
-                      rules={[{ required: true, message: 'Nomor telepon wajib diisi!' }]}
-                    >
-                      <Input placeholder='Masukkan nomor telepon' />
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      label='Mobile'
-                      name='mobile'
-                      rules={[{ required: true, message: 'Mobile wajib diisi!' }]}
-                    >
-                      <Input placeholder='Masukkan nomor mobile' />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      label='Alamat'
-                      name='address'
-                      rules={[{ required: true, message: 'Alamat wajib diisi!' }]}
-                    >
-                      <Input placeholder='Masukkan alamat' />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Card>
-
-              <Card title='Konfigurasi' style={{ marginBottom: 16 }}>
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Form.Item label='Status Client' name='client_status'>
-                      <Select>
-                        <Option value={1}>Aktif</Option>
-                        <Option value={0}>Tidak Aktif</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label='Testing Mode' name='testing'>
-                      <Select>
-                        <Option value={1}>Ya</Option>
-                        <Option value={0}>Tidak</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Form.Item label='Bahasa' name='lang'>
-                      <Select>
-                        <Option value='id'>Indonesia</Option>
-                        <Option value='en'>English</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label='DCB' name='isdcb'>
-                      <Select>
-                        <Option value='1'>Ya</Option>
-                        <Option value='0'>Tidak</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label='Fail Callback' name='fail_callback'>
-                      <Select>
-                        <Option value='1'>Ya</Option>
-                        <Option value='0'>Tidak</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                <Form.Item label='Callback URL (Default)' name='callback_url'>
-                  <Input placeholder='https://example.com/callback' />
-                </Form.Item>
-
+          <Card title='Informasi Dasar' style={{ marginBottom: 16 }}>
+            <Row gutter={16}>
+              <Col span={12}>
                 <Form.Item
-                  noStyle
-                  shouldUpdate={(prevValues, currentValues) => prevValues.fail_callback !== currentValues.fail_callback}
+                  label='Nama Client'
+                  name='client_name'
+                  rules={[{ required: true, message: 'Nama client wajib diisi!' }]}
                 >
-                  {({ getFieldValue }) => {
-                    const failCallback = getFieldValue('fail_callback')
-                    return failCallback === '1' ? (
-                      <Form.Item
-                        label='Fail Callback URL'
-                        name='fail_callback_url'
-                        rules={[
-                          { required: true, message: 'Fail callback URL wajib diisi!' },
-                          { type: 'url', message: 'Format URL tidak valid!' },
-                        ]}
-                      >
-                        <Input placeholder='https://example.com/fail-callback' />
-                      </Form.Item>
-                    ) : null
-                  }}
+                  <Input placeholder='Masukkan nama client' />
                 </Form.Item>
-              </Card>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label='Nama Aplikasi'
+                  name='app_name'
+                  rules={[{ required: true, message: 'Nama aplikasi wajib diisi!' }]}
+                >
+                  <Input placeholder='Masukkan nama aplikasi' />
+                </Form.Item>
+              </Col>
+            </Row>
 
-              <Card title='Metode Pembayaran' style={{ marginBottom: 16 }}>
-                <div style={{ marginBottom: 16 }}>
-                  <Button
-                    type='dashed'
-                    icon={<PlusOutlined />}
-                    onClick={handleAddPaymentMethod}
-                    style={{ width: '100%' }}
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  label='Email'
+                  name='email'
+                  rules={[
+                    { required: true, message: 'Email wajib diisi!' },
+                    { type: 'email', message: 'Format email tidak valid!' },
+                  ]}
+                >
+                  <Input placeholder='Masukkan email' />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label='Nomor Telepon'
+                  name='phone'
+                  rules={[{ required: true, message: 'Nomor telepon wajib diisi!' }]}
+                >
+                  <Input placeholder='Masukkan nomor telepon' />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item label='Alamat' name='address' rules={[{ required: true, message: 'Alamat wajib diisi!' }]}>
+              <TextArea rows={3} placeholder='Masukkan alamat lengkap' />
+            </Form.Item>
+          </Card>
+
+          <Card title='Konfigurasi' style={{ marginBottom: 16 }}>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item label='Mobile' name='mobile' rules={[{ required: true, message: 'Mobile wajib diisi!' }]}>
+                  <Input placeholder='Masukkan nomor mobile' />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label='Status Client' name='client_status'>
+                  <Select>
+                    <Option value={1}>Aktif</Option>
+                    <Option value={0}>Tidak Aktif</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item label='Testing Mode' name='testing'>
+                  <Select>
+                    <Option value={1}>Ya</Option>
+                    <Option value={0}>Tidak</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item label='Bahasa' name='lang'>
+                  <Select>
+                    <Option value='id'>Indonesia</Option>
+                    <Option value='en'>English</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item label='DCB' name='isdcb'>
+                  <Select>
+                    <Option value='1'>Ya</Option>
+                    <Option value='0'>Tidak</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item label='Fail Callback' name='fail_callback'>
+                  <Select>
+                    <Option value='1'>Ya</Option>
+                    <Option value='0'>Tidak</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item label='Callback URL (Default)' name='callback_url'>
+              <Input placeholder='https://example.com/callback' />
+            </Form.Item>
+
+            <Form.Item
+              noStyle
+              shouldUpdate={(prevValues, currentValues) => prevValues.fail_callback !== currentValues.fail_callback}
+            >
+              {({ getFieldValue }) => {
+                const failCallback = getFieldValue('fail_callback')
+                return failCallback === '1' ? (
+                  <Form.Item
+                    label='Fail Callback URL'
+                    name='fail_callback_url'
+                    rules={[
+                      { required: true, message: 'Fail callback URL wajib diisi!' },
+                      { type: 'url', message: 'Format URL tidak valid!' },
+                    ]}
                   >
-                    Pilih Metode Pembayaran
-                  </Button>
-                </div>
+                    <Input placeholder='https://example.com/fail-callback' />
+                  </Form.Item>
+                ) : null
+              }}
+            </Form.Item>
+          </Card>
 
-                <Table
-                  columns={selectedPaymentColumns}
-                  dataSource={selectedPaymentMethods}
-                  pagination={false}
-                  size='small'
-                  locale={{
-                    emptyText: 'Belum ada metode pembayaran dipilih. Klik "Pilih Metode Pembayaran" untuk menambah.',
-                  }}
-                />
-              </Card>
+          <Card title='Metode Pembayaran' style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 16 }}>
+              <Button type='dashed' icon={<PlusOutlined />} onClick={handleAddPaymentMethod} style={{ width: '100%' }}>
+                Pilih Metode Pembayaran
+              </Button>
+            </div>
 
-              <Card title='Aplikasi' style={{ marginBottom: 16 }}>
-                <div style={{ marginBottom: 16 }}>
-                  <Button type='dashed' icon={<PlusOutlined />} onClick={handleAddApp} style={{ width: '100%' }}>
-                    Tambah Aplikasi
-                  </Button>
-                </div>
+            <Table
+              columns={selectedPaymentColumns}
+              dataSource={selectedPaymentMethods}
+              pagination={false}
+              size='small'
+              locale={{
+                emptyText: 'Belum ada metode pembayaran dipilih. Klik "Pilih Metode Pembayaran" untuk menambah.',
+              }}
+            />
+          </Card>
 
-                <Table
-                  columns={appColumns}
-                  dataSource={apps}
-                  pagination={false}
-                  size='small'
-                  locale={{
-                    emptyText: 'Belum ada aplikasi. Klik "Tambah Aplikasi" untuk menambah.',
-                  }}
-                />
-              </Card>
-            </>
-          )}
+          <Card title='Aplikasi' style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 16 }}>
+              <Button type='dashed' icon={<PlusOutlined />} onClick={handleAddApp} style={{ width: '100%' }}>
+                Tambah Aplikasi
+              </Button>
+            </div>
+
+            <Table
+              columns={appColumns}
+              dataSource={apps}
+              pagination={false}
+              size='small'
+              locale={{
+                emptyText: 'Belum ada aplikasi. Klik "Tambah Aplikasi" untuk menambah.',
+              }}
+            />
+          </Card>
         </Form>
 
         {/* Modal untuk menambah/edit aplikasi */}
@@ -1108,9 +1086,10 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
                 </Col>
                 <Col span={8}>
                   <Form.Item label='Additional Fee' name={['settlement_config', 'additionalfee']}>
+                    {/* <Input type='number' placeholder='Additional fee' /> */}
                     <Select>
-                      <Option value={1}>Ya</Option>
-                      <Option value={0}>Tidak</Option>
+                      <Option value='1'>Ya</Option>
+                      <Option value='0'>Tidak</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -1176,4 +1155,4 @@ const EditMerchant = ({ id, data }: EditMerchantProps) => {
   )
 }
 
-export default EditMerchant
+export default AddMerchant
