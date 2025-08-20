@@ -10,6 +10,8 @@ import SideMenu from '../components/SideMenu'
 import MenuIcon from '@mui/icons-material/Menu'
 import AppTheme from '../styles/theme/shared-theme/AppTheme'
 import ApiSwitcher from '../components/ApiSwitcher'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import SideMenuMobile from '../components/SideMenuMobile'
 
 import {
   chartsCustomizations,
@@ -36,16 +38,28 @@ const MainContent = styled('main', {
   transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
   }),
-  marginLeft: open ? 0 : `-${drawerWidth}px`,
-  width: open ? `calc(100% - ${drawerWidth}px)` : '100%', // Menyesuaikan lebar konten
+  // Mobile-first: full width, no negative margins
+  marginLeft: 0,
+  width: '100%',
+  // Desktop (md and up): follow drawer state
+  [theme.breakpoints.up('md')]: {
+    marginLeft: open ? 0 : `-${drawerWidth}px`,
+    width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
+  },
 }))
 
 export default function MainLayout() {
   const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
   const [open, setOpen] = useState(true)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleDrawerToggle = () => {
-    setOpen(!open)
+    setOpen((prev) => !prev)
+  }
+
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setMobileOpen(newOpen)
   }
 
   return (
@@ -59,8 +73,14 @@ export default function MainLayout() {
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
           }),
-          marginLeft: open ? `${drawerWidth}px` : 0, // Geser AppBar saat sidebar terbuka
-          width: open ? `calc(100% - ${drawerWidth}px)` : '100%', // Atur lebar AppBar
+          // Mobile: full width
+          marginLeft: 0,
+          width: '100%',
+          // Desktop: depend on drawer state
+          [theme.breakpoints.up('md')]: {
+            marginLeft: open ? `${drawerWidth}px` : 0, // Geser AppBar saat sidebar terbuka
+            width: open ? `calc(100% - ${drawerWidth}px)` : '100%', // Atur lebar AppBar
+          },
         }}
       >
         <div>
@@ -69,7 +89,7 @@ export default function MainLayout() {
               color='inherit'
               aria-label='open drawer'
               edge='start'
-              onClick={handleDrawerToggle}
+              onClick={isDesktop ? handleDrawerToggle : () => setMobileOpen(true)}
               sx={{ marginRight: 2 }}
             >
               <MenuIcon />
@@ -80,6 +100,8 @@ export default function MainLayout() {
       </AppBar>
 
       <SideMenu open={open} handleDrawerToggle={handleDrawerToggle} />
+
+      <SideMenuMobile open={mobileOpen} toggleDrawer={toggleDrawer} />
 
       <AppTheme themeComponents={xThemeComponents}>
         <MainContent open={open}>

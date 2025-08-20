@@ -220,11 +220,11 @@ const TransactionSummaryPage: React.FC = () => {
   }
 
   return (
-    <div className='p-10'>
+    <div className='p-4 sm:p-6 md:p-10'>
       <Typography.Title level={3}>Transaction Daily Summary</Typography.Title>
 
       <Row gutter={[16, 8]} style={{ marginBottom: 8 }}>
-        <Col span={6}>
+        <Col xs={24} sm={12} md={12} lg={8}>
           <Text>Date Range</Text>
           <RangePicker
             value={dateRange}
@@ -232,7 +232,7 @@ const TransactionSummaryPage: React.FC = () => {
             style={{ width: '100%' }}
           />
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={12} md={12} lg={8}>
           <Text>Merchant</Text>
           <Select
             showSearch
@@ -258,7 +258,7 @@ const TransactionSummaryPage: React.FC = () => {
 
       {/* Baris 2 */}
       <Row gutter={[16, 8]} style={{ marginBottom: 8 }}>
-        <Col span={6}>
+        <Col xs={24} sm={12} md={12} lg={8}>
           <Text>Status</Text>
           <Select
             placeholder='Select status'
@@ -272,7 +272,7 @@ const TransactionSummaryPage: React.FC = () => {
             <Option value='failed'>Failed</Option>
           </Select>
         </Col>
-        <Col span={6} className='flex flex-col'>
+        <Col xs={24} sm={12} md={12} lg={8} className='flex flex-col'>
           <Text>Payment Method</Text>
           <Select
             // style={{ width: 200 }}
@@ -294,11 +294,11 @@ const TransactionSummaryPage: React.FC = () => {
 
       {/* Baris 3 */}
       <Row gutter={[16, 16]}>
-        <Col span={6} className='!mb-10'>
+        <Col xs={24} sm={12} md={12} lg={8} className='!mb-10'>
           <Text>Route</Text>
           <Input placeholder='Route' value={route} onChange={(e) => setRoute(e.target.value)} />
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={12} md={12} lg={8}>
           <Text>&nbsp;</Text>
           <Space style={{ marginTop: 20 }}>
             <Button type='primary' onClick={handleFilter}>
@@ -328,6 +328,7 @@ const TransactionSummaryPage: React.FC = () => {
           dataSource={data}
           rowKey={(record, index) => `${record.date}-${record.merchant_name}-${index}`}
           pagination={{ pageSize: 20 }}
+          scroll={{ x: 'max-content' }}
         />
       </Spin>
     </div>

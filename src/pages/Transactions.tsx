@@ -569,7 +569,7 @@ export default function Transactions() {
             <div className='mt-3'>
               <form onSubmit={handleSubmit}>
                 <Grid container rowSpacing={2} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <FormLabel className='font-medium'>User MDN</FormLabel>
                     <TextField
                       variant='outlined'
@@ -580,7 +580,7 @@ export default function Transactions() {
                       onChange={handleChange}
                     />
                   </Grid>
-                  <Grid size={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <FormLabel className='font-medium'>Merchant Trx ID</FormLabel>
                     <TextField
                       variant='outlined'
@@ -590,7 +590,7 @@ export default function Transactions() {
                       onChange={handleChange}
                     />
                   </Grid>
-                  <Grid size={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <FormLabel className='font-medium'>User ID</FormLabel>
                     <TextField
                       variant='outlined'
@@ -602,7 +602,7 @@ export default function Transactions() {
                   </Grid>
                 </Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={4} className='flex flex-col'>
+                  <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>Filter Date</FormLabel>
 
                     <RangePicker
@@ -613,7 +613,7 @@ export default function Transactions() {
                       value={[formData.start_date, formData.end_date]}
                     />
                   </Grid>
-                  <Grid size={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <FormLabel className='font-medium'>Transaction ID</FormLabel>
                     <TextField
                       variant='outlined'
@@ -624,7 +624,7 @@ export default function Transactions() {
                     />
                   </Grid>
 
-                  <Grid size={4} className='flex flex-col'>
+                  <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>App</FormLabel>
                     <Select
                       labelId='merchant-label'
@@ -657,7 +657,7 @@ export default function Transactions() {
                 </Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={4} className='flex flex-col'>
+                  <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>Payment Method</FormLabel>
                     <Select
                       multiple
@@ -676,7 +676,7 @@ export default function Transactions() {
                       ))}
                     </Select>
                   </Grid>
-                  <Grid size={4} className='flex flex-col'>
+                  <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>Status</FormLabel>
 
                     <Select
@@ -694,7 +694,7 @@ export default function Transactions() {
                       ))}
                     </Select>
                   </Grid>
-                  <Grid size={4} className='flex flex-col'>
+                  <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>Merchant Name</FormLabel>
 
                     <Select
@@ -729,7 +729,7 @@ export default function Transactions() {
                   </Grid>
                 </Grid>
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                  <Grid size={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <FormLabel className='font-medium'>Denom</FormLabel>
                     <Select
                       style={{ marginTop: '6px' }}

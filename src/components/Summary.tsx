@@ -82,15 +82,15 @@ const Summary = () => {
 
   return (
     <div className='space-y-4 w-full'>
-      <div className='flex gap-4 items-end justify-between'>
+      <div className='flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-between w-full'>
         <Typography variant='h2' fontWeight='bold' fontSize={18}>
           Summary
         </Typography>
-        <div className='flex gap-4 items-end justify-between'>
+        <div className='flex flex-col sm:flex-row gap-4 items-stretch sm:items-end w-full sm:w-auto'>
           <FormControl variant='standard'>
             <InputLabel id='paymentMethod'>Payment Method</InputLabel>
             <Select
-              sx={{ width: '160px', padding: '8px 12px', height: '40px', borderRadius: 1 }}
+              sx={{ width: { xs: '100%', sm: 160 }, padding: '8px 12px', height: 40, borderRadius: 1 }}
               labelId='paymentMethod'
               id='paymentMethod'
               value={paymentMethod}
@@ -106,7 +106,7 @@ const Summary = () => {
           <FormControl variant='standard'>
             <InputLabel id='frequency'>Frequency</InputLabel>
             <Select
-              sx={{ width: '160px', padding: '8px 12px', height: '40px', borderRadius: 1 }}
+              sx={{ width: { xs: '100%', sm: 160 }, padding: '8px 12px', height: 40, borderRadius: 1 }}
               labelId='frequency'
               id='frequency'
               value={freq}
@@ -117,13 +117,13 @@ const Summary = () => {
               <MenuItem value='monthly'>Monthly</MenuItem>
             </Select>
           </FormControl>
-          <Button sx={{ width: '160px' }} variant='contained' color='secondary'>
+          <Button sx={{ width: { xs: '100%', sm: 160 } }} variant='contained' color='secondary'>
             Export Data
           </Button>
         </div>
       </div>
 
-      <div className='flex gap-4 justify-between w-full overflow-auto'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full'>
         <SummaryCard status='success' value={222} />
         <SummaryCard status='canceled' value={11} />
         <SummaryCard status='failed' value={9289} />
