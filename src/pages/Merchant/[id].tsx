@@ -392,6 +392,12 @@ const DetailMerchant = () => {
                       render: (tax) => (tax === '1' ? 'Ya' : 'Tidak'),
                     },
                     {
+                      title: 'IS BHPUSO',
+                      dataIndex: 'is_bhpuso',
+                      key: 'is_bhpuso',
+                      render: (isbhp) => (isbhp === '1' ? 'Ya' : 'Tidak'),
+                    },
+                    {
                       title: 'Share Partner',
                       dataIndex: 'share_partner',
                       key: 'share_partner',

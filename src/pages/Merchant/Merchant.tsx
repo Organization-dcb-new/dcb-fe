@@ -135,8 +135,8 @@ const Merchant = () => {
   const columns: ColumnType<any>[] = [
     {
       title: 'Merchant Name',
-      dataIndex: 'appName',
-      key: 'appName',
+      dataIndex: 'clientName',
+      key: 'clientName',
       align: 'center',
       render: (text) => {
         if (!text) return <span style={{ paddingLeft: '8px' }}>-</span>
