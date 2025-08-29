@@ -28,6 +28,7 @@ import {
   ExpandMore,
   BarChartOutlined,
   // StarBorder,
+  PersonOutline,
 } from '@mui/icons-material'
 
 import { useAuth } from '../provider/AuthProvider'
@@ -55,6 +56,10 @@ export default function MenuContent() {
       nestedItems: [
         { text: 'Merchant', icon: <StoreMallDirectoryOutlined />, path: '/merchant' },
         { text: 'Summary', icon: <BarChartOutlined />, path: '/admin/summary' },
+
+        ...(decoded.role == 'merchant'
+          ? [{ text: 'Profil Merchant', icon: <PersonOutline />, path: '/merchant-profile' }]
+          : []),
       ],
     },
   ]
@@ -92,6 +97,9 @@ export default function MenuContent() {
     //   icon: <ListAltOutlined />,
     //   path: '/report',
     // },
+    ...(decoded.role === 'merchant'
+      ? [{ text: 'Profil Merchant', icon: <PersonOutline />, path: '/merchant-profile' }]
+      : []),
   ]
 
   const isActiveRoute = (path: string) => {

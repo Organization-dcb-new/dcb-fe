@@ -58,6 +58,7 @@ export interface Client {
   client_status: number
   phone: string
   email: string
+  address?: string
   testing: number
   lang: string
   callback_url: string

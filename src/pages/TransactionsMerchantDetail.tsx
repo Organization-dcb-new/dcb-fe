@@ -34,6 +34,9 @@ const TransactionMerchantDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const [transaction, setTransaction] = useState<Transaction | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
+  const [resendLoading, setResendLoading] = useState<boolean>(false)
+  const [resendDisabled, setResendDisabled] = useState<boolean>(false)
+  const [countdown, setCountdown] = useState<number>(0)
   const navigate = useNavigate()
 
   const { token, apiUrl, appId, appKey, isDev } = useAuth()
@@ -79,6 +82,47 @@ const TransactionMerchantDetail: React.FC = () => {
     }
   }
 
+  const handleResendCallback = async () => {
+    if (!transaction || resendDisabled) return
+
+    setResendLoading(true)
+    setResendDisabled(true)
+
+    try {
+      await axios.post(
+        `${apiUrl}/merchant/resend-callback/${transaction.u_id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            appid: appId,
+            appkey: appKey,
+          },
+        },
+      )
+      alert('Callback berhasil dikirim ulang')
+
+      setCountdown(60)
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer)
+            setResendDisabled(false)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    } catch (error) {
+      console.error('Failed to resend callback:', error)
+      alert('Gagal mengirim ulang callback')
+      setResendDisabled(false)
+    } finally {
+      setResendLoading(false)
+    }
+  }
+
   useEffect(() => {
     const fetchTransactionDetail = async () => {
       try {
@@ -99,6 +143,8 @@ const TransactionMerchantDetail: React.FC = () => {
     }
 
     fetchTransactionDetail()
+
+    return () => {}
   }, [id, token])
 
   if (loading) {
@@ -312,6 +358,29 @@ const TransactionMerchantDetail: React.FC = () => {
           onClick={() => navigate(-1)}
         >
           Back
+        </Button>
+
+        <Button
+          type='button'
+          className='mt-3 mr-4'
+          variant='contained'
+          color='success'
+          size='small'
+          onClick={handleResendCallback}
+          disabled={resendDisabled || resendLoading}
+          sx={{
+            backgroundColor: '#4caf50',
+            color: 'white',
+            '&:hover': {
+              backgroundColor: '#45a049',
+            },
+            '&:disabled': {
+              backgroundColor: '#cccccc',
+              color: '#666666',
+            },
+          }}
+        >
+          {resendLoading ? 'Mengirim...' : resendDisabled ? `Resend (${countdown}s)` : 'Resend Callback'}
         </Button>
 
         {isDev && (
