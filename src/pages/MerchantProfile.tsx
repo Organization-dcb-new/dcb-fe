@@ -19,11 +19,10 @@ import {
   DialogActions,
   Alert,
   CircularProgress,
-  IconButton,
   Stack,
   TextField,
 } from '@mui/material'
-import { Input, Space } from 'antd'
+import { Input } from 'antd'
 import {
   Business,
   Phone,
@@ -44,7 +43,7 @@ const MerchantProfile: React.FC = () => {
   const { client, loading, error, refetch } = useClient()
   const { token, apiUrl, appId, appKey } = useAuth()
   const [editMode, setEditMode] = useState(false)
-  const [selectedAppId, setSelectedAppId] = useState<number | null>(null)
+  const [, setSelectedAppId] = useState<number | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
   const [openPaymentDialog, setOpenPaymentDialog] = useState(false)
   const [formData, setFormData] = useState({
@@ -419,7 +418,7 @@ const MerchantProfile: React.FC = () => {
               </Typography>
               {client.apps && client.apps.length > 0 ? (
                 <Box>
-                  {client.apps.map((app, index) => (
+                  {client.apps.map((app) => (
                     <Card key={app.id} sx={{ mb: 2, borderRadius: 2, boxShadow: 1 }}>
                       <CardContent sx={{ p: 3 }}>
                         <Box display='flex' justifyContent='space-between' alignItems='center' mb={2}>
