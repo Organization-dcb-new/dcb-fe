@@ -60,7 +60,7 @@ const TransactionMerchantDetail: React.FC = () => {
       navigate(0) // reload halaman
     } catch (error) {
       console.error('Failed to mark as success:', error)
-      alert('Gagal mark success')
+      alert('Failed to mark as success')
     }
   }
 
@@ -78,7 +78,7 @@ const TransactionMerchantDetail: React.FC = () => {
       navigate(0)
     } catch (error) {
       console.error('Failed to mark as failed:', error)
-      alert('Gagal mark failed')
+      alert('Failed to mark as failed')
     }
   }
 
@@ -101,7 +101,7 @@ const TransactionMerchantDetail: React.FC = () => {
           },
         },
       )
-      alert('Callback berhasil dikirim ulang')
+      alert('Callback resent successfully')
 
       setCountdown(60)
       const timer = setInterval(() => {
@@ -116,7 +116,7 @@ const TransactionMerchantDetail: React.FC = () => {
       }, 1000)
     } catch (error) {
       console.error('Failed to resend callback:', error)
-      alert('Gagal mengirim ulang callback')
+      alert('Failed to resend callback')
       setResendDisabled(false)
     } finally {
       setResendLoading(false)
@@ -360,28 +360,30 @@ const TransactionMerchantDetail: React.FC = () => {
           Back
         </Button>
 
-        <Button
-          type='button'
-          className='mt-3 mr-4'
-          variant='contained'
-          color='success'
-          size='small'
-          onClick={handleResendCallback}
-          disabled={resendDisabled || resendLoading}
-          sx={{
-            backgroundColor: '#4caf50',
-            color: 'white',
-            '&:hover': {
-              backgroundColor: '#45a049',
-            },
-            '&:disabled': {
-              backgroundColor: '#cccccc',
-              color: '#666666',
-            },
-          }}
-        >
-          {resendLoading ? 'Mengirim...' : resendDisabled ? `Resend (${countdown}s)` : 'Resend Callback'}
-        </Button>
+        {transaction.status_code !== 1000 && transaction.status_code !== 1003 && (
+          <Button
+            type='button'
+            className='mt-3 mr-4'
+            variant='contained'
+            color='success'
+            size='small'
+            onClick={handleResendCallback}
+            disabled={resendDisabled || resendLoading}
+            sx={{
+              backgroundColor: '#4caf50',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: '#45a049',
+              },
+              '&:disabled': {
+                backgroundColor: '#cccccc',
+                color: '#666666',
+              },
+            }}
+          >
+            {resendLoading ? 'Sending...' : resendDisabled ? `Resend (${countdown}s)` : 'Resend Callback'}
+          </Button>
+        )}
 
         {isDev && (
           <>
