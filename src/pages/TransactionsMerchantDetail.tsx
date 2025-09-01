@@ -360,7 +360,7 @@ const TransactionMerchantDetail: React.FC = () => {
           Back
         </Button>
 
-        {transaction.status_code !== 1000 && transaction.status_code !== 1003 && (
+        {transaction.status_code === 1000 || transaction.status_code === 1003 ? (
           <Button
             type='button'
             className='mt-3 mr-4'
@@ -383,7 +383,7 @@ const TransactionMerchantDetail: React.FC = () => {
           >
             {resendLoading ? 'Sending...' : resendDisabled ? `Resend (${countdown}s)` : 'Resend Callback'}
           </Button>
-        )}
+        ) : null}
 
         {isDev && (
           <>
