@@ -74,7 +74,7 @@ const DetailMerchant = () => {
   }
 
   const getStatusText = (status: string | number) => {
-    return status === 1 || status === '1' ? 'Aktif' : 'Tidak Aktif'
+    return status === 1 || status === '1' ? 'Active' : 'Inactive'
   }
 
   const toggleAppKeyVisibility = (appId: number) => {
@@ -144,10 +144,10 @@ const DetailMerchant = () => {
               onClick={() => navigate(-1)}
               style={{ padding: '4px 8px' }}
             >
-              Kembali
+              Back
             </Button>
             <MuiTypography variant='h4' component='h1' style={{ margin: 0, fontWeight: 600 }}>
-              Detail Merchant
+              Merchant Details
             </MuiTypography>
           </Space>
         </div>
@@ -160,7 +160,7 @@ const DetailMerchant = () => {
               title={
                 <Space>
                   <IdcardOutlined />
-                  <span>Informasi Merchant</span>
+                  <span>Merchant Information</span>
                 </Space>
               }
               loading={isLoading}
@@ -377,7 +377,7 @@ const DetailMerchant = () => {
                       title: 'PPN',
                       dataIndex: 'additional_percent',
                       key: 'additional_percent',
-                      render: (percent) => (percent ? `${percent}%` : 'Tidak'),
+                      render: (percent) => (percent ? `${percent}%` : 'No'),
                     },
                     {
                       title: 'Service Charge',
@@ -389,13 +389,13 @@ const DetailMerchant = () => {
                       title: 'Tax 23',
                       dataIndex: 'tax23',
                       key: 'tax23',
-                      render: (tax) => (tax === '1' ? 'Ya' : 'Tidak'),
+                      render: (tax) => (tax === '1' ? 'Yes' : 'No'),
                     },
                     {
                       title: 'IS BHPUSO',
                       dataIndex: 'is_bhpuso',
                       key: 'is_bhpuso',
-                      render: (isbhp) => (isbhp === '1' ? 'Ya' : 'Tidak'),
+                      render: (isbhp) => (isbhp === '1' ? 'Yes' : 'No'),
                     },
                     {
                       title: 'Share Partner',
@@ -424,7 +424,7 @@ const DetailMerchant = () => {
               {merchantDetail ? (
                 <div>
                   {!merchantDetail.payment_methods || merchantDetail.payment_methods.length === 0 ? (
-                    <Typography.Text type='secondary'>Tidak ada payment method</Typography.Text>
+                    <Typography.Text type='secondary'>No payment methods</Typography.Text>
                   ) : (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                       {merchantDetail.payment_methods.map((item, index) => (
@@ -445,7 +445,7 @@ const DetailMerchant = () => {
               {merchantDetail ? (
                 <div>
                   {!merchantDetail.route_weights || merchantDetail.route_weights.length === 0 ? (
-                    <Typography.Text type='secondary'>Tidak ada route weights</Typography.Text>
+                    <Typography.Text type='secondary'>No route weights</Typography.Text>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {merchantDetail.route_weights.map((rw, index) => (

@@ -728,21 +728,21 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                 </Row>
               </Card>
 
-              <Card title='Konfigurasi' style={{ marginBottom: 16 }}>
+              <Card title='Configuration' style={{ marginBottom: 16 }}>
                 <Row gutter={16}>
                   <Col span={8}>
-                    <Form.Item label='Status Client' name='client_status'>
+                    <Form.Item label='Client Status' name='client_status'>
                       <Select>
-                        <Option value={1}>Aktif</Option>
-                        <Option value={0}>Tidak Aktif</Option>
+                        <Option value={1}>Active</Option>
+                        <Option value={0}>Inactive</Option>
                       </Select>
                     </Form.Item>
                   </Col>
                   <Col span={8}>
                     <Form.Item label='Testing Mode' name='testing'>
                       <Select>
-                        <Option value={1}>Ya</Option>
-                        <Option value={0}>Tidak</Option>
+                        <Option value={1}>Yes</Option>
+                        <Option value={0}>No</Option>
                       </Select>
                     </Form.Item>
                   </Col>
@@ -750,7 +750,7 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
 
                 <Row gutter={16}>
                   <Col span={8}>
-                    <Form.Item label='Bahasa' name='lang'>
+                    <Form.Item label='Language' name='lang'>
                       <Select>
                         <Option value='id'>Indonesia</Option>
                         <Option value='en'>English</Option>
@@ -760,16 +760,16 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                   <Col span={8}>
                     <Form.Item label='DCB' name='isdcb'>
                       <Select>
-                        <Option value='1'>Ya</Option>
-                        <Option value='0'>Tidak</Option>
+                        <Option value='1'>Yes</Option>
+                        <Option value='0'>No</Option>
                       </Select>
                     </Form.Item>
                   </Col>
                   <Col span={8}>
                     <Form.Item label='Fail Callback' name='fail_callback'>
                       <Select>
-                        <Option value='1'>Ya</Option>
-                        <Option value='0'>Tidak</Option>
+                        <Option value='1'>Yes</Option>
+                        <Option value='0'>No</Option>
                       </Select>
                     </Form.Item>
                   </Col>

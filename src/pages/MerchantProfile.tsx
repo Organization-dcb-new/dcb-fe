@@ -108,7 +108,7 @@ const MerchantProfile: React.FC = () => {
 
   const handleSaveProfile = async () => {
     if (!appId || !appKey) {
-      setUpdateError('App ID atau App Key tidak tersedia')
+      setUpdateError('App ID or App Key not available')
       return
     }
 
@@ -154,7 +154,7 @@ const MerchantProfile: React.FC = () => {
 
       // Check if there are any changes to update
       if (Object.keys(requestBody).length === 0) {
-        setUpdateError('Tidak ada perubahan untuk disimpan')
+        setUpdateError('No changes to save')
         setUpdateLoading(false)
         return
       }
@@ -178,10 +178,10 @@ const MerchantProfile: React.FC = () => {
         setSelectedAppId(null)
         refetch() // Refresh data
       } else {
-        setUpdateError(data.message || 'Gagal memperbarui profil')
+        setUpdateError(data.message || 'Failed to update profile')
       }
     } catch (err: any) {
-      setUpdateError(err.message || 'Terjadi kesalahan saat memperbarui profil')
+      setUpdateError(err.message || 'An error occurred while updating profile')
     } finally {
       setUpdateLoading(false)
     }
@@ -209,7 +209,7 @@ const MerchantProfile: React.FC = () => {
   }
 
   const getStatusText = (status: number) => {
-    return status === 1 ? 'Aktif' : 'Tidak Aktif'
+    return status === 1 ? 'Active' : 'Inactive'
   }
 
   if (loading) {
@@ -231,7 +231,7 @@ const MerchantProfile: React.FC = () => {
   if (!client) {
     return (
       <Box p={3}>
-        <Alert severity='warning'>Data merchant tidak ditemukan</Alert>
+        <Alert severity='warning'>Merchant data not found</Alert>
       </Box>
     )
   }
@@ -243,7 +243,7 @@ const MerchantProfile: React.FC = () => {
         <Grid item xs={12}>
           <Box display='flex' justifyContent='space-between' alignItems='center' mb={2}>
             <Typography variant='h4' component='h1' fontWeight='bold'>
-              Profil Merchant
+              Merchant Profile
             </Typography>
           </Box>
         </Grid>
@@ -260,7 +260,7 @@ const MerchantProfile: React.FC = () => {
         {updateSuccess && (
           <Grid item xs={12}>
             <Alert severity='success' onClose={() => setUpdateSuccess(false)}>
-              Profil berhasil diperbarui!
+              Profile updated successfully!
             </Alert>
           </Grid>
         )}
@@ -496,7 +496,7 @@ const MerchantProfile: React.FC = () => {
                 </Box>
               ) : (
                 <Typography variant='body1' color='text.secondary' textAlign='center' py={3}>
-                  Tidak ada aplikasi terdaftar
+                  No registered applications
                 </Typography>
               )}
 
@@ -504,7 +504,7 @@ const MerchantProfile: React.FC = () => {
               {editMode && (
                 <Box display='flex' gap={2} mt={3} justifyContent='flex-end'>
                   <Button variant='outlined' startIcon={<Cancel />} onClick={handleCancel} sx={{ borderRadius: 2 }}>
-                    Batal
+                    Cancel
                   </Button>
                   <Button
                     variant='contained'
@@ -513,7 +513,7 @@ const MerchantProfile: React.FC = () => {
                     disabled={updateLoading}
                     sx={{ borderRadius: 2 }}
                   >
-                    {updateLoading ? <CircularProgress size={16} /> : 'Simpan'}
+                    {updateLoading ? <CircularProgress size={16} /> : 'Save'}
                   </Button>
                 </Box>
               )}
@@ -530,17 +530,17 @@ const MerchantProfile: React.FC = () => {
                 <Box display='flex' alignItems='center' mb={2}>
                   <Apps sx={{ mr: 1, color: 'primary.main' }} />
                   <Typography variant='h6' fontWeight='bold'>
-                    Aplikasi
+                    Applications
                   </Typography>
                 </Box>
                 <Typography variant='h4' fontWeight='bold' color='primary.main'>
                   {client.apps?.length || 0}
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
-                  Total aplikasi terdaftar
+                  Total registered applications
                 </Typography>
                 <Button variant='text' size='small' onClick={() => setOpenDialog(true)} sx={{ mt: 1 }}>
-                  Lihat Detail
+                  View Details
                 </Button>
               </CardContent>
             </Card>
@@ -551,17 +551,17 @@ const MerchantProfile: React.FC = () => {
                 <Box display='flex' alignItems='center' mb={2}>
                   <Payment sx={{ mr: 1, color: 'primary.main' }} />
                   <Typography variant='h6' fontWeight='bold'>
-                    Metode Pembayaran
+                    Payment Methods
                   </Typography>
                 </Box>
                 <Typography variant='h4' fontWeight='bold' color='primary.main'>
                   {client.payment_methods?.length || 0}
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
-                  Metode pembayaran aktif
+                  Active payment methods
                 </Typography>
                 <Button variant='text' size='small' onClick={() => setOpenPaymentDialog(true)} sx={{ mt: 1 }}>
-                  Lihat Detail
+                  View Details
                 </Button>
               </CardContent>
             </Card>

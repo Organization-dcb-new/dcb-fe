@@ -58,7 +58,7 @@ export default function MenuContent() {
         { text: 'Summary', icon: <BarChartOutlined />, path: '/admin/summary' },
 
         ...(decoded.role == 'merchant'
-          ? [{ text: 'Profil Merchant', icon: <PersonOutline />, path: '/merchant-profile' }]
+          ? [{ text: 'Merchant Profile', icon: <PersonOutline />, path: '/merchant-profile' }]
           : []),
       ],
     },
@@ -98,7 +98,7 @@ export default function MenuContent() {
     //   path: '/report',
     // },
     ...(decoded.role === 'merchant'
-      ? [{ text: 'Profil Merchant', icon: <PersonOutline />, path: '/merchant-profile' }]
+      ? [{ text: 'Merchant Profile', icon: <PersonOutline />, path: '/merchant-profile' }]
       : []),
   ]
 

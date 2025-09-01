@@ -113,7 +113,7 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
       }
     } catch (error) {
       console.error('Error fetching payment methods:', error)
-      message.error('Gagal memuat metode pembayaran')
+      message.error('Failed to load payment methods')
       setSelectedPaymentMethods([])
     }
   }
@@ -422,7 +422,7 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
     }
 
     if (selectedPaymentMethods.length === 0) {
-      message.error('Pilih minimal satu metode pembayaran!')
+      message.error('Please select at least one payment method!')
       return
     }
 
@@ -490,13 +490,13 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
       title: 'Testing',
       dataIndex: 'testing',
       key: 'testing',
-      render: (value: number) => (value === 1 ? 'Ya' : 'Tidak'),
+      render: (value: number) => (value === 1 ? 'Yes' : 'No'),
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (value: number) => (value === 1 ? 'Aktif' : 'Tidak Aktif'),
+      render: (value: number) => (value === 1 ? 'Active' : 'Inactive'),
     },
     {
       title: 'Action',
@@ -516,7 +516,7 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
 
   const selectedPaymentColumns = [
     {
-      title: 'Metode Pembayaran',
+      title: 'Payment Methods',
       dataIndex: 'payment_method_slug',
       key: 'payment_method_slug',
       render: (slug: string) => {
@@ -553,9 +553,9 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
       key: 'status',
       render: (value: number) =>
         value === 1 ? (
-          <span style={{ color: '#52c41a' }}>Aktif</span>
+          <span style={{ color: '#52c41a' }}>Active</span>
         ) : (
-          <span style={{ color: '#ff4d4f' }}>Tidak Aktif</span>
+          <span style={{ color: '#ff4d4f' }}>Inactive</span>
         ),
     },
     {
@@ -632,20 +632,20 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
-                  label='Nama Client'
+                  label='Client Name'
                   name='client_name'
-                  rules={[{ required: true, message: 'Nama client wajib diisi!' }]}
+                  rules={[{ required: true, message: 'Client name is required!' }]}
                 >
-                  <Input placeholder='Masukkan nama client' />
+                  <Input placeholder='Enter client name' />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
-                  label='Nama Aplikasi'
+                  label='Application Name'
                   name='app_name'
-                  rules={[{ required: true, message: 'Nama aplikasi wajib diisi!' }]}
+                  rules={[{ required: true, message: 'Application name is required!' }]}
                 >
-                  <Input placeholder='Masukkan nama aplikasi' />
+                  <Input placeholder='Enter application name' />
                 </Form.Item>
               </Col>
             </Row>
