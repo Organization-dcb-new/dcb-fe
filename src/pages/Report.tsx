@@ -179,104 +179,231 @@ const Report: React.FC = () => {
   }
 
   const exportToPDF = () => {
-    const tableBody = [
-      // Header row
-      [
-        { text: 'EUP INC', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
-        { text: 'EUP EXC', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
-        { text: '#TRX', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
-        { text: 'SALES EXC VAT', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
-        {
-          text: `REVENUE SHARING ${data?.share_redision} - ${data?.share_merchant}`,
-          style: 'tableHeader',
-          alignment: 'center',
-          bold: true,
-          colSpan: 2,
-        },
-        {}, // kolom ke-6 untuk melengkapi colSpan
-      ],
-      // Baris 2: Kosongkan 4 kolom pertama, isi kolom 5-6
-      [
-        {},
-        {},
-        {},
-        {},
-        { text: 'REDISION', style: 'tableHeader', alignment: 'center', bold: true },
-        { text: 'PARTNER', style: 'tableHeader', alignment: 'center', bold: true },
-      ],
-      ...(data?.summaries || []).map((item) => [
-        { text: `${item.amount_tax.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-        { text: `${item.amount.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-        { text: item.count.toString(), alignment: 'left', fontSize: 9 },
-        { text: `IDR ${item.total_amount.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-        { text: `IDR ${item.share_redision.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-        { text: `IDR ${item.share_merchant.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-      ]),
-      [
-        {},
-        {},
-        {},
-        { text: `TOTAL`, alignment: 'left', bold: true, fontSize: 9 },
-        {
-          text: `IDR ${data?.grand_total_redision.toLocaleString('id-ID')}`,
-          alignment: 'left',
-          bold: true,
-          fontSize: 9,
-        },
-        { text: `IDR ${data?.total_merchant?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
-      ],
+    // Check if payment method is telco
+    const isTelco = [
+      'telkomsel_airtime',
+      'indosat_airtime',
+      'xl_airtime',
+      'three_airtime',
+      'smartfren_airtime',
+    ].includes(filteredPaymentMethod?.value || '')
 
-      // Add additional fees if available
-      ...(data?.bhp_uso
-        ? [
-            [
-              {},
-              {},
-              {},
-              {},
-              { text: 'BHP USO', alignment: 'left', bold: true, fontSize: 9 },
-              { text: `IDR ${data.bhp_uso.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
-            ],
-          ]
-        : []),
-      ...(data?.tax_23
-        ? [
-            [
-              {},
-              {},
-              {},
-              {},
-              { text: 'TAX 23', alignment: 'left', bold: true, fontSize: 9 },
-              { text: `IDR ${data.tax_23.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
-            ],
-          ]
-        : []),
-      ...(data?.additional_fee
-        ? [
-            [
-              {},
-              {},
-              {},
-              {},
-              { text: 'ADDITIONAL FEE', alignment: 'left', bold: true, fontSize: 9 },
-              {
-                text: `IDR ${data.additional_fee.toLocaleString('id-ID')}`,
-                alignment: 'left',
-                bold: true,
-                fontSize: 9,
-              },
-            ],
-          ]
-        : []),
-      [
-        {},
-        {},
-        {},
-        {},
-        { text: 'GRAND TOTAL', alignment: 'left', bold: true, fontSize: 9 },
-        { text: `IDR ${data?.grand_total?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
-      ],
-    ]
+    let tableBody
+    let tableWidths
+    if (isTelco) {
+      // For telco payment methods - show both EUP INC and EUP EXC
+      tableWidths = ['15%', '15%', '10%', '20%', '20%', '20%']
+      tableBody = [
+        // Header row
+        [
+          { text: 'EUP INC', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
+          { text: 'EUP EXC', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
+          { text: '#TRX', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
+          {
+            text: 'SALES EXC VAT',
+            style: 'tableHeader',
+            alignment: 'center',
+            valign: 'middle',
+            bold: true,
+            rowSpan: 2,
+          },
+          {
+            text: `REVENUE SHARING ${data?.share_redision} - ${data?.share_merchant}`,
+            style: 'tableHeader',
+            alignment: 'center',
+            bold: true,
+            colSpan: 2,
+          },
+          {}, // kolom ke-6 untuk melengkapi colSpan
+        ],
+        // Baris 2: Kosongkan 4 kolom pertama, isi kolom 5-6
+        [
+          {},
+          {},
+          {},
+          {},
+          { text: 'REDISION', style: 'tableHeader', alignment: 'center', bold: true },
+          { text: 'PARTNER', style: 'tableHeader', alignment: 'center', bold: true },
+        ],
+        ...(data?.summaries || []).map((item) => [
+          { text: `${item.amount_tax.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+          { text: `${item.amount.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+          { text: item.count.toString(), alignment: 'left', fontSize: 9 },
+          { text: `IDR ${item.total_amount.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+          { text: `IDR ${item.share_redision.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+          { text: `IDR ${item.share_merchant.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+        ]),
+        [
+          {},
+          {},
+          {},
+          { text: `TOTAL`, alignment: 'left', bold: true, fontSize: 9 },
+          {
+            text: `IDR ${data?.grand_total_redision.toLocaleString('id-ID')}`,
+            alignment: 'left',
+            bold: true,
+            fontSize: 9,
+          },
+          { text: `IDR ${data?.total_merchant?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+        ],
+
+        // Add additional fees if available
+        ...(data?.bhp_uso
+          ? [
+              [
+                {},
+                {},
+                {},
+                {},
+                { text: 'BHP USO', alignment: 'left', bold: true, fontSize: 9 },
+                { text: `IDR ${data.bhp_uso.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+              ],
+            ]
+          : []),
+        ...(data?.tax_23
+          ? [
+              [
+                {},
+                {},
+                {},
+                {},
+                { text: 'TAX 23', alignment: 'left', bold: true, fontSize: 9 },
+                { text: `IDR ${data.tax_23.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+              ],
+            ]
+          : []),
+        ...(data?.additional_fee
+          ? [
+              [
+                {},
+                {},
+                {},
+                {},
+                { text: 'ADDITIONAL FEE', alignment: 'left', bold: true, fontSize: 9 },
+                {
+                  text: `IDR ${data.additional_fee.toLocaleString('id-ID')}`,
+                  alignment: 'left',
+                  bold: true,
+                  fontSize: 9,
+                },
+              ],
+            ]
+          : []),
+        [
+          {},
+          {},
+          {},
+          {},
+          { text: 'GRAND TOTAL', alignment: 'left', bold: true, fontSize: 9 },
+          { text: `IDR ${data?.grand_total?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+        ],
+      ]
+    } else {
+      // For non-telco payment methods - hide EUP INC, change EUP EXC to Denom
+      tableWidths = ['20%', '15%', '25%', '20%', '20%']
+      tableBody = [
+        // Header row
+        [
+          {
+            text: 'Denom',
+            style: 'tableHeader',
+            alignment: 'center',
+            valign: 'middle',
+            bold: true,
+            rowSpan: 2,
+            fontSize: 10,
+          },
+          { text: '#TRX', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
+          {
+            text: 'SALES EXC VAT',
+            style: 'tableHeader',
+            alignment: 'center',
+            valign: 'middle',
+            bold: true,
+            rowSpan: 2,
+          },
+          {
+            text: `REVENUE SHARING ${data?.share_redision} - ${data?.share_merchant}`,
+            style: 'tableHeader',
+            alignment: 'center',
+            bold: true,
+            colSpan: 2,
+          },
+          {}, // kolom ke-5 untuk melengkapi colSpan
+        ],
+        // Baris 2: Kosongkan 3 kolom pertama, isi kolom 4-5
+        [
+          {},
+          {},
+          {},
+          { text: 'REDISION', style: 'tableHeader', alignment: 'center', bold: true },
+          { text: 'PARTNER', style: 'tableHeader', alignment: 'center', bold: true },
+        ],
+        ...(data?.summaries || []).map((item) => [
+          { text: `${item.amount.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+          { text: item.count.toString(), alignment: 'left', fontSize: 9 },
+          { text: `IDR ${item.total_amount.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+          { text: `IDR ${item.share_redision.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+          { text: `IDR ${item.share_merchant.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+        ]),
+        [
+          {},
+          {},
+          { text: `TOTAL`, alignment: 'left', bold: true, fontSize: 9 },
+          {
+            text: `IDR ${data?.grand_total_redision.toLocaleString('id-ID')}`,
+            alignment: 'left',
+            bold: true,
+            fontSize: 9,
+          },
+          { text: `IDR ${data?.total_merchant?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+        ],
+
+        // Add additional fees if available
+        ...(data?.bhp_uso
+          ? [
+              [
+                {},
+                {},
+                { text: 'BHP USO', alignment: 'left', bold: true, fontSize: 9 },
+                { text: `IDR ${data.bhp_uso.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+              ],
+            ]
+          : []),
+        ...(data?.tax_23
+          ? [
+              [
+                {},
+                {},
+                { text: 'TAX 23', alignment: 'left', bold: true, fontSize: 9 },
+                { text: `IDR ${data.tax_23.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+              ],
+            ]
+          : []),
+        ...(data?.additional_fee
+          ? [
+              [
+                {},
+                {},
+                { text: 'ADDITIONAL FEE', alignment: 'left', bold: true, fontSize: 9 },
+                {
+                  text: `IDR ${data.additional_fee.toLocaleString('id-ID')}`,
+                  alignment: 'left',
+                  bold: true,
+                  fontSize: 9,
+                },
+              ],
+            ]
+          : []),
+        [
+          {},
+          {},
+          {},
+          { text: 'GRAND TOTAL', alignment: 'left', bold: true, fontSize: 9 },
+          { text: `IDR ${data?.grand_total?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+        ],
+      ]
+    }
 
     const grandTotal = data?.grand_total
 
@@ -343,7 +470,7 @@ const Report: React.FC = () => {
         },
         {
           table: {
-            widths: ['15%', '15%', '10%', '20%', '20%', '20%'],
+            widths: tableWidths,
             fontSize: 9,
             body: tableBody,
           },
@@ -387,21 +514,30 @@ const Report: React.FC = () => {
         },
         { text: '\n\n' },
         {
-          text: `\nJakarta, ${dayjs().format('MMMM DD YYYY')}`,
-          bold: true,
-          margin: [0, 20, 0, 10],
+          text: '',
+          pageBreak: 'after',
         },
         {
-          columns: [
-            { text: 'Prepared by', bold: true },
-            { text: 'Acknowledge by', bold: true },
-            { text: 'Approved by', bold: true },
+          stack: [
+            {
+              text: `\nJakarta, ${dayjs().format('MMMM DD YYYY')}`,
+              bold: true,
+              margin: [0, 20, 0, 10],
+            },
+            {
+              columns: [
+                { text: 'Prepared by', bold: true },
+                { text: 'Acknowledge by', bold: true },
+                { text: 'Approved by', bold: true },
+              ],
+              margin: [0, 0, 0, 80],
+            },
+            {
+              columns: [{ text: 'Business Development' }, { text: 'Finance' }, { text: 'Director' }],
+              margin: [0, 0, 0, 0],
+            },
           ],
-          margin: [0, 0, 0, 80],
-        },
-        {
-          columns: [{ text: 'Business Development' }, { text: 'Finance' }, { text: 'Director' }],
-          margin: [0, 0, 0, 0],
+          unbreakable: true,
         },
       ],
       styles: {
