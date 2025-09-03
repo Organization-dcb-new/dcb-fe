@@ -83,6 +83,7 @@ interface MerchantDetailData {
   lang: string
   callback_url: string
   fail_callback: string
+  fail_callback_url: string
   isdcb: string
   address?: string
   updated_at: string
@@ -154,8 +155,8 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
           callback_url: detail.callback_url,
           email: detail.email,
           phone: detail.phone,
-          fail_callback: detail.fail_callback && detail.fail_callback !== '' ? '1' : '0',
-          fail_callback_url: detail.fail_callback || '',
+          fail_callback: detail.fail_callback,
+          fail_callback_url: detail.fail_callback_url || '',
           isdcb: detail.isdcb,
         })
 
@@ -256,12 +257,12 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                   ppn: settlement.ppn,
                   mdr: settlement.mdr,
                   mdr_type: settlement.mdr_type || '',
-                  additionalfee: settlement.additionalfee || 0,
-                  additional_percent: settlement.additional_percent,
+                  additionalfee: Number(settlement.additionalfee) || 0,
+                  additional_percent: Number(settlement.additional_percent) || 0,
                   additionalfee_type: settlement.additionalfee_type,
                   payment_type: settlement.payment_type,
-                  share_redision: settlement.share_redision,
-                  share_partner: settlement.share_partner,
+                  share_redision: Number(settlement.share_redision) || 0,
+                  share_partner: Number(settlement.share_partner) || 0,
                   is_divide_1poin1: settlement.is_divide_1poin1,
                 }
               : {
@@ -275,8 +276,8 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                   additional_percent: 11,
                   additionalfee_type: null,
                   payment_type: 'idr',
-                  share_redision: 10,
-                  share_partner: 90,
+                  share_redision: 10.0,
+                  share_partner: 90.0,
                   is_divide_1poin1: '0',
                 },
           }
@@ -413,12 +414,21 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
       }
     }
 
+    // Ensure settlement config values are properly converted to numbers
+    const processedSettlementConfig = {
+      ...values.settlement_config,
+      share_redision: Number(values.settlement_config.share_redision) || 0,
+      share_partner: Number(values.settlement_config.share_partner) || 0,
+      additionalfee: Number(values.settlement_config.additionalfee) || 0,
+      additional_percent: Number(values.settlement_config.additional_percent) || 0,
+    }
+
     const newPaymentMethod: SelectedPaymentMethod = {
       payment_method_slug: values.payment_method_slug,
       selected_routes: processedRoutes,
       status: values.status,
       msisdn: values.msisdn,
-      settlement_config: values.settlement_config,
+      settlement_config: processedSettlementConfig,
     }
 
     if (editingPaymentIndex !== null) {
@@ -767,7 +777,7 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                   </Col>
                   <Col span={8}>
                     <Form.Item label='Fail Callback' name='fail_callback'>
-                      <Select>
+                      <Select defaultValue='0'>
                         <Option value='1'>Yes</Option>
                         <Option value='0'>No</Option>
                       </Select>
@@ -779,7 +789,7 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                   <Input placeholder='https://example.com/callback' />
                 </Form.Item>
 
-                <Form.Item
+                {/* <Form.Item
                   noStyle
                   shouldUpdate={(prevValues, currentValues) => prevValues.fail_callback !== currentValues.fail_callback}
                 >
@@ -798,7 +808,7 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                       </Form.Item>
                     ) : null
                   }}
-                </Form.Item>
+                </Form.Item> */}
               </Card>
 
               <Card title='Metode Pembayaran' style={{ marginBottom: 16 }}>
@@ -960,8 +970,8 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                 additional_percent: 11,
                 additionalfee_type: null,
                 payment_type: 'idr',
-                share_redision: 10,
-                share_partner: 90,
+                share_redision: 10.0,
+                share_partner: 90.0,
                 is_divide_1poin1: '0',
               },
             }}
@@ -1164,12 +1174,12 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
               <Row gutter={16}>
                 <Col span={8}>
                   <Form.Item label='Share Redision (%)' name={['settlement_config', 'share_redision']}>
-                    <Input type='number' placeholder='Share redision' />
+                    <Input type='number' placeholder='Share redision' step='0.01' min='0' max='100' />
                   </Form.Item>
                 </Col>
                 <Col span={8}>
                   <Form.Item label='Share Partner (%)' name={['settlement_config', 'share_partner']}>
-                    <Input type='number' placeholder='Share partner' />
+                    <Input type='number' placeholder='Share partner' step='0.01' min='0' max='100' />
                   </Form.Item>
                 </Col>
                 <Col span={8}>
