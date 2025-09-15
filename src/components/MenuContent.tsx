@@ -92,6 +92,9 @@ export default function MenuContent() {
     //   ],
     // },
     ...(decoded.role !== 'merchant' ? [{ text: 'Report', icon: <ListAltOutlined />, path: '/report' }] : []),
+    ...(decoded.role === 'business'
+      ? [{ text: 'Report Margin', icon: <ListAltOutlined />, path: '/report-margin' }]
+      : []),
     // {
     //   text: 'Report',
     //   icon: <ListAltOutlined />,

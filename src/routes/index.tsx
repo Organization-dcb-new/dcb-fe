@@ -17,6 +17,7 @@ import DetailMerchant from '../pages/Merchant/[id]'
 import SummaryAdmin from '../pages/SummaryAdmin'
 import Report from '../pages/Report'
 import SummaryDaily from '../pages/SummaryDaily'
+import ReportMargin from '../pages/ReportMargin'
 import MerchantProfile from '../pages/MerchantProfile'
 
 const router = createBrowserRouter([
@@ -167,6 +168,14 @@ const router = createBrowserRouter([
             <MerchantProvider>
               <Report />
             </MerchantProvider>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'report-margin',
+        element: (
+          <PrivateRoute allowedRoles={['business']}>
+            <ReportMargin />
           </PrivateRoute>
         ),
       },
