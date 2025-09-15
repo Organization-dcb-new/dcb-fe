@@ -44,7 +44,7 @@ const router = createBrowserRouter([
       {
         path: 'transactions',
         element: (
-          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+          <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
             <MerchantProvider>
               <Transactions />
             </MerchantProvider>
@@ -54,7 +54,7 @@ const router = createBrowserRouter([
       {
         path: 'transaction/:id',
         element: (
-          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+          <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
             <TransactionDetail />
           </PrivateRoute>
         ),
@@ -62,7 +62,7 @@ const router = createBrowserRouter([
       {
         path: 'merchant',
         element: (
-          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+          <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
             <Merchant />
           </PrivateRoute>
         ),
@@ -80,7 +80,7 @@ const router = createBrowserRouter([
       {
         path: 'merchant/:id',
         element: (
-          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+          <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
             <DetailMerchant />
           </PrivateRoute>
         ),
@@ -114,7 +114,7 @@ const router = createBrowserRouter([
       {
         path: 'merchant-profile',
         element: (
-          <PrivateRoute allowedRoles={['merchant', 'superadmin']}>
+          <PrivateRoute allowedRoles={['merchant', 'superadmin', 'business']}>
             <ClientProvider>
               <MerchantProfile />
             </ClientProvider>
@@ -132,7 +132,7 @@ const router = createBrowserRouter([
           {
             path: 'summary/hourly',
             element: (
-              <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+              <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
                 <Summary />
               </PrivateRoute>
             ),
@@ -140,7 +140,7 @@ const router = createBrowserRouter([
           {
             path: 'summary/daily',
             element: (
-              <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+              <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
                 <MerchantProvider>
                   <SummaryDaily />
                 </MerchantProvider>
@@ -164,7 +164,7 @@ const router = createBrowserRouter([
       {
         path: 'report',
         element: (
-          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+          <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
             <MerchantProvider>
               <Report />
             </MerchantProvider>
