@@ -39,6 +39,7 @@ const paymentMethods = [
   { name: 'XL', value: 'xl_airtime' },
   { name: 'Smartfren', value: 'smartfren_airtime' },
   { name: 'VA BCA', value: 'va_bca' },
+  { name: 'VA BRI', value: 'va_bri' },
   { name: 'OVO', value: 'ovo' },
 ]
 
