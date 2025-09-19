@@ -112,7 +112,7 @@ const columns: ColumnType<any>[] = [
     align: 'center',
     key: 'status_code',
     render: (status: number) => {
-      let color: 'success' | 'error' | 'pending' = 'pending'
+      let color: 'success' | 'error' | 'pending' | 'waiting-callback' = 'pending'
       let text = 'Pending'
 
       if (status === 1000) {
@@ -121,6 +121,9 @@ const columns: ColumnType<any>[] = [
       } else if (status === 1005) {
         color = 'error'
         text = 'Failed'
+      } else if (status == 1003) {
+        color = 'waiting-callback'
+        text = 'Waiting'
       }
 
       return <Badge color={color} text={text} />
