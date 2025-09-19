@@ -15,6 +15,7 @@ import { jwtDecode } from 'jwt-decode'
 import { useAuth } from '../provider/AuthProvider'
 import { UserOutlined } from '@ant-design/icons'
 import { Avatar } from 'antd'
+import logoImage from '../../public/logo.png';
 
 const drawerWidth = 240
 
@@ -71,7 +72,21 @@ export default function SideMenu({ open }: SideMenuProps) {
             py: 3,
           }}
         >
-          <Box
+           <Box
+            sx={{
+              width: 100,
+              height: 'auto',
+              borderRadius: '12px',
+              // background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mb: 2,
+            }}
+          >
+            <img src={logoImage} style={{height:'auto'}}/>
+          </Box>
+          {/* <Box
             sx={{
               width: 48,
               height: 48,
@@ -93,7 +108,7 @@ export default function SideMenu({ open }: SideMenuProps) {
             >
               RP
             </Typography>
-          </Box>
+          </Box> */}
           <Typography
             variant='h6'
             sx={{
