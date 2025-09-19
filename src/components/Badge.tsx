@@ -33,14 +33,16 @@ const Badge: React.FC<BadgeProps> = ({ text, color }) => {
       style={{
         backgroundColor,
         color: textColor,
-        padding: 'auto 10px',
-        width: '80px',
-        height: '20px',
+        padding: '2px 15px',
+        width: '100px',
+        minHeight: '20px',
         borderRadius: '12px',
         textAlign: 'center',
         fontSize: '12px',
         fontWeight: 'bold',
         display: 'inline-block',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
     >
       {text}

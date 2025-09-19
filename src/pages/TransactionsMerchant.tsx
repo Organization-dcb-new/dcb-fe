@@ -123,7 +123,7 @@ const columns: ColumnType<any>[] = [
         text = 'Failed'
       } else if (status == 1003) {
         color = 'waiting-callback'
-        text = 'Waiting'
+        text = 'Pending notification'
       }
 
       return <Badge color={color} text={text} />
