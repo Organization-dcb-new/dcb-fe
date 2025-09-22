@@ -37,6 +37,7 @@ interface Transaction {
   timestamp_submit_date: Date
   timestamp_callback_date: Date
   timestamp_callback_result: string
+  user_ip: string
 }
 
 const TransactionDetail: React.FC = () => {
@@ -483,9 +484,9 @@ const TransactionDetail: React.FC = () => {
             </div>
             <div className='w-full flex'>
               <div className='w-1/4'>
-                <strong>Updated At:</strong>
+                <strong>Client IP:</strong>
               </div>
-              <div> {dayjs(transaction.updated_at).format('YYYY-MM-DD HH:mm:ss.SSS')}</div>
+              <div> {transaction.user_ip}</div>
             </div>
           </Box>
           <Box display='flex'>
@@ -495,15 +496,11 @@ const TransactionDetail: React.FC = () => {
               </div>
               <div> {dayjs(transaction.timestamp_request_date).format('YYYY-MM-DD HH:mm:ss.SSS')} </div>
             </div>
-            <div className='w-full flex'>
+                    <div className='w-full flex'>
               <div className='w-1/4'>
-                <strong>Callback Date:</strong>
+                <strong>Updated At:</strong>
               </div>
-              <div>
-                {transaction.timestamp_callback_date
-                  ? dayjs(transaction.timestamp_callback_date).format('YYYY-MM-DD HH:mm:ss.SSS')
-                  : '-'}{' '}
-              </div>
+              <div> {dayjs(transaction.updated_at).format('YYYY-MM-DD HH:mm:ss.SSS')}</div>
             </div>
           </Box>
           <Box display='flex'>
@@ -519,22 +516,31 @@ const TransactionDetail: React.FC = () => {
             </div>
             <div className='w-full flex'>
               <div className='w-1/4'>
+                <strong>Callback Date:</strong>
+              </div>
+              <div>
+                {transaction.timestamp_callback_date
+                  ? dayjs(transaction.timestamp_callback_date).format('YYYY-MM-DD HH:mm:ss.SSS')
+                  : '-'}{' '}
+              </div>
+            </div>
+          </Box>
+          <Box display='flex'>
+            <div className='w-full flex'>
+              <div className='w-1/4'>
                 <strong>Callback result:</strong>
               </div>
               <div>{transaction.timestamp_callback_result}</div>
             </div>
-          </Box>
-          {transaction.payment_method === 'telkomsel_airtime' && (
-            <Box display='flex'>
+            {transaction.payment_method === 'telkomsel_airtime' ? (
               <div className='w-full flex'>
                 <div className='w-1/4'>
                   <strong>SMS Code:</strong>
                 </div>
                 <div>{transaction.otp}</div>
               </div>
-              <div className='w-full flex'></div>
+              ): <div className='w-full flex'></div>}
             </Box>
-          )}
         </Box>
       </Card>
       <div className='flex pl-4 pt-2'>
