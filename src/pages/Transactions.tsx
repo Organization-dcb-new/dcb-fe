@@ -2,7 +2,7 @@
 // import type {} from '@mui/x-charts/themeAugmentation';
 // import type {} from '@mui/x-data-grid/themeAugmentation';
 // import type {} from '@mui/x-tree-view/themeAugmentation';
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Grid from '@mui/material/Grid2'
 import { alpha } from '@mui/material/styles'
 // import CssBaseline from '@mui/material/CssBaseline'
@@ -231,7 +231,10 @@ export default function Transactions() {
   const [total, setTotal] = useState(0)
   const [isFiltered, setIsFiltered] = useState(false)
   const [resetTrigger, setResetTrigger] = useState(0)
+  const [isDateChanging, setIsDateChanging] = useState(false)
   const { token, apiUrl } = useAuth()
+  const fetchDataRef = useRef<() => Promise<void>>()
+  const dateChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [filterMode, setFilterMode] = useState<'all' | 'jpe' | 'higo' | 'non-jpe'>('all')
   const [jpeData, setJpeData] = useState([])
   const [higoData, setHigoData] = useState([])
@@ -285,53 +288,60 @@ export default function Transactions() {
   //   75000, 100000, 125000, 130000, 150000, 200000, 250000, 300000, 325000, 500000, 700000, 1000000,
   // ]
 
-  const fetchData = async (page = 1, limit = 10) => {
-    try {
-      const start_date = formData.start_date
-        ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
-        : null
+  const fetchData = useCallback(
+    async (page = 1, limit = 10) => {
+      try {
+        const start_date = formData.start_date
+          ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+          : null
 
-      const end_date = formData.end_date
-        ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
-        : null
-      const response = await axios.get(`${apiUrl}/transactions`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        params: {
-          page: page,
-          limit: limit,
-          start_date,
-          end_date,
-          user_mdn: formData.user_mdn,
-          user_id: formData.user_id,
-          merchant_transaction_id: formData.merchant_transaction_id,
-          transaction_id: formData.transaction_id,
-          app_id: formData.selected_app_id || getAppIdsFromMerchantNames(formData.merchant_name).join(','),
-          payment_method: formData.payment_method.join(','),
-          status: formData.status,
-          item_name: formData.item_name,
-          denom: formData.denom,
-        },
-      })
+        const end_date = formData.end_date
+          ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+          : null
+        const response = await axios.get(`${apiUrl}/transactions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          params: {
+            page: page,
+            limit: limit,
+            start_date,
+            end_date,
+            user_mdn: formData.user_mdn,
+            user_id: formData.user_id,
+            merchant_transaction_id: formData.merchant_transaction_id,
+            transaction_id: formData.transaction_id,
+            app_id: formData.selected_app_id || getAppIdsFromMerchantNames(formData.merchant_name).join(','),
+            payment_method: formData.payment_method.join(','),
+            status: formData.status,
+            item_name: formData.item_name,
+            denom: formData.denom,
+          },
+        })
 
-      const allData = response.data.data || []
-      const jpeOnly = allData.filter((item: any) => item.merchant_name === 'PT Jaya Permata Elektro')
-      const higoOnly = allData.filter((item: any) => item.merchant_name === 'HIGO GAME PTE LTD')
-      const nonJpeOnly = allData.filter((item: any) => item.merchant_name != 'PT Jaya Permata Elektro')
+        const allData = response.data.data || []
+        const jpeOnly = allData.filter((item: any) => item.merchant_name === 'PT Jaya Permata Elektro')
+        const higoOnly = allData.filter((item: any) => item.merchant_name === 'HIGO GAME PTE LTD')
+        const nonJpeOnly = allData.filter((item: any) => item.merchant_name != 'PT Jaya Permata Elektro')
 
-      setData(allData)
-      setJpeData(jpeOnly)
-      setHigoData(higoOnly)
-      setNonJpeData(nonJpeOnly)
+        setData(allData)
+        setJpeData(jpeOnly)
+        setHigoData(higoOnly)
+        setNonJpeData(nonJpeOnly)
 
-      setTotal(response.data.pagination.total_items)
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
+        setTotal(response.data.pagination.total_items)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    },
+    [formData, token, apiUrl, merchants, isAlif],
+  )
 
+  // Simpan referensi fetchData
+  fetchDataRef.current = fetchData
+
+  // useEffect untuk initial load dan reset
   useEffect(() => {
     if (decoded.role === 'merchant') {
       window.location.href = '/merchant-transactions'
@@ -339,19 +349,32 @@ export default function Transactions() {
     }
 
     fetchData(currentPage, pageSize)
+  }, [currentPage, pageSize, resetTrigger, decoded.role, fetchData])
 
-    let interval: ReturnType<typeof setInterval> | undefined
+  // useEffect untuk auto-refresh yang tidak bergantung pada formData
+  useEffect(() => {
+    if (decoded.role === 'merchant') {
+      return
+    }
 
-    if (!isFiltered) {
-      interval = setInterval(() => {
+    // Hanya jalankan auto-refresh jika tidak sedang dalam mode filter dan tidak sedang mengubah tanggal
+    if (!isFiltered && !isDateChanging) {
+      const interval = setInterval(() => {
         fetchData(currentPage, pageSize)
       }, 20000)
-    }
 
-    return () => {
-      if (interval) clearInterval(interval)
+      return () => clearInterval(interval)
     }
-  }, [currentPage, pageSize, resetTrigger, isFiltered, decoded.role])
+  }, [currentPage, pageSize, isFiltered, isDateChanging, decoded.role, fetchData])
+
+  // Cleanup timeout saat component unmount
+  useEffect(() => {
+    return () => {
+      if (dateChangeTimeoutRef.current) {
+        clearTimeout(dateChangeTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const routes = [
     { name: 'All', value: '' },
@@ -399,14 +422,31 @@ export default function Transactions() {
 
   const handleDateChange = (dates: any) => {
     const [start, end] = dates
+    setIsDateChanging(true)
     setFormData({
       ...formData,
       start_date: start,
       end_date: end,
     })
+
+    // Clear timeout sebelumnya jika ada
+    if (dateChangeTimeoutRef.current) {
+      clearTimeout(dateChangeTimeoutRef.current)
+    }
+
+    // Reset isDateChanging setelah 3 detik untuk memungkinkan auto-refresh kembali
+    // Waktu lebih lama untuk memastikan user selesai memilih tanggal
+    dateChangeTimeoutRef.current = setTimeout(() => {
+      setIsDateChanging(false)
+    }, 10000)
   }
 
   const handleReset = () => {
+    // Clear timeout jika ada
+    if (dateChangeTimeoutRef.current) {
+      clearTimeout(dateChangeTimeoutRef.current)
+    }
+
     setFormData({
       user_mdn: '',
       user_id: '',
@@ -423,6 +463,7 @@ export default function Transactions() {
       end_date: dayjs().endOf('day'),
     })
     setIsFiltered(false)
+    setIsDateChanging(false)
     setResetTrigger((prev) => prev + 1)
   }
 

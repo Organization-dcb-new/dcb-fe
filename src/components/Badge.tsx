@@ -40,8 +40,9 @@ const Badge: React.FC<BadgeProps> = ({ text, color }) => {
         fontSize: '12px',
         fontWeight: 'bold',
         display: 'inline-block',
+        minWidth: '80px',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
       }}
     >
       {text}
