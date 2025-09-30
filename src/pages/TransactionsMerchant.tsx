@@ -305,6 +305,7 @@ export default function TransactionsMerchant() {
     { name: 'Qris', value: 'qris' },
     { name: 'Ovo', value: 'ovo' },
     { name: 'Dana', value: 'dana' },
+    { name: 'Va Bca', value: 'va_bca' },
   ]
 
   const status = [
@@ -619,7 +620,6 @@ export default function TransactionsMerchant() {
 
               <Button
                 size='small'
-                disabled
                 className='border-sky-400 ml-3'
                 variant='contained'
                 color='info'

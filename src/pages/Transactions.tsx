@@ -208,6 +208,8 @@ export default function Transactions() {
     selected_app_id: string
     item_name: string
     denom: number | null
+    otp: string
+    keyword: string
   }>({
     user_mdn: '',
     user_id: '',
@@ -222,6 +224,8 @@ export default function Transactions() {
     selected_app_id: '',
     item_name: '',
     denom: null,
+    otp: '',
+    keyword: '',
   })
 
   const [data, setData] = useState([])
@@ -317,6 +321,8 @@ export default function Transactions() {
             status: formData.status,
             item_name: formData.item_name,
             denom: formData.denom,
+            otp: formData.otp,
+            keyword: formData.keyword,
           },
         })
 
@@ -459,6 +465,8 @@ export default function Transactions() {
       status: null,
       item_name: '',
       denom: null,
+      otp: '',
+      keyword: '',
       start_date: dayjs().startOf('day'),
       end_date: dayjs().endOf('day'),
     })
@@ -716,6 +724,20 @@ export default function Transactions() {
                         </MenuItem>
                       ))}
                     </Select>
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <FormLabel className='font-medium'>OTP</FormLabel>
+                    <TextField variant='outlined' fullWidth name='otp' value={formData.otp} onChange={handleChange} />
+                  </Grid>
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <FormLabel className='font-medium'>Keyword</FormLabel>
+                    <TextField
+                      variant='outlined'
+                      fullWidth
+                      name='keyword'
+                      value={formData.keyword}
+                      onChange={handleChange}
+                    />
                   </Grid>
                   <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>Status</FormLabel>
