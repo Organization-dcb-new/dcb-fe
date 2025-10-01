@@ -174,6 +174,8 @@ const Report: React.FC = () => {
     } catch (error) {
       console.error(error)
       message.error('Gagal mengambil data report')
+      // Reset data to undefined when error occurs
+      setData(undefined)
     } finally {
       setLoading(false)
     }
@@ -567,6 +569,10 @@ const Report: React.FC = () => {
   }
 
   useEffect(() => {
+    // Clear data when filters change
+    setData(undefined)
+
+    // Fetch new data if all filters are selected
     if (filteredApp && filteredPaymentMethod && filteredMonth) {
       fetchReport()
     }
