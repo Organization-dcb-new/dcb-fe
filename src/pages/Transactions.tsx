@@ -725,20 +725,7 @@ export default function Transactions() {
                       ))}
                     </Select>
                   </Grid>
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <FormLabel className='font-medium'>OTP</FormLabel>
-                    <TextField variant='outlined' fullWidth name='otp' value={formData.otp} onChange={handleChange} />
-                  </Grid>
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <FormLabel className='font-medium'>Keyword</FormLabel>
-                    <TextField
-                      variant='outlined'
-                      fullWidth
-                      name='keyword'
-                      value={formData.keyword}
-                      onChange={handleChange}
-                    />
-                  </Grid>
+
                   <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>Status</FormLabel>
 
@@ -757,6 +744,7 @@ export default function Transactions() {
                       ))}
                     </Select>
                   </Grid>
+
                   <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>Merchant Name</FormLabel>
 
@@ -790,8 +778,23 @@ export default function Transactions() {
                           ))}
                     </Select>
                   </Grid>
-                </Grid>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <FormLabel className='font-medium'>OTP</FormLabel>
+                    <TextField variant='outlined' fullWidth name='otp' value={formData.otp} onChange={handleChange} />
+                  </Grid>
+
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <FormLabel className='font-medium'>Keyword Tsel</FormLabel>
+                    <TextField
+                      variant='outlined'
+                      fullWidth
+                      name='keyword'
+                      value={formData.keyword}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+
                   <Grid size={{ xs: 12, md: 4 }}>
                     <FormLabel className='font-medium'>Denom</FormLabel>
                     <Select
@@ -816,6 +819,9 @@ export default function Transactions() {
                     </Select>
                   </Grid>
                 </Grid>
+                {/* <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                 
+                </Grid> */}
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid>
                 <Button type='submit' className='mt-3 mr-4' variant='contained' color='primary'>
                   Submit
