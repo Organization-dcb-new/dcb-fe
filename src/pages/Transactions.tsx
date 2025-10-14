@@ -237,7 +237,7 @@ export default function Transactions() {
   const [resetTrigger, setResetTrigger] = useState(0)
   const [isDateChanging, setIsDateChanging] = useState(false)
   const { token, apiUrl } = useAuth()
-  const fetchDataRef = useRef<() => Promise<void>>()
+  const fetchDataRef = useRef<(page?: number, limit?: number) => Promise<void>>()
   const dateChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [filterMode, setFilterMode] = useState<'all' | 'jpe' | 'higo' | 'non-jpe'>('all')
   const [jpeData, setJpeData] = useState([])
@@ -283,8 +283,8 @@ export default function Transactions() {
   const appList = merchants.flatMap((m) => m.apps)
 
   const denomList = [
-    3000, 5000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 70000, 75000, 100000, 150000, 200000, 250000,
-    300000, 325000, 500000,
+    3000, 5000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 70000, 75000, 100000, 125000, 150000, 200000,
+    250000, 300000, 325000, 500000,
   ]
 
   // const denomList = [
@@ -347,31 +347,30 @@ export default function Transactions() {
   // Simpan referensi fetchData
   fetchDataRef.current = fetchData
 
-  // useEffect untuk initial load dan reset
+  // useEffect untuk initial load dan reset (hindari re-fetch saat formData berubah)
   useEffect(() => {
     if (decoded.role === 'merchant') {
       window.location.href = '/merchant-transactions'
       return
     }
 
-    fetchData(currentPage, pageSize)
-  }, [currentPage, pageSize, resetTrigger, decoded.role, fetchData])
+    fetchDataRef.current?.(currentPage, pageSize)
+  }, [currentPage, pageSize, resetTrigger, decoded.role])
 
-  // useEffect untuk auto-refresh yang tidak bergantung pada formData
+  // useEffect untuk auto-refresh (hindari ketergantungan pada formData/fetchData)
   useEffect(() => {
     if (decoded.role === 'merchant') {
       return
     }
 
-    // Hanya jalankan auto-refresh jika tidak sedang dalam mode filter dan tidak sedang mengubah tanggal
     if (!isFiltered && !isDateChanging) {
       const interval = setInterval(() => {
-        fetchData(currentPage, pageSize)
+        fetchDataRef.current?.(currentPage, pageSize)
       }, 20000)
 
       return () => clearInterval(interval)
     }
-  }, [currentPage, pageSize, isFiltered, isDateChanging, decoded.role, fetchData])
+  }, [currentPage, pageSize, isFiltered, isDateChanging, decoded.role])
 
   // Cleanup timeout saat component unmount
   useEffect(() => {
@@ -494,9 +493,18 @@ export default function Transactions() {
         params: {
           export_csv: type == 'csv' ? 'true' : 'false',
           export_excel: type == 'excel' ? 'true' : 'false',
-          status: formData.status,
-          payment_method: formData.payment_method[0],
+          // selaraskan dengan parameter fetchData agar export menghormati filter aktif
+          user_mdn: formData.user_mdn,
+          user_id: formData.user_id,
+          merchant_transaction_id: formData.merchant_transaction_id,
+          transaction_id: formData.transaction_id,
           app_id: formData.selected_app_id || getAppIdsFromMerchantNames(formData.merchant_name).join(','),
+          payment_method: formData.payment_method.join(','),
+          status: formData.status,
+          item_name: formData.item_name,
+          denom: formData.denom,
+          otp: formData.otp,
+          keyword: formData.keyword,
           start_date,
           end_date,
         },
@@ -704,7 +712,7 @@ export default function Transactions() {
                     </Select>
                   </Grid>
                 </Grid>
-                <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid>
+
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>Payment Method</FormLabel>
