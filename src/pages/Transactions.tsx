@@ -394,6 +394,12 @@ export default function Transactions() {
     { name: 'Ovo', value: 'ovo' },
     { name: 'Dana', value: 'dana' },
     { name: 'Va Bca', value: 'va_bca' },
+    { name: 'Va Bri', value: 'va_bri' },
+    { name: 'Va Bni', value: 'va_bni' },
+    { name: 'Va Mandiri', value: 'va_mandiri' },
+    { name: 'Va Sinarmas', value: 'va_sinarmas' },
+    { name: 'Alfamart', value: 'alfamart_otc' },
+    { name: 'Indomaret', value: 'indomaret_otc' },
   ]
 
   const status = [
@@ -725,6 +731,13 @@ export default function Transactions() {
                       onChange={handleChange}
                       input={<OutlinedInput label='payment_method' />}
                       renderValue={(selected) => selected.join(', ')}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 350,
+                          },
+                        },
+                      }}
                     >
                       {routes.map((method) => (
                         <MenuItem key={method.value} value={method.value}>
