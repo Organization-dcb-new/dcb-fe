@@ -22,6 +22,11 @@ interface TransactionData {
   merchant: string
   paymentMethod: string
   isNormal?: boolean // Property from backend
+  reasons?: {
+    success?: string
+    pending?: string
+    failed?: string
+  }
   data: {
     labels: string[]
     pending: number[]
@@ -49,6 +54,47 @@ interface ApiSeries {
   data: ApiSeriesPoint[]
 }
 
+export function checkAbnormal(values: number[], latest: number, type: 'success' | 'pending' | 'failed') {
+  if (values.length === 0) {
+    return { isNormal: true, mean: 0, stdDev: 0, reason: 'Tidak ada data' }
+  }
+
+  const mean = values.reduce((s, v) => s + v, 0) / values.length
+  const variance = values.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / values.length
+  const stdDev = Math.sqrt(variance)
+
+  if (mean < 3 && latest < 3) {
+    return { isNormal: true, mean, stdDev, reason: 'Volume kecil, dianggap noise' }
+  }
+
+  //semakin kecil semakin sensitif
+  let multiplier = 2.5
+  if (type === 'success') {
+    if (mean > 30) multiplier = 3
+    else multiplier = 3.2
+  } else if (type === 'pending') {
+    multiplier = 7
+  } else if (type === 'failed') {
+    multiplier = 2
+  }
+
+  const upperLimit = mean + multiplier * stdDev
+  const lowerLimit = mean - multiplier * stdDev
+
+  let isNormal = true
+  let reason = 'Normal'
+
+  if (latest > upperLimit) {
+    isNormal = false
+    reason = `Lonjakan ${type}: latest (${latest}) > batas atas (${upperLimit.toFixed(2)})`
+  } else if (latest < lowerLimit) {
+    isNormal = false
+    reason = `Penurunan ${type}: latest (${latest}) < batas bawah (${lowerLimit.toFixed(2)})`
+  }
+
+  return { isNormal, mean, stdDev, reason }
+}
+
 const TransactionChartCard: React.FC = () => {
   const { token, apiUrl } = useAuth()
   const [monitorData, setMonitorData] = useState<TransactionData[]>([])
@@ -63,7 +109,7 @@ const TransactionChartCard: React.FC = () => {
         setLoading(true)
         setError(null)
         const end = dayjs().format('YYYY-MM-DDTHH:mm:ssZ')
-        const start = dayjs().subtract(6, 'hour').format('YYYY-MM-DDTHH:mm:ssZ')
+        const start = dayjs().subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ssZ')
 
         const url = `${apiUrl}/traffic/monitoring`
         const res = await axios.get(url, {
@@ -84,10 +130,10 @@ const TransactionChartCard: React.FC = () => {
           const failed = processedData.map((p) => p.failed)
 
           // Hitung rata-rata untuk menentukan isAbnormal
-          const count = labels.length || 1
-          const avgSuccess = parseFloat((success.reduce((sum, val) => sum + val, 0) / count).toFixed(2))
-          const avgPending = parseFloat((pending.reduce((sum, val) => sum + val, 0) / count).toFixed(2))
-          const avgFailed = parseFloat((failed.reduce((sum, val) => sum + val, 0) / count).toFixed(2))
+          // const count = labels.length || 1
+          // const avgSuccess = parseFloat((success.reduce((sum, val) => sum + val, 0) / count).toFixed(2))
+          // const avgPending = parseFloat((pending.reduce((sum, val) => sum + val, 0) / count).toFixed(2))
+          // const avgFailed = parseFloat((failed.reduce((sum, val) => sum + val, 0) / count).toFixed(2))
 
           // Ambil data terakhir untuk perbandingan
           const latestSuccess = success[success.length - 1] || 0
@@ -95,42 +141,49 @@ const TransactionChartCard: React.FC = () => {
           const latestFailed = failed[failed.length - 1] || 0
 
           // Kondisi isAbnormal: avg success > 5 dan ada selisih 3x lipat (lebih besar atau lebih kecil)
-          let isNormal = true
-          if (avgSuccess > 5) {
-            if (latestSuccess >= avgSuccess * 3 || latestSuccess <= avgSuccess / 3) {
-              console.log('diubah karena success')
-              console.log('data merchant: ', series.merchant_name)
-              console.log('data payment method: ', series.payment_method)
-              console.log('avgSuccess: ', avgSuccess)
-              isNormal = false
-            }
-          }
+          // let isNormal = true
+          // if (avgSuccess > 5) {
+          //   if (latestSuccess >= avgSuccess * 3 || latestSuccess <= avgSuccess / 3) {
+          //     console.log(
+          //       `abnormal karena success, data merchant: ${series.merchant_name} - ${series.payment_method}, avgSuccess: ${avgSuccess}, lastSuccess: ${latestSuccess} `,
+          //     )
+          //     isNormal = false
+          //   }
+          // }
 
-          if (avgPending > 5) {
-            if (latestPending >= avgPending * 4 || latestPending <= avgPending / 4) {
-              console.log('diubah karena pending')
-              console.log('data merchant: ', series.merchant_name)
-              console.log('data payment method: ', series.payment_method)
-              console.log('avgPending: ', avgPending)
-              isNormal = false
-            }
-          }
+          // if (avgPending > 5) {
+          //   if (latestPending >= avgPending * 4 || latestPending <= avgPending / 4) {
+          //     console.log(
+          //       `abnormal karena pending, data merchant: ${series.merchant_name} - ${series.payment_method}, avgPending: ${avgPending}, lastPending: ${latestPending} `,
+          //     )
+          //     isNormal = false
+          //   }
+          // }
 
-          if (avgFailed > 5) {
-            if (latestFailed >= avgFailed * 3.5 || latestFailed <= avgFailed / 3.5) {
-              console.log('diubah karena failed')
-              console.log('data merchant: ', series.merchant_name)
-              console.log('data payment method: ', series.payment_method)
-              console.log('avgFailed: ', avgFailed)
-              console.log('latestFailed: ', latestFailed)
-              isNormal = false
-            }
-          }
+          // if (avgFailed > 5) {
+          //   if (latestFailed >= avgFailed * 3.5 || latestFailed <= avgFailed / 5) {
+          //     console.log(
+          //       `abnormal karena failed, data merchant: ${series.merchant_name} - ${series.payment_method}, avgFailed: ${avgFailed}, lastFailed: ${latestFailed} `,
+          //     )
+          //     isNormal = false
+          //   }
+          // }
+
+          const { isNormal: successNormal, reason: reasonSuccess } = checkAbnormal(success, latestSuccess, 'success')
+          const { isNormal: pendingNormal, reason: reasonPending } = checkAbnormal(pending, latestPending, 'pending')
+          const { isNormal: failedNormal, reason: reasonFailed } = checkAbnormal(failed, latestFailed, 'failed')
+
+          const isNormal = successNormal && pendingNormal && failedNormal
 
           return {
             merchant: series.merchant_name,
             paymentMethod: series.payment_method,
             isNormal,
+            reasons: {
+              success: successNormal ? undefined : reasonSuccess,
+              pending: pendingNormal ? undefined : reasonPending,
+              failed: failedNormal ? undefined : reasonFailed,
+            },
             data: { labels, pending, success, failed },
           }
         })
@@ -243,7 +296,7 @@ const TransactionChartCard: React.FC = () => {
 
   const getLatestStats = (data: TransactionData) => {
     // Ambil data dari 1 interval sebelumnya karena data terbaru mungkin belum selesai
-    const index = Math.max(0, data.data.pending.length - 2)
+    const index = Math.max(0, data.data.pending.length - 1)
     const latestPending = data.data.pending[index] || 0
     const latestSuccess = data.data.success[index] || 0
     const latestFailed = data.data.failed[index] || 0
@@ -375,19 +428,21 @@ const TransactionChartCard: React.FC = () => {
                               {item.merchant} - {item.paymentMethod}
                             </span>
                             {isAbnormal && (
-                              <Tag
-                                color='red'
-                                style={{
-                                  color: 'red',
-                                  border: '1px solid #fff',
-                                  fontSize: '10px',
-                                  padding: '0 6px',
-                                  height: '20px',
-                                  lineHeight: '18px',
-                                }}
-                              >
-                                ABNORMAL
-                              </Tag>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <Tag
+                                  color='red'
+                                  style={{
+                                    color: 'red',
+                                    border: '1px solid #fff',
+                                    fontSize: '10px',
+                                    padding: '0 6px',
+                                    height: '20px',
+                                    lineHeight: '18px',
+                                  }}
+                                >
+                                  ABNORMAL
+                                </Tag>
+                              </div>
                             )}
                           </div>
                         }
@@ -456,6 +511,13 @@ const TransactionChartCard: React.FC = () => {
                             </Col>
                           </Row>
                         </div>
+                        {isAbnormal && item.reasons && (
+                          <div style={{ marginBottom: 12, color: '#cf1322', fontSize: 16, fontWeight: 'bold' }}>
+                            {item.reasons.success && <div>Success: {item.reasons.success}</div>}
+                            {item.reasons.pending && <div>Pending: {item.reasons.pending}</div>}
+                            {item.reasons.failed && <div>Failed: {item.reasons.failed}</div>}
+                          </div>
+                        )}
                         <div style={{ marginBottom: '8px' }}>
                           <Row gutter={[8, 8]}>
                             <Col span={8}>
