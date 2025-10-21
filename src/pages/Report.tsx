@@ -211,7 +211,10 @@ const Report: React.FC = () => {
             rowSpan: 2,
           },
           {
-            text: `REVENUE SHARING ${data?.share_redision} - ${data?.share_merchant}`,
+            text:
+              typeof data?.share_redision === 'number' && data.share_redision > 0
+                ? `REVENUE SHARING ${data.share_redision} - ${data.share_merchant ?? ''}`
+                : `REVENUE SHARING`,
             style: 'tableHeader',
             alignment: 'center',
             bold: true,
@@ -326,7 +329,10 @@ const Report: React.FC = () => {
             rowSpan: 2,
           },
           {
-            text: `REVENUE SHARING ${data?.share_redision} - ${data?.share_merchant}`,
+            text:
+              typeof data?.share_redision === 'number' && data.share_redision > 0
+                ? `REVENUE SHARING ${data.share_redision} - ${data?.share_merchant ?? ''}`
+                : `REVENUE SHARING`,
             style: 'tableHeader',
             alignment: 'center',
             bold: true,
@@ -368,6 +374,7 @@ const Report: React.FC = () => {
               [
                 {},
                 {},
+                {},
                 { text: 'BHP USO', alignment: 'left', bold: true, fontSize: 9 },
                 { text: `IDR ${data.bhp_uso.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
               ],
@@ -378,6 +385,7 @@ const Report: React.FC = () => {
               [
                 {},
                 {},
+                {},
                 { text: 'TAX 23', alignment: 'left', bold: true, fontSize: 9 },
                 { text: `IDR ${data.tax_23.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
               ],
@@ -386,6 +394,7 @@ const Report: React.FC = () => {
         ...(data?.additional_fee
           ? [
               [
+                {},
                 {},
                 {},
                 { text: 'ADDITIONAL FEE', alignment: 'left', bold: true, fontSize: 9 },
