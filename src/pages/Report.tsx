@@ -66,6 +66,7 @@ interface ReportData {
   total_transaction: number
   total_transaction_amount: number
   share_redision: number
+  mdr: string
   share_merchant: number
 }
 
@@ -228,7 +229,12 @@ const Report: React.FC = () => {
           {},
           {},
           {},
-          { text: 'REDISION', style: 'tableHeader', alignment: 'center', bold: true },
+          {
+            text: data?.share_redision == 0 ? `MDR (${data.mdr} per trx)` : 'REDISION',
+            style: 'tableHeader',
+            alignment: 'center',
+            bold: true,
+          },
           { text: 'PARTNER', style: 'tableHeader', alignment: 'center', bold: true },
         ],
         ...(data?.summaries || []).map((item) => [
@@ -345,7 +351,12 @@ const Report: React.FC = () => {
           {},
           {},
           {},
-          { text: 'REDISION', style: 'tableHeader', alignment: 'center', bold: true },
+          {
+            text: data?.share_redision == 0 ? `MDR (${data.mdr} per trx)` : 'REDISION',
+            style: 'tableHeader',
+            alignment: 'center',
+            bold: true,
+          },
           { text: 'PARTNER', style: 'tableHeader', alignment: 'center', bold: true },
         ],
         ...(data?.summaries || []).map((item) => [
