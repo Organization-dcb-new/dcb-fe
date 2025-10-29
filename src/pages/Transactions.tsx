@@ -400,6 +400,7 @@ export default function Transactions() {
     { name: 'Va Sinarmas', value: 'va_sinarmas' },
     { name: 'Alfamart', value: 'alfamart_otc' },
     { name: 'Indomaret', value: 'indomaret_otc' },
+    { name: 'Credit Card', value: 'visa_master' },
   ]
 
   const status = [

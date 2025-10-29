@@ -79,14 +79,16 @@ export function checkAbnormal(values: number[], latest: number, type: 'success' 
   }
 
   const upperLimit = mean + multiplier * stdDev
+  // Dibulatkan ke atas agar tidak terlalu sensitif pada selisih kecil
+  const roundedUpperLimit = Math.ceil(upperLimit)
   const lowerLimit = mean - multiplier * stdDev
 
   let isNormal = true
   let reason = 'Normal'
 
-  if (latest > upperLimit) {
+  if (latest > roundedUpperLimit) {
     isNormal = false
-    reason = `Lonjakan ${type}: latest (${latest}) > batas atas (${upperLimit.toFixed(2)})`
+    reason = `Lonjakan ${type}: latest (${latest}) > batas atas (${roundedUpperLimit})`
   } else if (latest < lowerLimit) {
     isNormal = false
     reason = `Penurunan ${type}: latest (${latest}) < batas bawah (${lowerLimit.toFixed(2)})`
