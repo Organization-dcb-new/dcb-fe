@@ -73,7 +73,7 @@ export function checkAbnormal(values: number[], latest: number, type: 'success' 
     if (mean > 30) multiplier = 3
     else multiplier = 3.2
   } else if (type === 'pending') {
-    multiplier = 7
+    multiplier = 6.5
   } else if (type === 'failed') {
     multiplier = 2
   }
