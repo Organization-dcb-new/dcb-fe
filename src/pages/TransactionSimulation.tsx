@@ -7,7 +7,7 @@ const { Option } = Select
 export default function TransactionSimulationPage() {
   const [headers, setHeaders] = useState({
     appkey: 'h0Wq9Incnlk7-gxMn14DaA',
-    appid: 'n5zrGLDpW0PT_RQXPPUWZQ',
+    appid: 'kmoMinMDjI29ndunKFWI02',
     bodysign: '',
     appsecret: '',
   })
@@ -23,6 +23,7 @@ export default function TransactionSimulationPage() {
     item_id: '3322',
     item_name: 'PAYMENT',
     notification_url: 'https://merchant.com/callback',
+    redirect_target: 'https://example.com/target',
   })
 
   const [generating, setGenerating] = useState(false)
@@ -90,7 +91,7 @@ export default function TransactionSimulationPage() {
   ]
 
   const handleSimulate = () => {
-    message.success('✅ Simulation complete (no API hit).')
+    message.success('Simulation complete (no API hit).')
     setShowResult(true)
   }
 
@@ -137,6 +138,7 @@ export default function TransactionSimulationPage() {
                     handleHeaderChange('bodysign', e.target.value)
                     setGenerated(false)
                   }}
+                  disabled={true}
                   size='large'
                   className='flex-1'
                 />
@@ -167,118 +169,181 @@ export default function TransactionSimulationPage() {
         <Divider />
 
         {/* Transaction Form */}
-        <div>
-          <Title level={5} className='mb-3 text-blue-600'>
-            💳 Transaction Data
-          </Title>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+          {/* redirect_url */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              redirect_url <span className='text-gray-500'>(String, Optional)</span>
+            </label>
+            <Input
+              placeholder='https://merchant.com/return'
+              value={form.redirect_url}
+              onChange={(e) => handleFormChange('redirect_url', e.target.value)}
+              size='large'
+              className='font-mono'
+            />
+            <p className='text-gray-500 text-xs mt-1'>URL to redirect user back to merchant page</p>
+          </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            {/* Redirect URL */}
-            <div>
-              <label className='text-gray-700 mb-1 font-medium block'>Redirect URL</label>
-              <Input
-                value={form.redirect_url}
-                onChange={(e) => handleFormChange('redirect_url', e.target.value)}
-                size='large'
-              />
-            </div>
+          {/* redirect_target */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              redirect_target <span className='text-gray-500'>(String, Optional)</span>
+            </label>
+            <Input
+              placeholder='_top'
+              value={form.redirect_target || ''}
+              onChange={(e) => handleFormChange('redirect_target', e.target.value)}
+              size='large'
+              className='font-mono'
+            />
+            <p className='text-gray-500 text-xs mt-1'>Default is _top</p>
+          </div>
 
-            {/* User ID */}
-            <div>
-              <label className='text-gray-700 mb-1 font-medium block'>User ID</label>
-              <Input value={form.user_id} onChange={(e) => handleFormChange('user_id', e.target.value)} size='large' />
-            </div>
+          {/* user_id */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              user_id <span className='text-red-600 font-medium'>(String, Mandatory)</span>
+            </label>
+            <Input
+              placeholder='Unique user ID (max 50 chars)'
+              value={form.user_id}
+              onChange={(e) => handleFormChange('user_id', e.target.value)}
+              size='large'
+              className='font-mono'
+            />
+            <p className='text-gray-500 text-xs mt-1'>Unique ID for the user (max 50 characters)</p>
+          </div>
 
-            {/* User MDN */}
-            <div>
-              <label className='text-gray-700 mb-1 font-medium block'>User MDN</label>
-              <Input
-                value={form.user_mdn}
-                onChange={(e) => handleFormChange('user_mdn', e.target.value)}
-                size='large'
-              />
-            </div>
+          {/* user_mdn */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              user_mdn <span className='text-red-600 font-medium'>(String, Mandatory)</span>
+            </label>
+            <Input
+              placeholder="User's phone number"
+              value={form.user_mdn}
+              onChange={(e) => handleFormChange('user_mdn', e.target.value)}
+              size='large'
+              className='font-mono'
+            />
+            <p className='text-gray-500 text-xs mt-1'>User's phone number</p>
+          </div>
 
-            {/* Merchant Transaction ID */}
-            <div>
-              <label className='text-gray-700 mb-1 font-medium block'>Merchant Transaction ID</label>
-              <Input
-                value={form.merchant_transaction_id}
-                onChange={(e) => handleFormChange('merchant_transaction_id', e.target.value)}
-                size='large'
-              />
-            </div>
+          {/* merchant_transaction_id */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              merchant_transaction_id <span className='text-red-600 font-medium'>(String, Mandatory)</span>
+            </label>
+            <Input
+              placeholder='TESTTX000001'
+              value={form.merchant_transaction_id}
+              onChange={(e) => handleFormChange('merchant_transaction_id', e.target.value)}
+              size='large'
+              className='font-mono'
+            />
+            <p className='text-gray-500 text-xs mt-1'>Unique ID for the transaction (max 36 characters)</p>
+          </div>
 
-            {/* Payment Method */}
-            <div>
-              <label className='text-gray-700 mb-1 font-medium block'>Payment Method</label>
-              <Select
-                value={form.payment_method}
-                onChange={(val) => handleFormChange('payment_method', val)}
-                size='large'
-                className='w-full'
-              >
-                {paymentOptions.map((opt) => (
-                  <Option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </Option>
-                ))}
-              </Select>
-            </div>
+          {/* payment_method */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              payment_method <span className='text-red-600 font-medium'>(String, Mandatory)</span>
+            </label>
+            <Select
+              value={form.payment_method}
+              onChange={(val) => handleFormChange('payment_method', val)}
+              size='large'
+              className='w-full font-mono'
+            >
+              {paymentOptions.map((opt) => (
+                <Option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </Option>
+              ))}
+            </Select>
+            <p className='text-gray-500 text-xs mt-1'>Refer to supported payment methods</p>
+          </div>
 
-            {/* Currency */}
-            <div>
-              <label className='text-gray-700 mb-1 font-medium block'>Currency</label>
-              <Select
-                value={form.currency}
-                onChange={(val) => handleFormChange('currency', val)}
-                size='large'
-                className='w-full'
-              >
-                {currencyOptions.map((opt) => (
-                  <Option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </Option>
-                ))}
-              </Select>
-            </div>
+          {/* currency */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              currency <span className='text-gray-500'>(String, Optional)</span>
+            </label>
+            <Select
+              value={form.currency}
+              onChange={(val) => handleFormChange('currency', val)}
+              size='large'
+              className='w-full font-mono'
+            >
+              {currencyOptions.map((opt) => (
+                <Option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </Option>
+              ))}
+            </Select>
+            <p className='text-gray-500 text-xs mt-1'>Default is IDR</p>
+          </div>
 
-            {/* Amount */}
-            <div>
-              <label className='text-gray-700 mb-1 font-medium block'>Amount</label>
-              <Input
-                value={form.amount}
-                onChange={(e) => handleFormChange('amount', e.target.value)}
-                size='large'
-                type='number'
-              />
-            </div>
+          {/* amount */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              amount <span className='text-red-600 font-medium'>(Number, Mandatory)</span>
+            </label>
+            <Input
+              type='number'
+              placeholder='e.g. 10000'
+              value={form.amount}
+              onChange={(e) => handleFormChange('amount', e.target.value)}
+              size='large'
+              className='font-mono'
+            />
+            <p className='text-gray-500 text-xs mt-1'>Transaction amount (e.g., 10000)</p>
+          </div>
 
-            {/* Item ID */}
-            <div>
-              <label className='text-gray-700 mb-1 font-medium block'>Item ID</label>
-              <Input value={form.item_id} onChange={(e) => handleFormChange('item_id', e.target.value)} size='large' />
-            </div>
+          {/* item_id */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              item_id <span className='text-gray-500'>(String, Optional)</span>
+            </label>
+            <Input
+              placeholder='Item identifier'
+              value={form.item_id}
+              onChange={(e) => handleFormChange('item_id', e.target.value)}
+              size='large'
+              className='font-mono'
+            />
+            <p className='text-gray-500 text-xs mt-1'>Item identifier (for fixed denominations)</p>
+          </div>
 
-            {/* Item Name */}
-            <div>
-              <label className='text-gray-700 mb-1 font-medium block'>Item Name</label>
-              <Input
-                value={form.item_name}
-                onChange={(e) => handleFormChange('item_name', e.target.value)}
-                size='large'
-              />
-            </div>
+          {/* item_name */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              item_name <span className='text-red-600 font-medium'>(String, Mandatory)</span>
+            </label>
+            <Input
+              placeholder='PAYMENT'
+              value={form.item_name}
+              onChange={(e) => handleFormChange('item_name', e.target.value)}
+              size='large'
+              className='font-mono'
+            />
+            <p className='text-gray-500 text-xs mt-1'>Display name for the item (max 25 characters)</p>
+          </div>
 
-            {/* Notification URL */}
-            <div>
-              <label className='text-gray-700 mb-1 font-medium block'>Notification URL</label>
-              <Input
-                value={form.notification_url}
-                onChange={(e) => handleFormChange('notification_url', e.target.value)}
-                size='large'
-              />
-            </div>
+          {/* notification_url */}
+          <div>
+            <label className='text-gray-800 font-semibold text-sm block mb-1'>
+              notification_url <span className='text-gray-500'>(String, Optional)</span>
+            </label>
+            <Input
+              placeholder='https://merchant.com/callback'
+              value={form.notification_url}
+              onChange={(e) => handleFormChange('notification_url', e.target.value)}
+              size='large'
+              className='font-mono'
+            />
+            <p className='text-gray-500 text-xs mt-1'>URL for callback notification</p>
           </div>
         </div>
 
@@ -298,11 +363,35 @@ export default function TransactionSimulationPage() {
         {showResult && (
           <div className='mt-6 space-y-6'>
             {/* Request */}
-            <div className='bg-gray-900 text-green-300 p-4 rounded-lg overflow-auto'>
-              <Title level={5} className='text-white mb-2'>
-                🧾 Request Preview
-              </Title>
-              <pre className='text-sm whitespace-pre-wrap'>
+            <div className='relative bg-gray-900 text-green-300 p-4 rounded-lg overflow-auto'>
+              <div className='flex justify-between items-center mb-2'>
+                <Title level={5} className='text-white mb-0'>
+                  🧾 Request Preview
+                </Title>
+                <Button
+                  size='small'
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `{
+  "headers": ${JSON.stringify(
+    {
+      appkey: headers.appkey,
+      appid: headers.appid,
+      bodysign: headers.bodysign,
+    },
+    null,
+    2,
+  )},
+  "body": ${JSON.stringify(form, null, 2)}
+}`,
+                    )
+                    message.success('Request copied to clipboard!')
+                  }}
+                >
+                  Copy
+                </Button>
+              </div>
+              <pre className='text-sm whitespace-pre-wrap font-mono'>
                 {`{
   "headers": ${JSON.stringify(
     {
@@ -319,11 +408,22 @@ export default function TransactionSimulationPage() {
             </div>
 
             {/* Response */}
-            <div className='bg-gray-900 text-blue-300 p-4 rounded-lg overflow-auto'>
-              <Title level={5} className='text-white mb-2'>
-                📩 Mock Response
-              </Title>
-              <pre className='text-sm whitespace-pre-wrap'>{JSON.stringify(mockResponse, null, 2)}</pre>
+            <div className='relative bg-gray-900 text-blue-300 p-4 rounded-lg overflow-auto'>
+              <div className='flex justify-between items-center mb-2'>
+                <Title level={5} className='text-white mb-0'>
+                  📩 Mock Response
+                </Title>
+                <Button
+                  size='small'
+                  onClick={() => {
+                    navigator.clipboard.writeText(JSON.stringify(mockResponse, null, 2))
+                    message.success('Response copied to clipboard!')
+                  }}
+                >
+                  Copy
+                </Button>
+              </div>
+              <pre className='text-sm whitespace-pre-wrap font-mono'>{JSON.stringify(mockResponse, null, 2)}</pre>
             </div>
           </div>
         )}
