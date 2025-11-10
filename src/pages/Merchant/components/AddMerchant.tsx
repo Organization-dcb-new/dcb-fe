@@ -924,7 +924,7 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
               rules={[{ required: true, message: 'Payment method wajib dipilih!' }]}
             >
               <Select placeholder='Pilih payment method'>
-                {availablePaymentMethods.map((method) => (
+                {availablePaymentMethods?.map((method) => (
                   <Option key={method.id} value={method.slug}>
                     {method.slug.replace(/_/g, ' ').toUpperCase()}
                     {method.type && ` (${method.type})`}
@@ -1113,7 +1113,6 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
                   </Form.Item>
                 </Col>
               </Row>
-
               <Row gutter={16}>
                 <Col span={8}>
                   <Form.Item label='Share Redision (%)' name={['settlement_config', 'share_redision']}>

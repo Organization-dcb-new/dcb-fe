@@ -413,7 +413,7 @@ const TransactionChartCard: React.FC = () => {
                   return (
                     <Col xs={24} sm={24} md={8} key={index}>
                       <Card
-                        className='mb-2 mx-1'
+                        className='mb-2 mx-1 '
                         title={
                           <div
                             style={{
@@ -427,7 +427,7 @@ const TransactionChartCard: React.FC = () => {
                           >
                             <span className='text-lg'>
                               {isAbnormal && <span style={{ marginRight: '8px', fontSize: '16px' }}>⚠️</span>}
-                              {item.merchant} - {item.paymentMethod}
+                              {item.merchant} - {item.paymentMethod} anjay
                             </span>
                             {isAbnormal && (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

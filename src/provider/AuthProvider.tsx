@@ -2,8 +2,8 @@ import axios from 'axios'
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react'
 import { jwtDecode } from 'jwt-decode'
 
-const API_DEV = 'https://sandbox-payment.redision.com/api'
-const API_PROD = 'https://new-payment.redision.com/api'
+const API_DEV = 'http://localhost:4000/api'
+const API_PROD = 'http://localhost:4000/api'
 
 interface AuthContextType {
   token: string | null
