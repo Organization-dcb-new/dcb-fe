@@ -13,17 +13,17 @@ export default function TransactionSimulationPage() {
   })
 
   const [form, setForm] = useState({
-    redirect_url: 'https://merchant.com/return',
-    user_id: '20250209P07V2C3477000000',
-    user_mdn: '085710039744',
-    merchant_transaction_id: 'TESTXSH0000011',
-    payment_method: 'indosat_airtime',
+    redirect_url: '',
+    user_id: '',
+    user_mdn: '',
+    merchant_transaction_id: '',
+    payment_method: '',
     currency: 'IDR',
-    amount: 10000,
-    item_id: '3322',
-    item_name: 'PAYMENT',
-    notification_url: 'https://merchant.com/callback',
-    redirect_target: 'https://example.com/target',
+    amount: 0,
+    item_id: '',
+    item_name: '',
+    notification_url: '',
+    redirect_target: '',
   })
 
   const [generating, setGenerating] = useState(false)
@@ -38,8 +38,17 @@ export default function TransactionSimulationPage() {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  const isFormComplete = Object.values(form).every((v) => v !== '' && v !== null && v !== undefined)
-  const canGenerate = headers.appsecret.trim() !== '' && isFormComplete
+  // ✅ hanya mandatory fields yang perlu diisi
+  const mandatoryFields = ['user_id', 'user_mdn', 'merchant_transaction_id', 'payment_method', 'amount', 'item_name']
+  const isMandatoryFilled = mandatoryFields.every(
+    (field) => form[field as keyof typeof form] !== '' && form[field as keyof typeof form] !== null,
+  )
+
+  // Hanya butuh App Secret diisi agar bisa generate bodysign
+  const canGenerate = headers.appsecret.trim() !== ''
+
+  // Tetap: simulasi butuh bodysign dan mandatory field lengkap
+  const canSimulate = headers.bodysign && isMandatoryFilled
 
   const handleGenerate = async () => {
     try {
@@ -53,12 +62,17 @@ export default function TransactionSimulationPage() {
       base64 = base64.replace(/\+/g, '-').replace(/\//g, '_')
       setHeaders((prev) => ({ ...prev, bodysign: base64 }))
       setGenerated(true)
-      message.success('✅ BodySign generated successfully!')
+      message.success('BodySign generated successfully!')
     } catch (err) {
       message.error('Failed to generate BodySign.')
     } finally {
       setGenerating(false)
     }
+  }
+
+  const handleSimulate = () => {
+    message.success('Simulation complete (no API hit).')
+    setShowResult(true)
   }
 
   const paymentOptions = [
@@ -89,11 +103,6 @@ export default function TransactionSimulationPage() {
     { value: 'SGD', label: 'SGD - Singapore Dollar' },
     { value: 'MYR', label: 'MYR - Malaysian Ringgit' },
   ]
-
-  const handleSimulate = () => {
-    message.success('Simulation complete (no API hit).')
-    setShowResult(true)
-  }
 
   const mockResponse = {
     success: true,
@@ -134,11 +143,7 @@ export default function TransactionSimulationPage() {
                 <Input
                   placeholder='Generated via HMAC SHA-256'
                   value={headers.bodysign}
-                  onChange={(e) => {
-                    handleHeaderChange('bodysign', e.target.value)
-                    setGenerated(false)
-                  }}
-                  disabled={true}
+                  disabled
                   size='large'
                   className='flex-1'
                 />
@@ -167,6 +172,8 @@ export default function TransactionSimulationPage() {
         </div>
 
         <Divider />
+
+        {/* ... form fields kamu tetap sama ... */}
 
         {/* Transaction Form */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
@@ -251,7 +258,7 @@ export default function TransactionSimulationPage() {
               payment_method <span className='text-red-600 font-medium'>(String, Mandatory)</span>
             </label>
             <Select
-              value={form.payment_method}
+              value={form.payment_method || 'Choose Payment Method'}
               onChange={(val) => handleFormChange('payment_method', val)}
               size='large'
               className='w-full font-mono'
@@ -271,7 +278,7 @@ export default function TransactionSimulationPage() {
               currency <span className='text-gray-500'>(String, Optional)</span>
             </label>
             <Select
-              value={form.currency}
+              value={form.currency || 'IDR'}
               onChange={(val) => handleFormChange('currency', val)}
               size='large'
               className='w-full font-mono'
@@ -347,43 +354,40 @@ export default function TransactionSimulationPage() {
           </div>
         </div>
 
-        {/* Simulate Button */}
         <Button
           type='primary'
           size='large'
           className='mt-6 w-full'
           style={{ borderRadius: 8 }}
-          disabled={!headers.bodysign}
+          disabled={!canSimulate}
           onClick={handleSimulate}
         >
           Simulate Transaction
         </Button>
-
-        {/* Result Preview */}
         {showResult && (
           <div className='mt-6 space-y-6'>
-            {/* Request */}
-            <div className='relative bg-gray-900 text-green-300 p-4 rounded-lg overflow-auto'>
+            {/* Request Preview */}
+            <div className='relative bg-[#0d1117] text-gray-100 border border-gray-800 p-4 rounded-lg overflow-auto shadow-inner'>
               <div className='flex justify-between items-center mb-2'>
-                <Title level={5} className='text-white mb-0'>
+                <Title level={5} className='!text-gray-200 !font-semibold mb-0'>
                   🧾 Request Preview
                 </Title>
                 <Button
                   size='small'
                   onClick={() => {
                     navigator.clipboard.writeText(
-                      `{
-  "headers": ${JSON.stringify(
-    {
-      appkey: headers.appkey,
-      appid: headers.appid,
-      bodysign: headers.bodysign,
-    },
-    null,
-    2,
-  )},
-  "body": ${JSON.stringify(form, null, 2)}
-}`,
+                      JSON.stringify(
+                        {
+                          headers: {
+                            appkey: headers.appkey,
+                            appid: headers.appid,
+                            bodysign: headers.bodysign,
+                          },
+                          body: form,
+                        },
+                        null,
+                        2,
+                      ),
                     )
                     message.success('Request copied to clipboard!')
                   }}
@@ -391,26 +395,27 @@ export default function TransactionSimulationPage() {
                   Copy
                 </Button>
               </div>
-              <pre className='text-sm whitespace-pre-wrap font-mono'>
-                {`{
-  "headers": ${JSON.stringify(
-    {
-      appkey: headers.appkey,
-      appid: headers.appid,
-      bodysign: headers.bodysign,
-    },
-    null,
-    2,
-  )},
-  "body": ${JSON.stringify(form, null, 2)}
-}`}
+
+              <pre className='text-sm font-mono leading-relaxed whitespace-pre bg-[#0d1117] text-gray-100'>
+                {JSON.stringify(
+                  {
+                    headers: {
+                      appkey: headers.appkey,
+                      appid: headers.appid,
+                      bodysign: headers.bodysign,
+                    },
+                    body: form,
+                  },
+                  null,
+                  2,
+                )}
               </pre>
             </div>
 
-            {/* Response */}
-            <div className='relative bg-gray-900 text-blue-300 p-4 rounded-lg overflow-auto'>
+            {/* Mock Response */}
+            <div className='relative bg-[#0d1117] text-gray-100 border border-gray-800 p-4 rounded-lg overflow-auto shadow-inner'>
               <div className='flex justify-between items-center mb-2'>
-                <Title level={5} className='text-white mb-0'>
+                <Title level={5} className='!text-gray-200 !font-semibold mb-0'>
                   📩 Mock Response
                 </Title>
                 <Button
@@ -423,7 +428,10 @@ export default function TransactionSimulationPage() {
                   Copy
                 </Button>
               </div>
-              <pre className='text-sm whitespace-pre-wrap font-mono'>{JSON.stringify(mockResponse, null, 2)}</pre>
+
+              <pre className='text-sm font-mono leading-relaxed whitespace-pre bg-[#0d1117] text-gray-100'>
+                {JSON.stringify(mockResponse, null, 2)}
+              </pre>
             </div>
           </div>
         )}
