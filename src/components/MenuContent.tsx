@@ -30,6 +30,7 @@ import {
   // StarBorder,
   PersonOutline,
 } from '@mui/icons-material'
+import ReceiptIcon from '@mui/icons-material/Receipt'
 
 import { useAuth } from '../provider/AuthProvider'
 import { jwtDecode } from 'jwt-decode'
@@ -75,8 +76,14 @@ export default function MenuContent() {
           icon: <ReceiptLongOutlined />,
           path: decoded.role != 'merchant' ? '/transactions' : 'merchant-transactions',
         },
+        {
+          text: 'Transaction Simulation',
+          icon: <ReceiptLongOutlined />,
+          path: decoded.role != 'merchant' ? '/transaction-simulation' : 'transaction-simulation',
+        },
       ],
     },
+
     // {
     //   text: 'Report Transactions',
     //   icon: <ListAltOutlined />,

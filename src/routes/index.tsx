@@ -19,6 +19,7 @@ import Report from '../pages/Report'
 import SummaryDaily from '../pages/SummaryDaily'
 import ReportMargin from '../pages/ReportMargin'
 import MerchantProfile from '../pages/MerchantProfile'
+import TransactionSimulationPage from '../pages/TransactionSimulation'
 
 const router = createBrowserRouter([
   {
@@ -103,6 +104,16 @@ const router = createBrowserRouter([
       //     </PrivateRoute>
       //   ),
       // },
+      {
+        path: 'transaction-simulation',
+        element: (
+          <PrivateRoute allowedRoles={['merchant']}>
+            <ClientProvider>
+              <TransactionSimulationPage />
+            </ClientProvider>
+          </PrivateRoute>
+        ),
+      },
       {
         path: 'merchant-transaction/:id',
         element: (
