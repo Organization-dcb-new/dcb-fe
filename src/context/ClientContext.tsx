@@ -93,23 +93,21 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const { token, apiUrl, appId, appKey } = useAuth()
 
   const fetchClientDetail = async () => {
-    if (!appId || !appKey) {
-      setError('App ID or App Key not available')
-      return
-    }
+    // if (!appId || !appKey) {
+    //   setError('App ID or App Key not available')
+    //   return
+    // }
+    const tokenNew =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjI4MzE2NjksInJvbGUiOiJzdXBlcmFkbWluIiwidXNlcl9pZCI6MjksInVzZXJuYW1lIjoidmlhbjEyMzQifQ.yDUqFOOPbhq64eKl-1yMvkuMse8SEBKMZDXk6e7PcFo'
 
     setLoading(true)
     setError(null)
 
     try {
-      const response = await axios.get(`${apiUrl}/merchant/detail`, {
+      const response = await axios.get(`${apiUrl}/admin/merchant/EMH-NgRnHSZ2cmyo0s2jXA`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${tokenNew}`,
           'Content-Type': 'application/json',
-        },
-        params: {
-          app_id: appId,
-          app_key: appKey,
         },
       })
 
@@ -131,10 +129,14 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   useEffect(() => {
-    if (token && appId && appKey) {
+    // if (token && appId && appKey) {
+    //   fetchClientDetail()
+    // }
+    if (token) {
       fetchClientDetail()
     }
-  }, [token, appId, appKey])
+  }, [token])
+  // [token, appId, appKey])
 
   return <ClientContext.Provider value={{ client, loading, error, refetch }}>{children}</ClientContext.Provider>
 }
