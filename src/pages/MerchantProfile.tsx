@@ -40,7 +40,7 @@ import { useAuth } from '../provider/AuthProvider'
 
 const MerchantProfile: React.FC = () => {
   const { client, loading, error, refetch } = useClient()
-  const { token, apiUrl, appId, appKey } = useAuth()
+  const { token, apiUrl } = useAuth()
   const [editMode, setEditMode] = useState(false)
   const [, setSelectedAppId] = useState<number | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
@@ -163,15 +163,15 @@ const MerchantProfile: React.FC = () => {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-          // appkey: appKey,
-          // appid: appId,
         },
         body: JSON.stringify(requestBody),
       })
 
       const data = await response.json()
+      console.log(data)
 
-      if (data.success) {
+      if (data.status === 'success') {
+        console.log('Todskoksdgokso')
         setUpdateSuccess(true)
         setEditMode(false)
         setSelectedAppId(null)
