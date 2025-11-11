@@ -1,16 +1,19 @@
 import { useState } from 'react'
 import { Input, Button, Card, Typography, Divider, Select, message } from 'antd'
+import { useGetApp } from '../hooks/useGetMerchantApp'
 
 const { Title } = Typography
 const { Option } = Select
 
 export default function TransactionSimulationPage() {
   const [headers, setHeaders] = useState({
-    appkey: 'h0Wq9Incnlk7-gxMn14DaA',
-    appid: 'kmoMinMDjI29ndunKFWI02',
+    appkey: '',
+    appid: '',
     bodysign: '',
     appsecret: '',
   })
+
+  const { data } = useGetApp()
 
   const [form, setForm] = useState({
     redirect_url: '',
@@ -30,10 +33,6 @@ export default function TransactionSimulationPage() {
   const [generated, setGenerated] = useState(false)
   const [showResult, setShowResult] = useState(false)
 
-  const handleHeaderChange = (field: string, value: string) => {
-    setHeaders((prev) => ({ ...prev, [field]: value }))
-  }
-
   const handleFormChange = (field: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
@@ -44,17 +43,15 @@ export default function TransactionSimulationPage() {
     (field) => form[field as keyof typeof form] !== '' && form[field as keyof typeof form] !== null,
   )
 
-  // Hanya butuh App Secret diisi agar bisa generate bodysign
-  const canGenerate = headers.appsecret.trim() !== ''
-
   // Tetap: simulasi butuh bodysign dan mandatory field lengkap
   const canSimulate = headers.bodysign && isMandatoryFilled
 
   const handleGenerate = async () => {
+    const appSecret = data?.data.app_secret
     try {
       setGenerating(true)
       const encoder = new TextEncoder()
-      const keyData = encoder.encode(headers.appsecret)
+      const keyData = encoder.encode(appSecret)
       const data = encoder.encode(JSON.stringify(form).replace(/\\\//g, '/'))
       const key = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
       const signature = await crypto.subtle.sign('HMAC', key, data)
@@ -64,7 +61,7 @@ export default function TransactionSimulationPage() {
       setGenerated(true)
       message.success('BodySign generated successfully!')
     } catch (err) {
-      message.error('Failed to generate BodySign.')
+      message.error('Failed to generate BodySign.' + err)
     } finally {
       setGenerating(false)
     }
@@ -74,6 +71,8 @@ export default function TransactionSimulationPage() {
     message.success('Simulation complete (no API hit).')
     setShowResult(true)
   }
+
+  const selectedMethods = data?.data.payment_method || []
 
   const paymentOptions = [
     { value: 'telkomsel_airtime', label: 'Telkomsel' },
@@ -104,6 +103,8 @@ export default function TransactionSimulationPage() {
     { value: 'MYR', label: 'MYR - Malaysian Ringgit' },
   ]
 
+  const activePayments = paymentOptions.filter((opt) => selectedMethods.includes(opt.value))
+
   const mockResponse = {
     success: true,
     retcode: '0000',
@@ -129,12 +130,12 @@ export default function TransactionSimulationPage() {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div>
               <label className='text-gray-700 mb-1 font-medium block'>App Key</label>
-              <Input value={headers.appkey} size='large' disabled />
+              <Input value={data?.data.app_key} size='large' disabled />
             </div>
 
             <div>
               <label className='text-gray-700 mb-1 font-medium block'>App ID</label>
-              <Input value={headers.appid} size='large' disabled />
+              <Input value={data?.data.app_id} size='large' disabled />
             </div>
 
             <div>
@@ -151,7 +152,7 @@ export default function TransactionSimulationPage() {
                   type='primary'
                   size='large'
                   onClick={handleGenerate}
-                  disabled={!canGenerate || generating || generated}
+                  disabled={generating || generated}
                   loading={generating}
                 >
                   {generated ? 'Generated' : 'Generate'}
@@ -161,10 +162,11 @@ export default function TransactionSimulationPage() {
 
             <div>
               <label className='text-gray-700 mb-1 font-medium block'>App Secret</label>
-              <Input.Password
+              <Input
                 placeholder='App Secret'
-                value={headers.appsecret}
-                onChange={(e) => handleHeaderChange('appsecret', e.target.value)}
+                value={data?.data.app_secret}
+                type='password'
+                disabled={true}
                 size='large'
               />
             </div>
@@ -263,7 +265,7 @@ export default function TransactionSimulationPage() {
               size='large'
               className='w-full font-mono'
             >
-              {paymentOptions.map((opt) => (
+              {activePayments.map((opt) => (
                 <Option key={opt.value} value={opt.value}>
                   {opt.label}
                 </Option>
