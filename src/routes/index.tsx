@@ -67,16 +67,6 @@ const router = createBrowserRouter([
             <Merchant />
           </PrivateRoute>
         ),
-        // children: [
-        //   {
-        //     path: ':id',
-        //     element: (
-        //       <PrivateRoute>
-        //         <DetailMerchant />
-        //       </PrivateRoute>
-        //     ),
-        //   },
-        // ],
       },
       {
         path: 'merchant/:id',
