@@ -3,6 +3,7 @@ import { Button, Form, Modal, Input, Select, Card, Row, Col, message, Space, Tab
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { useAuth } from '../../../provider/AuthProvider'
+import { PaymentMethod } from '../../../context/ClientContext'
 
 const { Option } = Select
 const { TextArea } = Input
@@ -136,41 +137,115 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
     paymentConfigForm.resetFields()
   }
 
-  //   const defaultPaymentMethods: PaymentMethod[] = [
-  //     { name: 'qris', route: { qris_midtrans: [] }, status: 1, msisdn: 1, flexible: true },
-  //     { name: 'gopay', route: { gopay_midtrans: [] }, status: 1, msisdn: 1, flexible: true },
-  //     { name: 'shopeepay', route: { shopeepay_midtrans: [] }, status: 1, msisdn: 1, flexible: true },
-  //     { name: 'dana', route: { dana: [] }, status: 1, msisdn: 1, flexible: true },
-  //     { name: 'ovo', route: { ovo: [] }, status: 1, msisdn: 1, flexible: true },
-  //     { name: 'telkomsel_airtime', route: { telkomsel_airtime_sms: [] }, status: 1, msisdn: 1, flexible: true },
-  //     { name: 'xl_airtime', route: { xl_twt: [] }, status: 1, msisdn: 1, flexible: true },
-  //     { name: 'indosat_airtime', route: { indosat_triyakom: [] }, status: 1, msisdn: 1, flexible: true },
-  //     { name: 'smartfren_airtime', route: { smartfren_triyakom: [] }, status: 1, msisdn: 1, flexible: true },
-  //     {
-  //       name: 'three_airtime',
-  //       route: {
-  //         three_triyakom: [
-  //           '1000',
-  //           '2000',
-  //           '3000',
-  //           '5000',
-  //           '10000',
-  //           '20000',
-  //           '25000',
-  //           '30000',
-  //           '50000',
-  //           '60000',
-  //           '100000',
-  //           '200000',
-  //           '250000',
-  //           '500000',
-  //         ],
-  //       },
-  //       status: 1,
-  //       msisdn: 1,
-  //       flexible: false,
+  // const defaultPaymentMethods: PaymentMethod[] = [
+  //   {
+  //     name: 'qris',
+  //     route: { qris_midtrans: [] },
+  //     status: 1,
+  //     msisdn: 1,
+  //     flexible: true,
+  //     id: 0,
+  //     client_id: '',
+  //   },
+  //   {
+  //     name: 'gopay',
+  //     route: { gopay_midtrans: [] },
+  //     status: 1,
+  //     msisdn: 1,
+  //     flexible: true,
+  //     id: 0,
+  //     client_id: '',
+  //   },
+  //   {
+  //     name: 'shopeepay',
+  //     route: { shopeepay_midtrans: [] },
+  //     status: 1,
+  //     msisdn: 1,
+  //     flexible: true,
+  //     id: 0,
+  //     client_id: '',
+  //   },
+  //   {
+  //     name: 'dana',
+  //     route: { dana: [] },
+  //     status: 1,
+  //     msisdn: 1,
+  //     flexible: true,
+  //     id: 0,
+  //     client_id: '',
+  //   },
+  //   {
+  //     name: 'ovo',
+  //     route: { ovo: [] },
+  //     status: 1,
+  //     msisdn: 1,
+  //     flexible: true,
+  //     id: 0,
+  //     client_id: '',
+  //   },
+  //   {
+  //     name: 'telkomsel_airtime',
+  //     route: { telkomsel_airtime_sms: [] },
+  //     status: 1,
+  //     msisdn: 1,
+  //     flexible: true,
+  //     id: 0,
+  //     client_id: '',
+  //   },
+  //   {
+  //     name: 'xl_airtime',
+  //     route: { xl_twt: [] },
+  //     status: 1,
+  //     msisdn: 1,
+  //     flexible: true,
+  //     id: 0,
+  //     client_id: '',
+  //   },
+  //   {
+  //     name: 'indosat_airtime',
+  //     route: { indosat_triyakom: [] },
+  //     status: 1,
+  //     msisdn: 1,
+  //     flexible: true,
+  //     id: 0,
+  //     client_id: '',
+  //   },
+  //   {
+  //     name: 'smartfren_airtime',
+  //     route: { smartfren_triyakom: [] },
+  //     status: 1,
+  //     msisdn: 1,
+  //     flexible: true,
+  //     id: 0,
+  //     client_id: '',
+  //   },
+  //   {
+  //     name: 'three_airtime',
+  //     route: {
+  //       three_triyakom: [
+  //         '1000',
+  //         '2000',
+  //         '3000',
+  //         '5000',
+  //         '10000',
+  //         '20000',
+  //         '25000',
+  //         '30000',
+  //         '50000',
+  //         '60000',
+  //         '100000',
+  //         '200000',
+  //         '250000',
+  //         '500000',
+  //       ],
   //     },
-  //   ]
+  //     status: 1,
+  //     msisdn: 1,
+  //     flexible: false,
+  //     id: 0,
+  //     client_id: '',
+  //   },
+  // ]
 
   //   const defaultSettlements: Settlement[] = [
   //     {
@@ -520,7 +595,7 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
       dataIndex: 'payment_method_slug',
       key: 'payment_method_slug',
       render: (slug: string) => {
-        const method = availablePaymentMethods.find((m) => m.slug === slug)
+        const method = availablePaymentMethods?.find((m) => m.slug === slug)
         return (
           <div>
             <div style={{ fontWeight: 'bold' }}>{slug.replace(/_/g, ' ').toUpperCase()}</div>
@@ -942,7 +1017,7 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
             >
               {({ getFieldValue }) => {
                 const selectedSlug = getFieldValue('payment_method_slug')
-                const selectedMethod = availablePaymentMethods.find((method) => method.slug === selectedSlug)
+                const selectedMethod = availablePaymentMethods?.find((method) => method.slug === selectedSlug)
 
                 if (!selectedMethod?.route?.length) return null
 

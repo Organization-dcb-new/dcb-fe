@@ -641,8 +641,26 @@ const MerchantProfile: React.FC = () => {
             </Typography>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Tutup</Button>
+        <DialogActions
+          sx={{
+            backgroundColor: '#f9fafb',
+            borderTop: '1px solid #e5e7eb',
+            padding: '12px 16px',
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            variant='contained'
+            color='primary'
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              backgroundColor: 'grey',
+              '&:hover': { backgroundColor: 'grey' },
+            }}
+          >
+            Tutup
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -735,8 +753,26 @@ const MerchantProfile: React.FC = () => {
             </Typography>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenPaymentDialog(false)}>Tutup</Button>
+        <DialogActions
+          sx={{
+            backgroundColor: '#f9fafb',
+            borderTop: '1px solid #e5e7eb',
+            padding: '12px 16px',
+          }}
+        >
+          <Button
+            onClick={() => setOpenPaymentDialog(false)}
+            variant='contained'
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              backgroundColor: 'grey',
+              color: '#fff',
+              '&:hover': { backgroundColor: 'grey' },
+            }}
+          >
+            Tutup
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

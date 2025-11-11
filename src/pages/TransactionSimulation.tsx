@@ -38,7 +38,7 @@ export default function TransactionSimulationPage() {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  // ✅ hanya mandatory fields yang perlu diisi
+  // hanya mandatory fields yang perlu diisi
   const mandatoryFields = ['user_id', 'user_mdn', 'merchant_transaction_id', 'payment_method', 'amount', 'item_name']
   const isMandatoryFilled = mandatoryFields.every(
     (field) => form[field as keyof typeof form] !== '' && form[field as keyof typeof form] !== null,
