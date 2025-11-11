@@ -188,12 +188,12 @@ const Merchant = () => {
     {
       title: 'Action',
       key: 'action',
-      dataIndex: 'clientAppid',
+      dataIndex: 'uid',
       width: 300,
       align: 'center',
-      render: (clientAppid, record) => (
+      render: (uid, record) => (
         <Stack direction='row' justifyContent='center' alignItems='center' spacing={1} sx={{ minHeight: 40 }}>
-          <Link to={`/merchant/${clientAppid}`}>
+          <Link to={`/merchant/${uid}`}>
             <Button
               type='primary'
               size='small'
@@ -210,7 +210,7 @@ const Merchant = () => {
             </Button>
           </Link>
 
-          <EditMerchant id={clientAppid} data={record} />
+          <EditMerchant id={uid} data={record} />
 
           <Button
             type='primary'
@@ -226,7 +226,7 @@ const Merchant = () => {
             }}
             onClick={() => {
               // TODO: Implement delete functionality
-              console.log('Delete merchant:', clientAppid)
+              console.log('Delete merchant:', uid)
             }}
           >
             Delete

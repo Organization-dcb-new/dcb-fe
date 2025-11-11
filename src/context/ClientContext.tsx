@@ -90,28 +90,21 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [client, setClient] = useState<Client | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { token, apiUrl, appId, appKey } = useAuth()
+  const { token, apiUrl } = useAuth()
 
   const fetchClientDetail = async () => {
-    // if (!appId || !appKey) {
-    //   setError('App ID or App Key not available')
-    //   return
-    // }
-    const tokenNew =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjI4MzE2NjksInJvbGUiOiJzdXBlcmFkbWluIiwidXNlcl9pZCI6MjksInVzZXJuYW1lIjoidmlhbjEyMzQifQ.yDUqFOOPbhq64eKl-1yMvkuMse8SEBKMZDXk6e7PcFo'
-
     setLoading(true)
     setError(null)
 
     try {
-      const response = await axios.get(`${apiUrl}/admin/merchant/EMH-NgRnHSZ2cmyo0s2jXA`, {
+      const response = await axios.get(`${apiUrl}/merchant/detail/v2`, {
         headers: {
-          Authorization: `Bearer ${tokenNew}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       })
 
-      if (response.data.success) {
+      if (response.data.status == 'success') {
         setClient(response.data.data)
       } else {
         setError('Failed to fetch client data')

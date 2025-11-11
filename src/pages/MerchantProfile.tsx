@@ -20,7 +20,6 @@ import {
   Alert,
   CircularProgress,
   Stack,
-  TextField,
 } from '@mui/material'
 import { Input } from 'antd'
 import {
@@ -107,10 +106,10 @@ const MerchantProfile: React.FC = () => {
   }
 
   const handleSaveProfile = async () => {
-    if (!appId || !appKey) {
-      setUpdateError('App ID or App Key not available')
-      return
-    }
+    // if (!appId || !appKey) {
+    //   setUpdateError('App ID or App Key not available')
+    //   return
+    // }
 
     setUpdateLoading(true)
     setUpdateError(null)
@@ -164,8 +163,8 @@ const MerchantProfile: React.FC = () => {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-          appkey: appKey,
-          appid: appId,
+          // appkey: appKey,
+          // appid: appId,
         },
         body: JSON.stringify(requestBody),
       })
