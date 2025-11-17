@@ -52,13 +52,15 @@ export default function TransactionSimulationPage() {
 
   const handleFormChange = (field: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [field]: value }))
+    setHeaders((prev) => ({ ...prev, bodysign: '' }))
+    setGenerated(false)
   }
 
   const mandatoryFields = ['user_id', 'user_mdn', 'merchant_transaction_id', 'payment_method', 'amount', 'item_name']
-
   const isMandatoryFilled = mandatoryFields.every(
     (field) => form[field as keyof typeof form] !== '' && form[field as keyof typeof form] !== null,
   )
+  const canGenerate = isMandatoryFilled && !generated
 
   const canSimulate = headers.bodysign && isMandatoryFilled
 
@@ -236,7 +238,7 @@ export default function TransactionSimulationPage() {
                   type='primary'
                   size='large'
                   onClick={handleGenerate}
-                  disabled={generating || generated}
+                  disabled={!canGenerate}
                   loading={generating}
                 >
                   {generated ? 'Generated' : 'Generate'}
@@ -488,7 +490,7 @@ export default function TransactionSimulationPage() {
               </div>
 
               <pre
-                className='text-sm leading-relaxed whitespace-pre font-mono'
+                className='text-sm leading-relaxed whitespace-pre font-mono overflow-auto max-h-[400px] p-2'
                 dangerouslySetInnerHTML={{
                   __html: apiResponse ? highlightJSON(JSON.stringify(apiResponse, null, 2)) : '',
                 }}
