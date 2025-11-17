@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { Input, Button, Card, Typography, Divider, Select, message } from 'antd'
 import { useGetApp } from '../hooks/useGetMerchantApp'
+import { useCreateTransaction } from '../hooks/useCreateTransaction'
+import { useAuth } from '../provider/AuthProvider'
+import { formatJSON, highlightJSON, removeEmpty } from '../utils/TransactionUtils'
 
 const { Title } = Typography
 const { Option } = Select
@@ -13,7 +16,20 @@ export default function TransactionSimulationPage() {
     appsecret: '',
   })
 
+  const createTransaction = useCreateTransaction()
   const { data } = useGetApp()
+  const { apiUrl } = useAuth()
+
+  const apps = data?.data || []
+  const [selectedAppIndex, setSelectedAppIndex] = useState(0)
+  const [requestPreview, setRequestPreview] = useState<any>(null)
+
+  const selectedApp = apps[selectedAppIndex] || {}
+
+  const selectedAppKey = selectedApp.app_key || ''
+  const selectedAppId = selectedApp.app_id || ''
+  const selectedAppSecret = selectedApp.app_secret || ''
+  const selectedMethods = selectedApp.payment_method || []
 
   const [form, setForm] = useState({
     redirect_url: '',
@@ -32,47 +48,93 @@ export default function TransactionSimulationPage() {
   const [generating, setGenerating] = useState(false)
   const [generated, setGenerated] = useState(false)
   const [showResult, setShowResult] = useState(false)
+  const [apiResponse, setApiResponse] = useState<any>(null)
 
   const handleFormChange = (field: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  // hanya mandatory fields yang perlu diisi
   const mandatoryFields = ['user_id', 'user_mdn', 'merchant_transaction_id', 'payment_method', 'amount', 'item_name']
+
   const isMandatoryFilled = mandatoryFields.every(
     (field) => form[field as keyof typeof form] !== '' && form[field as keyof typeof form] !== null,
   )
 
-  // Tetap: simulasi butuh bodysign dan mandatory field lengkap
   const canSimulate = headers.bodysign && isMandatoryFilled
 
   const handleGenerate = async () => {
-    const appSecret = data?.data.app_secret
     try {
       setGenerating(true)
-      const encoder = new TextEncoder()
-      const keyData = encoder.encode(appSecret)
-      const data = encoder.encode(JSON.stringify(form).replace(/\\\//g, '/'))
-      const key = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
-      const signature = await crypto.subtle.sign('HMAC', key, data)
+
+      const rawPayload = {
+        user_id: form.user_id,
+        merchant_transaction_id: form.merchant_transaction_id,
+        payment_method: form.payment_method,
+        amount: form.amount ? Number(form.amount) : undefined,
+        item_name: form.item_name,
+      }
+
+      const payload = Object.fromEntries(
+        Object.entries(rawPayload).filter(([_, v]) => v !== '' && v !== undefined && v !== null),
+      )
+
+      const payloadJson = JSON.stringify(payload)
+
+      const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode(selectedAppSecret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign'],
+      )
+
+      const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payloadJson))
+
       let base64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
-      base64 = base64.replace(/\+/g, '-').replace(/\//g, '_')
-      setHeaders((prev) => ({ ...prev, bodysign: base64 }))
+
+      const bodysign = base64.replace(/\+/g, '-').replace(/\//g, '_')
+
+      setHeaders((prev) => ({ ...prev, bodysign }))
       setGenerated(true)
+
       message.success('BodySign generated successfully!')
     } catch (err) {
-      message.error('Failed to generate BodySign.' + err)
+      message.error('Failed to generate BodySign: ' + err)
     } finally {
       setGenerating(false)
     }
   }
 
-  const handleSimulate = () => {
-    message.success('Simulation complete (no API hit).')
+  const handleSimulate = async () => {
+    const payload = {
+      payment_method: form.payment_method,
+      user_id: form.user_id,
+      merchant_transaction_id: form.merchant_transaction_id,
+      amount: Number(form.amount),
+      item_name: form.item_name,
+    }
+    setRequestPreview({
+      headers: {
+        appkey: selectedAppKey,
+        appid: selectedAppId,
+        bodysign: headers.bodysign,
+      },
+      body: form,
+    })
+
+    const result = await createTransaction.mutateAsync({
+      apiUrl,
+      headers: {
+        appkey: selectedAppKey,
+        appid: selectedAppId,
+        bodysign: headers.bodysign,
+      },
+      form: payload,
+    })
+
+    setApiResponse(result)
     setShowResult(true)
   }
-
-  const selectedMethods = data?.data.payment_method || []
 
   const paymentOptions = [
     { value: 'telkomsel_airtime', label: 'Telkomsel' },
@@ -105,20 +167,42 @@ export default function TransactionSimulationPage() {
 
   const activePayments = paymentOptions.filter((opt) => selectedMethods.includes(opt.value))
 
-  const mockResponse = {
-    success: true,
-    retcode: '0000',
-    message: 'Successful',
-    data: {
-      token: '56f2c280891e40257c8b4577',
-    },
-  }
-
   return (
     <div className='min-h-screen flex justify-center items-center bg-gray-50 p-5'>
       <Card className='w-full max-w-6xl shadow-md border border-gray-200 rounded-xl'>
         <div className='text-center mb-6'>
           <Title level={3}>Transaction Simulation</Title>
+        </div>
+
+        <div className='mb-6'>
+          <Title level={5} className='mb-3 text-blue-600'>
+            🔽 Select App
+          </Title>
+
+          <Select
+            size='large'
+            className='w-full'
+            value={selectedAppIndex}
+            onChange={(val) => {
+              setSelectedAppIndex(val)
+              setHeaders({
+                appkey: apps[val].app_key,
+                appid: apps[val].app_id,
+                appsecret: apps[val].app_secret,
+                bodysign: '',
+              })
+              setShowResult(false)
+              setApiResponse(null)
+              setGenerated(false)
+              message.info(`Switched to app: ${apps[val].app_name}`)
+            }}
+          >
+            {apps.map((app, idx) => (
+              <Option key={idx} value={idx}>
+                {app.app_name}
+              </Option>
+            ))}
+          </Select>
         </div>
 
         {/* Header Section */}
@@ -130,12 +214,12 @@ export default function TransactionSimulationPage() {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div>
               <label className='text-gray-700 mb-1 font-medium block'>App Key</label>
-              <Input value={data?.data.app_key} size='large' disabled />
+              <Input value={selectedAppKey} size='large' disabled />
             </div>
 
             <div>
               <label className='text-gray-700 mb-1 font-medium block'>App ID</label>
-              <Input value={data?.data.app_id} size='large' disabled />
+              <Input value={selectedAppId} size='large' disabled />
             </div>
 
             <div>
@@ -162,20 +246,12 @@ export default function TransactionSimulationPage() {
 
             <div>
               <label className='text-gray-700 mb-1 font-medium block'>App Secret</label>
-              <Input
-                placeholder='App Secret'
-                value={data?.data.app_secret}
-                type='password'
-                disabled={true}
-                size='large'
-              />
+              <Input placeholder='App Secret' value={selectedAppSecret} type='password' disabled={true} size='large' />
             </div>
           </div>
         </div>
 
         <Divider />
-
-        {/* ... form fields kamu tetap sama ... */}
 
         {/* Transaction Form */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
@@ -362,78 +438,61 @@ export default function TransactionSimulationPage() {
           className='mt-6 w-full'
           style={{ borderRadius: 8 }}
           disabled={!canSimulate}
+          loading={createTransaction.isPending}
           onClick={handleSimulate}
         >
           Simulate Transaction
         </Button>
         {showResult && (
-          <div className='mt-6 space-y-6'>
-            {/* Request Preview */}
-            <div className='relative bg-[#0d1117] text-gray-100 border border-gray-800 p-4 rounded-lg overflow-auto shadow-inner'>
+          <div className='mt-6'>
+            <div className='bg-black text-white p-4 rounded-lg mb-4'>
               <div className='flex justify-between items-center mb-2'>
-                <Title level={5} className='!text-gray-200 !font-semibold mb-0'>
-                  🧾 Request Preview
+                <Title level={5} style={{ color: 'white' }}>
+                  Request Preview
                 </Title>
+
                 <Button
                   size='small'
                   onClick={() => {
-                    navigator.clipboard.writeText(
-                      JSON.stringify(
-                        {
-                          headers: {
-                            appkey: headers.appkey,
-                            appid: headers.appid,
-                            bodysign: headers.bodysign,
-                          },
-                          body: form,
-                        },
-                        null,
-                        2,
-                      ),
-                    )
-                    message.success('Request copied to clipboard!')
+                    navigator.clipboard.writeText(JSON.stringify(removeEmpty(requestPreview), null, 2))
+                    message.success('Request copied!')
                   }}
                 >
                   Copy
                 </Button>
               </div>
 
-              <pre className='text-sm font-mono leading-relaxed whitespace-pre bg-[#0d1117] text-gray-100'>
-                {JSON.stringify(
-                  {
-                    headers: {
-                      appkey: headers.appkey,
-                      appid: headers.appid,
-                      bodysign: headers.bodysign,
-                    },
-                    body: form,
-                  },
-                  null,
-                  2,
-                )}
-              </pre>
+              <pre
+                className='text-sm leading-relaxed whitespace-pre font-mono'
+                dangerouslySetInnerHTML={{
+                  __html: requestPreview ? formatJSON(requestPreview) : '',
+                }}
+              />
             </div>
 
-            {/* Mock Response */}
-            <div className='relative bg-[#0d1117] text-gray-100 border border-gray-800 p-4 rounded-lg overflow-auto shadow-inner'>
+            <div className='bg-black text-white p-4 rounded-lg'>
               <div className='flex justify-between items-center mb-2'>
-                <Title level={5} className='!text-gray-200 !font-semibold mb-0'>
-                  📩 Mock Response
+                <Title level={5} style={{ color: 'white' }}>
+                  Response
                 </Title>
+
                 <Button
                   size='small'
                   onClick={() => {
-                    navigator.clipboard.writeText(JSON.stringify(mockResponse, null, 2))
-                    message.success('Response copied to clipboard!')
+                    navigator.clipboard.writeText(JSON.stringify(apiResponse, null, 2))
+                    message.success('Response copied!')
                   }}
                 >
                   Copy
                 </Button>
               </div>
 
-              <pre className='text-sm font-mono leading-relaxed whitespace-pre bg-[#0d1117] text-gray-100'>
-                {JSON.stringify(mockResponse, null, 2)}
-              </pre>
+              <pre
+                className='text-sm leading-relaxed whitespace-pre font-mono'
+                dangerouslySetInnerHTML={{
+                  __html: apiResponse ? highlightJSON(JSON.stringify(apiResponse, null, 2)) : '',
+                }}
+              />
             </div>
           </div>
         )}

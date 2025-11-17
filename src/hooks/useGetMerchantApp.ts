@@ -1,15 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../provider/AuthProvider'
 
-interface AppResponse {
+export interface AppItem {
+  app_name: string
+  app_secret: string
+  app_key: string
+  app_id: string
+  payment_method: string[]
+}
+
+export interface AppResponse {
   status: string
   message: string
-  data: {
-    app_secret: string
-    app_key: string
-    app_id: string
-    payment_method: string[]
-  }
+  data: AppItem[]
 }
 
 const fetchApp = async (apiUrl: string, token: string): Promise<AppResponse> => {
@@ -33,7 +36,7 @@ export const useGetApp = () => {
   return useQuery({
     queryKey: ['get-app', token],
     queryFn: () => fetchApp(apiUrl ?? '', token ?? ''),
-    enabled: !!token,
+    enabled: !!token, // hanya jalan kalau token ada
     staleTime: 1000 * 60 * 5,
   })
 }
