@@ -43,6 +43,8 @@ const TransactionMerchantDetail: React.FC = () => {
   const [callbackRequest, setCallbackRequest] = useState<any>(null)
   const [callbackResponse, setCallbackResponse] = useState<any>(null)
   const [callbackLoading, setCallbackLoading] = useState<boolean>(false)
+  const [copiedResponse, setCopiedResponse] = useState(false)
+  const [copiedResponse2, setCopiedResponse2] = useState(false)
 
   const { token, apiUrl, isDev } = useAuth()
   const appKey = 'QdQpQLCBTbkAJv0OOTYhxAdojWkot5Gk'
@@ -487,7 +489,10 @@ const TransactionMerchantDetail: React.FC = () => {
                       size='small'
                       onClick={() => {
                         navigator.clipboard.writeText(JSON.stringify(callbackRequest, null, 2))
+                        setCopiedResponse(true)
+
                         message.success('Request copied!')
+                        setTimeout(() => setCopiedResponse(false), 2000)
                       }}
                       sx={{
                         textTransform: 'none',
@@ -502,7 +507,7 @@ const TransactionMerchantDetail: React.FC = () => {
                         },
                       }}
                     >
-                      Copy
+                      {copiedResponse ? 'Copied!' : 'Copy'}
                     </Button>
                   )}
                 </div>
@@ -542,7 +547,10 @@ const TransactionMerchantDetail: React.FC = () => {
                       size='small'
                       onClick={() => {
                         navigator.clipboard.writeText(JSON.stringify(callbackResponse, null, 2))
+                        setCopiedResponse2(true)
+
                         message.success('Response copied!')
+                        setTimeout(() => setCopiedResponse2(false), 2000)
                       }}
                       sx={{
                         textTransform: 'none',
@@ -558,7 +566,7 @@ const TransactionMerchantDetail: React.FC = () => {
                         },
                       }}
                     >
-                      Copy
+                      {copiedResponse2 ? 'Copied!' : 'Copy'}
                     </Button>
                   )}
                 </div>
