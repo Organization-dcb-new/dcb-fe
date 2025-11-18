@@ -2,8 +2,8 @@ import axios from 'axios'
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react'
 import { jwtDecode } from 'jwt-decode'
 
-const API_DEV = 'http://localhost:4000/api'
-const API_PROD = 'http://localhost:4000/api'
+const API_DEV = 'http://192.168.10.227:4000/api'
+const API_PROD = 'http://192.168.10.227:4000/api'
 
 interface AuthContextType {
   token: string | null
@@ -47,12 +47,14 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       setRole(decoded.role)
 
       if (isDev) {
-        setAppId(decoded.devappid)
-        setAppKey(decoded.devappkey)
+        setAppId(decoded.dev_app_id)
+        setAppKey(decoded.deva_pp_key)
       } else {
-        setAppId(decoded.appid)
-        setAppKey(decoded.appkey)
+        setAppId(decoded.app_id)
+        setAppKey(decoded.app_key)
       }
+
+      console.log("anjay",decoded)
 
       localStorage.setItem('token', newToken)
     }
@@ -74,11 +76,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         setRole(decoded.role)
 
         if (isDev) {
-          setAppId(decoded.devappid)
-          setAppKey(decoded.devappkey)
+          setAppId(decoded.dev_app_id)
+          setAppKey(decoded.dev_app_key)
         } else {
-          setAppId(decoded.appid)
-          setAppKey(decoded.appkey)
+          setAppId(decoded.app_id)
+          setAppKey(decoded.app_key)
         }
       }
     } else {
