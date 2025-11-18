@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Card, Row, Col, Statistic, Carousel, Tag, Button, Input } from 'antd'
+import { Card, Row, Col, Carousel, Tag, Button, Input } from 'antd'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { Line } from 'react-chartjs-2'
 import {
@@ -32,6 +32,9 @@ interface TransactionData {
     pending: number[]
     success: number[]
     failed: number[]
+    avg7Success?: number[]
+    avg7Failed?: number[]
+    timestamps?: string[]
   }
 }
 
@@ -45,6 +48,9 @@ interface ApiSeriesPoint {
   pending: number
   failed: number
   total: number
+  avg7_success: number
+  avg7_failed: number
+  avg7_total: number
 }
 
 interface ApiSeries {
@@ -97,7 +103,7 @@ export function checkAbnormal(values: number[], latest: number, type: 'success' 
   return { isNormal, mean, stdDev, reason }
 }
 
-const TransactionChartCard: React.FC = () => {
+const TransactionChartCardHourly: React.FC = () => {
   const { token, apiUrl } = useAuth()
   const [monitorData, setMonitorData] = useState<TransactionData[]>([])
   const [loading, setLoading] = useState(false)
@@ -112,15 +118,16 @@ const TransactionChartCard: React.FC = () => {
         setLoading(true)
         setError(null)
         const end = dayjs().format('YYYY-MM-DDTHH:mm:ssZ')
-        const start = dayjs().subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ssZ')
+        const start = dayjs().subtract(48, 'hour').format('YYYY-MM-DDTHH:mm:ssZ')
+        const avg = '7day'
 
-        const url = `${apiUrl}/traffic/monitoring`
+        const url = `${apiUrl}/traffic/monitoring/hourly`
         const res = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-          params: { start, end },
+          params: { start, end, avg },
         })
 
         const apiData: ApiSeries[] = res.data?.data || []
@@ -128,49 +135,16 @@ const TransactionChartCard: React.FC = () => {
           // Hapus data terakhir karena belum selesai diproses
           const processedData = series.data.slice(0, -1)
           const labels = processedData.map((p) => dayjs(p.timestamp).format('HH:mm'))
+          const timestamps = processedData.map((p) => p.timestamp)
           const pending = processedData.map((p) => p.pending)
           const success = processedData.map((p) => p.success)
           const failed = processedData.map((p) => p.failed)
+          const avg7Success = processedData.map((p: any) => p.avg7_success ?? p.avg7Success ?? 0)
+          const avg7Failed = processedData.map((p: any) => p.avg7_failed ?? p.avg7Failed ?? 0)
 
-          // Hitung rata-rata untuk menentukan isAbnormal
-          // const count = labels.length || 1
-          // const avgSuccess = parseFloat((success.reduce((sum, val) => sum + val, 0) / count).toFixed(2))
-          // const avgPending = parseFloat((pending.reduce((sum, val) => sum + val, 0) / count).toFixed(2))
-          // const avgFailed = parseFloat((failed.reduce((sum, val) => sum + val, 0) / count).toFixed(2))
-
-          // Ambil data terakhir untuk perbandingan
           const latestSuccess = success[success.length - 1] || 0
           const latestPending = pending[pending.length - 1] || 0
-          const latestFailed = failed[failed.length - 2] || 0
-
-          // Kondisi isAbnormal: avg success > 5 dan ada selisih 3x lipat (lebih besar atau lebih kecil)
-          // let isNormal = true
-          // if (avgSuccess > 5) {
-          //   if (latestSuccess >= avgSuccess * 3 || latestSuccess <= avgSuccess / 3) {
-          //     console.log(
-          //       `abnormal karena success, data merchant: ${series.merchant_name} - ${series.payment_method}, avgSuccess: ${avgSuccess}, lastSuccess: ${latestSuccess} `,
-          //     )
-          //     isNormal = false
-          //   }
-          // }
-
-          // if (avgPending > 5) {
-          //   if (latestPending >= avgPending * 4 || latestPending <= avgPending / 4) {
-          //     console.log(
-          //       `abnormal karena pending, data merchant: ${series.merchant_name} - ${series.payment_method}, avgPending: ${avgPending}, lastPending: ${latestPending} `,
-          //     )
-          //     isNormal = false
-          //   }
-          // }
-
-          // if (avgFailed > 5) {
-          //   if (latestFailed >= avgFailed * 3.5 || latestFailed <= avgFailed / 5) {
-          //     console.log(
-          //       `abnormal karena failed, data merchant: ${series.merchant_name} - ${series.payment_method}, avgFailed: ${avgFailed}, lastFailed: ${latestFailed} `,
-          //     )
-          //     isNormal = false
-          //   }
-          // }
+          const latestFailed = failed[failed.length - 1] || 0
 
           const { isNormal: successNormal, reason: reasonSuccess } = checkAbnormal(success, latestSuccess, 'success')
           const { isNormal: pendingNormal, reason: reasonPending } = checkAbnormal(pending, latestPending, 'pending')
@@ -187,7 +161,7 @@ const TransactionChartCard: React.FC = () => {
               pending: pendingNormal ? undefined : reasonPending,
               failed: failedNormal ? undefined : reasonFailed,
             },
-            data: { labels, pending, success, failed },
+            data: { labels, pending, success, failed, avg7Success, avg7Failed, timestamps },
           }
         })
 
@@ -205,18 +179,9 @@ const TransactionChartCard: React.FC = () => {
 
   const createChartData = (data: TransactionData) => ({
     labels: data.data.labels,
+    // simpan timestamps untuk tooltip
+    timestamps: data.data.timestamps,
     datasets: [
-      {
-        label: 'Pending',
-        data: data.data.pending,
-        borderColor: '#faad14',
-        backgroundColor: 'rgba(250, 173, 20, 0.1)',
-        tension: 0.4,
-        fill: false,
-        borderWidth: 2,
-        pointRadius: 0,
-        pointHoverRadius: 5,
-      },
       {
         label: 'Success',
         data: data.data.success,
@@ -228,6 +193,22 @@ const TransactionChartCard: React.FC = () => {
         pointRadius: 0,
         pointHoverRadius: 5,
       },
+      ...(data.data.avg7Success
+        ? [
+            {
+              label: 'Avg7 Success',
+              data: data.data.avg7Success,
+              borderColor: '#73d13d',
+              backgroundColor: 'rgba(115, 209, 61, 0.08)',
+              borderDash: [6, 6],
+              tension: 0.4,
+              fill: false,
+              borderWidth: 2,
+              pointRadius: 0,
+              pointHoverRadius: 4,
+            } as any,
+          ]
+        : []),
       {
         label: 'Failed',
         data: data.data.failed,
@@ -239,6 +220,22 @@ const TransactionChartCard: React.FC = () => {
         pointRadius: 0,
         pointHoverRadius: 5,
       },
+      ...(data.data.avg7Failed
+        ? [
+            {
+              label: 'Avg7 Failed',
+              data: data.data.avg7Failed,
+              borderColor: '#ff7875',
+              backgroundColor: 'rgba(255, 120, 117, 0.08)',
+              borderDash: [6, 6],
+              tension: 0.4,
+              fill: false,
+              borderWidth: 2,
+              pointRadius: 0,
+              pointHoverRadius: 4,
+            } as any,
+          ]
+        : []),
     ],
   })
 
@@ -248,7 +245,9 @@ const TransactionChartCard: React.FC = () => {
 
     plugins: {
       legend: {
-        display: false,
+        display: true,
+        position: 'top' as const,
+        labels: { usePointStyle: true },
       },
       title: {
         display: false,
@@ -310,25 +309,25 @@ const TransactionChartCard: React.FC = () => {
     },
   }
 
-  const getLatestStats = (data: TransactionData) => {
-    // Ambil data dari 1 interval sebelumnya karena data terbaru mungkin belum selesai
-    const index = Math.max(0, data.data.pending.length - 1)
-    const latestPending = data.data.pending[index] || 0
-    const latestSuccess = data.data.success[index] || 0
-    const latestFailed = data.data.failed[index] || 0
-    return { latestPending, latestSuccess, latestFailed }
-  }
+  //   const getLatestStats = (data: TransactionData) => {
+  //     // Ambil data dari 1 interval sebelumnya karena data terbaru mungkin belum selesai
+  //     const index = Math.max(0, data.data.pending.length - 1)
+  //     // const latestPending = data.data.pending[index] || 0
+  //     const latestSuccess = data.data.success[index] || 0
+  //     const latestFailed = data.data.failed[index] || 0
+  //     return { latestSuccess, latestFailed }
+  //   }
 
-  const getAvgStats = (data: TransactionData) => {
-    const count = data.data.labels.length || 1
-    const totalPending = data.data.pending.reduce((sum, val) => sum + val, 0)
-    const totalSuccess = data.data.success.reduce((sum, val) => sum + val, 0)
-    const totalFailed = data.data.failed.reduce((sum, val) => sum + val, 0)
-    const avgPending = parseFloat((totalPending / count).toFixed(1))
-    const avgSuccess = parseFloat((totalSuccess / count).toFixed(1))
-    const avgFailed = parseFloat((totalFailed / count).toFixed(1))
-    return { avgPending, avgSuccess, avgFailed }
-  }
+  //   const getAvgStats = (data: TransactionData) => {
+  //     const count = data.data.labels.length || 1
+  //     // const totalPending = data.data.pending.reduce((sum, val) => sum + val, 0)
+  //     const totalSuccess = data.data.success.reduce((sum, val) => sum + val, 0)
+  //     const totalFailed = data.data.failed.reduce((sum, val) => sum + val, 0)
+  //     // const avgPending = parseFloat((totalPending / count).toFixed(1))
+  //     const avgSuccess = parseFloat((totalSuccess / count).toFixed(1))
+  //     const avgFailed = parseFloat((totalFailed / count).toFixed(1))
+  //     return { avgSuccess, avgFailed }
+  //   }
 
   // Filter berdasarkan nama merchant
   const filteredData = useMemo(() => {
@@ -365,7 +364,7 @@ const TransactionChartCard: React.FC = () => {
           color: '#1890ff',
         }}
       >
-        Transaction Charts by Merchant & Payment Method
+        Transaction Charts 2 Day & Average 7 Day
       </h2>
 
       {error && <div style={{ color: '#ff4d4f', textAlign: 'center', marginBottom: 16 }}>{error}</div>}
@@ -436,15 +435,13 @@ const TransactionChartCard: React.FC = () => {
             <div key={slideIndex}>
               <Row gutter={[16, 16]}>
                 {slide.map((item, index) => {
-                  const latestStats = getLatestStats(item)
-                  const avgs = getAvgStats(item)
                   const isAbnormal = item.isNormal === false
                   // const isHigo = item.merchant === 'HIGO GAME PTE LTD'
 
                   return (
                     <Col xs={24} sm={24} md={8} key={index}>
                       <Card
-                        className='mb-2 mx-1 '
+                        className='mb-2 mx-1'
                         title={
                           <div
                             style={{
@@ -458,7 +455,7 @@ const TransactionChartCard: React.FC = () => {
                           >
                             <span className='text-lg'>
                               {isAbnormal && <span style={{ marginRight: '8px', fontSize: '16px' }}>⚠️</span>}
-                              {item.merchant} - {item.paymentMethod} anjay
+                              {item.merchant} - {item.paymentMethod}
                             </span>
                             {isAbnormal && (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -501,49 +498,6 @@ const TransactionChartCard: React.FC = () => {
                           backgroundColor: isAbnormal ? '#fff2f0' : '#fff',
                         }}
                       >
-                        <div style={{ marginBottom: '16px' }}>
-                          <Row gutter={[8, 8]}>
-                            <Col span={8}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 14 }}>Latest Pending:</span>
-                                <Statistic
-                                  value={latestStats.latestPending}
-                                  valueStyle={{
-                                    color: isAbnormal ? '#d4380d' : '#faad14',
-                                    fontSize: '18px',
-                                    fontWeight: isAbnormal ? 'bold' : 'normal',
-                                  }}
-                                />
-                              </div>
-                            </Col>
-                            <Col span={8}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 14 }}>Latest Success:</span>
-                                <Statistic
-                                  value={latestStats.latestSuccess}
-                                  valueStyle={{
-                                    color: isAbnormal ? '#389e0d' : '#52c41a',
-                                    fontSize: '18px',
-                                    fontWeight: isAbnormal ? 'bold' : 'normal',
-                                  }}
-                                />
-                              </div>
-                            </Col>
-                            <Col span={8}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 14 }}>Latest Failed:</span>
-                                <Statistic
-                                  value={latestStats.latestFailed}
-                                  valueStyle={{
-                                    color: isAbnormal ? '#cf1322' : '#ff4d4f',
-                                    fontSize: '18px',
-                                    fontWeight: isAbnormal ? 'bold' : 'normal',
-                                  }}
-                                />
-                              </div>
-                            </Col>
-                          </Row>
-                        </div>
                         {isAbnormal && item.reasons && (
                           <div style={{ marginBottom: 12, color: '#cf1322', fontSize: 16, fontWeight: 'bold' }}>
                             {item.reasons.success && <div>Success: {item.reasons.success}</div>}
@@ -551,49 +505,6 @@ const TransactionChartCard: React.FC = () => {
                             {item.reasons.failed && <div>Failed: {item.reasons.failed}</div>}
                           </div>
                         )}
-                        <div style={{ marginBottom: '8px' }}>
-                          <Row gutter={[8, 8]}>
-                            <Col span={8}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 14 }}>Avg Pending:</span>
-                                <Statistic
-                                  value={avgs.avgPending}
-                                  valueStyle={{
-                                    color: isAbnormal ? '#d4380d' : '#faad14',
-                                    fontSize: '18px',
-                                    fontWeight: isAbnormal ? 'bold' : 'normal',
-                                  }}
-                                />
-                              </div>
-                            </Col>
-                            <Col span={8}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 14 }}>Avg Success:</span>
-                                <Statistic
-                                  value={avgs.avgSuccess}
-                                  valueStyle={{
-                                    color: isAbnormal ? '#389e0d' : '#52c41a',
-                                    fontSize: '18px',
-                                    fontWeight: isAbnormal ? 'bold' : 'normal',
-                                  }}
-                                />
-                              </div>
-                            </Col>
-                            <Col span={8}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 14 }}>Avg Failed:</span>
-                                <Statistic
-                                  value={avgs.avgFailed}
-                                  valueStyle={{
-                                    color: isAbnormal ? '#cf1322' : '#ff4d4f',
-                                    fontSize: '18px',
-                                    fontWeight: isAbnormal ? 'bold' : 'normal',
-                                  }}
-                                />
-                              </div>
-                            </Col>
-                          </Row>
-                        </div>
                         <div style={{ flex: 1, minHeight: '310px' }}>
                           <Line data={createChartData(item)} options={chartOptions} />
                         </div>
@@ -610,4 +521,4 @@ const TransactionChartCard: React.FC = () => {
   )
 }
 
-export default TransactionChartCard
+export default TransactionChartCardHourly

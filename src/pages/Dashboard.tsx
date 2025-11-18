@@ -7,8 +7,9 @@ import CssBaseline from '@mui/material/CssBaseline'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import AppNavbar from '../components/AppNavbar'
-import SummaryMerchant from '../components/SummaryMerchant'
+// import SummaryMerchant from '../components/SummaryMerchant'
 import TransactionChartCard from '../components/TransactionChartCard'
+import TransactionChartCardHourly from '../components/TransactionChartCardHourly'
 // import SideMenu from '../components/SideMenu'
 import AppTheme from '../styles/theme/shared-theme/AppTheme'
 import {
@@ -52,7 +53,8 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
             }}
           >
             {/* <Header /> */}
-            <SummaryMerchant />
+            {/* <SummaryMerchant /> */}
+            <TransactionChartCardHourly />
             <TransactionChartCard />
           </Stack>
         </Box>
