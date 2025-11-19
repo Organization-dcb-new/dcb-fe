@@ -18,7 +18,7 @@ export default function TransactionSimulationPage() {
 
   const createTransaction = useCreateTransaction()
   const { data } = useGetApp()
-  const { apiUrl } = useAuth()
+  const { apiUrl, appId, appKey } = useAuth()
 
   const apps = data?.data || []
   const [selectedAppIndex, setSelectedAppIndex] = useState(0)
@@ -26,8 +26,8 @@ export default function TransactionSimulationPage() {
 
   const selectedApp = apps[selectedAppIndex] || {}
 
-  const selectedAppKey = selectedApp.app_key || ''
-  const selectedAppId = selectedApp.app_id || ''
+  const selectedAppKey = appKey || ''
+  const selectedAppId = appId || ''
   const selectedAppSecret = selectedApp.app_secret || ''
   const selectedMethods = selectedApp.payment_method || []
 

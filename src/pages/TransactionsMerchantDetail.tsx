@@ -46,9 +46,7 @@ const TransactionMerchantDetail: React.FC = () => {
   const [copiedResponse, setCopiedResponse] = useState(false)
   const [copiedResponse2, setCopiedResponse2] = useState(false)
 
-  const { token, apiUrl, isDev } = useAuth()
-  const appKey = 'QdQpQLCBTbkAJv0OOTYhxAdojWkot5Gk'
-  const appId = '5ab32a23764f1b296b8bb386'
+  const { token, apiUrl, isDev, appId, appKey } = useAuth()
 
   let paymentMethod
 

@@ -105,6 +105,16 @@ const TransactionChartCard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const carouselRef = useRef<any>(null)
 
+  // const sendTelegramAlert = async () => {
+  //   try {
+  //     await axios.post(`http://localhost:4000/api/telegram-bot`, {
+  //       message: 'izin tes notif',
+  //     })
+  //   } catch (err) {
+  //     console.error('Failed to send telegram alert:', err)
+  //   }
+  // }
+
   // Fetch monitoring data (default: last 24 hours)
   useEffect(() => {
     const fetchMonitoring = async () => {
@@ -177,6 +187,10 @@ const TransactionChartCard: React.FC = () => {
           const { isNormal: failedNormal, reason: reasonFailed } = checkAbnormal(failed, latestFailed, 'failed')
 
           const isNormal = successNormal && pendingNormal && failedNormal
+
+          // if (!failedNormal && reasonFailed) {
+          //   sendTelegramAlert()
+          // }
 
           return {
             merchant: series.merchant_name,
