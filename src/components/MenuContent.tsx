@@ -30,7 +30,6 @@ import {
   // StarBorder,
   PersonOutline,
 } from '@mui/icons-material'
-import ReceiptIcon from '@mui/icons-material/Receipt'
 
 import { useAuth } from '../provider/AuthProvider'
 import { jwtDecode } from 'jwt-decode'

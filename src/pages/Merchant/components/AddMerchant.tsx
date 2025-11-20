@@ -3,7 +3,6 @@ import { Button, Form, Modal, Input, Select, Card, Row, Col, message, Space, Tab
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import axios from 'axios'
 import { useAuth } from '../../../provider/AuthProvider'
-import { PaymentMethod } from '../../../context/ClientContext'
 
 const { Option } = Select
 const { TextArea } = Input
