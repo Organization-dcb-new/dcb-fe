@@ -18,6 +18,7 @@ import SummaryAdmin from '../pages/SummaryAdmin'
 import Report from '../pages/Report'
 import SummaryDaily from '../pages/SummaryDaily'
 import ReportMargin from '../pages/ReportMargin'
+import ReportMarginPaymentMethod from '../pages/ReportMarginPaymentMethod'
 import MerchantProfile from '../pages/MerchantProfile'
 import TransactionSimulationPage from '../pages/TransactionSimulation'
 
@@ -177,6 +178,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute allowedRoles={['business']}>
             <ReportMargin />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'report-margin-payment-method',
+        element: (
+          <PrivateRoute allowedRoles={['business']}>
+            <ReportMarginPaymentMethod />
           </PrivateRoute>
         ),
       },

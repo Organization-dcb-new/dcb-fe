@@ -104,8 +104,28 @@ export default function MenuContent() {
     // },
     ...(decoded.role !== 'merchant' ? [{ text: 'Report', icon: <ListAltOutlined />, path: '/report' }] : []),
     ...(decoded.role === 'business'
-      ? [{ text: 'Report Margin', icon: <ListAltOutlined />, path: '/report-margin' }]
+      ? [
+          {
+            text: 'Report Margin',
+            icon: <ListAltOutlined />,
+            nestedItems: [
+              {
+                text: 'Per Merchant',
+                icon: <ListAltOutlined />,
+                path: '/report-margin',
+              },
+              {
+                text: 'Per Payment Method',
+                icon: <ListAltOutlined />,
+                path: '/report-margin-payment-method',
+              },
+            ],
+          },
+        ]
       : []),
+    // ...(decoded.role === 'business'
+    //   ? [{ text: 'Report Margin Payment Method', icon: <ListAltOutlined />, path: '/report-margin-payment-method' }]
+    //   : []),
     // {
     //   text: 'Report',
     //   icon: <ListAltOutlined />,
