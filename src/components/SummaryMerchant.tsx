@@ -403,17 +403,17 @@ const SummaryMerchant = () => {
 
   return (
     <div className='space-y-4 w-full'>
-      <div className='flex gap-4 items-end justify-between'>
-        <Typography variant='h2' fontWeight='bold' fontSize={24}>
+      <div className='flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-end justify-between  p-4 rounded-lg'>
+        <Typography variant='h2' fontWeight='bold' fontSize={24} className='text-center sm:text-left'>
           Summary
         </Typography>
-        <div className='flex gap-4 items-start justify-between'>
-          <div className='flex flex-col'>
+        <div className='flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-end justify-between w-full sm:w-auto'>
+          <div className='flex flex-col w-full'>
             <Typography variant='body2' className='text-lg mb-1'>
               Payment Method
             </Typography>
             <Select
-              sx={{ width: '160px', padding: '8px 12px', height: '40px', borderRadius: 1 }}
+              className='w-full h-10 px-3 py-2 rounded md:w-[160px]'
               labelId='summaryPaymentMethod'
               id='summaryPaymentMethod'
               value={summaryPaymentMethod}
@@ -425,12 +425,12 @@ const SummaryMerchant = () => {
               <MenuItem value='pulsa'>Pulsa</MenuItem>
             </Select>
           </div>
-          <div className='flex flex-col'>
+          <div className='flex flex-col w-full'>
             <Typography variant='body2' className='text-lg mb-1'>
               Frequency
             </Typography>
             <Select
-              sx={{ width: '160px', padding: '8px 12px', height: '40px', borderRadius: 1 }}
+              className='w-full h-10 px-3 py-2 rounded md:w-[160px]'
               labelId='summaryFrequency'
               id='summaryFrequency'
               value={summaryFreq}
@@ -441,7 +441,7 @@ const SummaryMerchant = () => {
               <MenuItem value='monthly'>Monthly</MenuItem>
             </Select>
           </div>
-          <div className='flex flex-col'>
+          <div className='flex flex-col w-full'>
             <Typography variant='body2' className='text-lg mb-1'>
               Custom Date
             </Typography>
@@ -450,7 +450,7 @@ const SummaryMerchant = () => {
               onChange={(date) => setSummaryDate(date)}
               format='YYYY-MM-DD'
               placeholder='Select Date'
-              style={{ width: '160px', height: '40px' }}
+              className='w-full h-10 px-3 py-2 rounded md:w-[160px]'
             />
           </div>
         </div>
