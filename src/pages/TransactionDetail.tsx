@@ -289,6 +289,9 @@ const TransactionDetail: React.FC = () => {
     case 1005:
       status = 'Failed'
       break
+    case 1003:
+      status = 'waiting notification'
+      break
     default:
       status = 'Pending'
       break
