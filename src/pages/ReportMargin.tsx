@@ -153,6 +153,9 @@ const ReportMargin: React.FC = () => {
     if (!raw?.summaries?.length) return []
     const map = new Map<string, GroupedRow>()
     for (const item of raw.summaries) {
+      // Sembunyikan merchant "Aura Pakar"
+      if (item.merchant_name === 'Aura Pakar') continue
+
       const key = item.client_uid || item.merchant_name
       if (!map.has(key)) {
         map.set(key, {
