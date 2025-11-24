@@ -20,6 +20,7 @@ import SummaryDaily from '../pages/SummaryDaily'
 import ReportMargin from '../pages/ReportMargin'
 import ReportMarginPaymentMethod from '../pages/ReportMarginPaymentMethod'
 import MerchantProfile from '../pages/MerchantProfile'
+import TransactionSimulationPage from '../pages/TransactionSimulation'
 
 const router = createBrowserRouter([
   {
@@ -67,16 +68,6 @@ const router = createBrowserRouter([
             <Merchant />
           </PrivateRoute>
         ),
-        // children: [
-        //   {
-        //     path: ':id',
-        //     element: (
-        //       <PrivateRoute>
-        //         <DetailMerchant />
-        //       </PrivateRoute>
-        //     ),
-        //   },
-        // ],
       },
       {
         path: 'merchant/:id',
@@ -104,6 +95,16 @@ const router = createBrowserRouter([
       //     </PrivateRoute>
       //   ),
       // },
+      {
+        path: 'transaction-simulation',
+        element: (
+          <PrivateRoute allowedRoles={['merchant']}>
+            <ClientProvider>
+              <TransactionSimulationPage />
+            </ClientProvider>
+          </PrivateRoute>
+        ),
+      },
       {
         path: 'merchant-transaction/:id',
         element: (

@@ -105,6 +105,16 @@ const TransactionChartCard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const carouselRef = useRef<any>(null)
 
+  // const sendTelegramAlert = async () => {
+  //   try {
+  //     await axios.post(`http://localhost:4000/api/telegram-bot`, {
+  //       message: 'izin tes notif',
+  //     })
+  //   } catch (err) {
+  //     console.error('Failed to send telegram alert:', err)
+  //   }
+  // }
+
   // Fetch monitoring data (default: last 24 hours)
   useEffect(() => {
     const fetchMonitoring = async () => {
@@ -177,6 +187,10 @@ const TransactionChartCard: React.FC = () => {
           const { isNormal: failedNormal, reason: reasonFailed } = checkAbnormal(failed, latestFailed, 'failed')
 
           const isNormal = successNormal && pendingNormal && failedNormal
+
+          // if (!failedNormal && reasonFailed) {
+          //   sendTelegramAlert()
+          // }
 
           return {
             merchant: series.merchant_name,
@@ -444,7 +458,7 @@ const TransactionChartCard: React.FC = () => {
                   return (
                     <Col xs={24} sm={24} md={8} key={index}>
                       <Card
-                        className='mb-2 mx-1'
+                        className='mb-2 mx-1 '
                         title={
                           <div
                             style={{
@@ -458,7 +472,7 @@ const TransactionChartCard: React.FC = () => {
                           >
                             <span className='text-lg'>
                               {isAbnormal && <span style={{ marginRight: '8px', fontSize: '16px' }}>⚠️</span>}
-                              {item.merchant} - {item.paymentMethod}
+                              {item.merchant} - {item.paymentMethod} anjay
                             </span>
                             {isAbnormal && (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

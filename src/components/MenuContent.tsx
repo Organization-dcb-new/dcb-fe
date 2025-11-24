@@ -75,8 +75,18 @@ export default function MenuContent() {
           icon: <ReceiptLongOutlined />,
           path: decoded.role != 'merchant' ? '/transactions' : 'merchant-transactions',
         },
+        ...(decoded.role === 'merchant'
+          ? [
+              {
+                text: 'Transaction Simulation',
+                icon: <ReceiptLongOutlined />,
+                path: '/transaction-simulation',
+              },
+            ]
+          : []),
       ],
     },
+
     // {
     //   text: 'Report Transactions',
     //   icon: <ListAltOutlined />,

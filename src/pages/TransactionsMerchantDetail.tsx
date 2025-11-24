@@ -8,6 +8,8 @@ import { Typography, Card, CircularProgress, Box } from '@mui/material'
 import { useAuth } from '../provider/AuthProvider'
 import { useNavigate } from 'react-router-dom'
 import formatRupiah from '../utils/FormatRupiah'
+import { message } from 'antd'
+import { highlightJSON } from '../utils/TransactionUtils'
 
 interface Transaction {
   u_id: string
@@ -38,8 +40,13 @@ const TransactionMerchantDetail: React.FC = () => {
   const [resendDisabled, setResendDisabled] = useState<boolean>(false)
   const [countdown, setCountdown] = useState<number>(0)
   const navigate = useNavigate()
+  const [callbackRequest, setCallbackRequest] = useState<any>(null)
+  const [callbackResponse, setCallbackResponse] = useState<any>(null)
+  const [callbackLoading, setCallbackLoading] = useState<boolean>(false)
+  const [copiedResponse, setCopiedResponse] = useState(false)
+  const [copiedResponse2, setCopiedResponse2] = useState(false)
 
-  const { token, apiUrl, appId, appKey, isDev } = useAuth()
+  const { token, apiUrl, isDev, appId, appKey } = useAuth()
 
   let paymentMethod
 
@@ -87,21 +94,27 @@ const TransactionMerchantDetail: React.FC = () => {
 
     setResendLoading(true)
     setResendDisabled(true)
+    const req = {
+      url: `${apiUrl}/merchant/manual-callback/${transaction.u_id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        appid: appId,
+        appkey: appKey,
+      },
+      body: {},
+    }
+
+    setCallbackRequest(req)
 
     try {
-      await axios.post(
-        `${apiUrl}/merchant/resend-callback/${transaction.u_id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            appid: appId,
-            appkey: appKey,
-          },
-        },
-      )
-      alert('Callback resent successfully')
+      setCallbackLoading(true)
+
+      const res = await axios.post(req.url, req.body, { headers: req.headers })
+      setCallbackResponse(res.data)
+      setCallbackLoading(false)
+
+      message.success('Callback resent successfully')
 
       setCountdown(60)
       const timer = setInterval(() => {
@@ -114,9 +127,24 @@ const TransactionMerchantDetail: React.FC = () => {
           return prev - 1
         })
       }, 1000)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to resend callback:', error)
-      alert('Failed to resend callback')
+      message.error('Failed to resend callback')
+
+      if (error.response) {
+        setCallbackResponse({
+          status: error.response.status,
+          headers: error.response.headers,
+          data: error.response.data,
+        })
+      } else {
+        setCallbackResponse({
+          error: true,
+          message: error.message || 'Unknown error',
+        })
+      }
+
+      setCallbackLoading(false)
       setResendDisabled(false)
     } finally {
       setResendLoading(false)
@@ -203,43 +231,51 @@ const TransactionMerchantDetail: React.FC = () => {
           Transaction Detail
         </Typography>
         <Box display='flex' flexDirection='column' gap={2}>
-          <Box display='flex'>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+          {/* Row 1 */}
+          <Box className='flex flex-col lg:flex-row'>
+            <div className='w-full flex flex-col lg:flex-row'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>Merchant Transaction ID:</strong>
               </div>
               <div>{transaction.merchant_transaction_id}</div>
             </div>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+
+            <div className='w-full flex flex-col lg:flex-row mt-3 lg:mt-0'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>User MDN:</strong>
               </div>
               <div>{transaction.user_mdn}</div>
             </div>
           </Box>
-          <Box display='flex'>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
-                <strong> User ID:</strong>
+
+          {/* Row 2 */}
+          <Box className='flex flex-col lg:flex-row'>
+            <div className='w-full flex flex-col lg:flex-row'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
+                <strong>User ID:</strong>
               </div>
-              <div> {transaction.user_id}</div>
+              <div>{transaction.user_id}</div>
             </div>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
-                <strong> Payment Method:</strong>
+
+            <div className='w-full flex flex-col lg:flex-row mt-3 lg:mt-0'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
+                <strong>Payment Method:</strong>
               </div>
-              <div> {paymentMethod}</div>
+              <div>{paymentMethod}</div>
             </div>
           </Box>
-          <Box display='flex'>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+
+          {/* Row 3 */}
+          <Box className='flex flex-col lg:flex-row'>
+            <div className='w-full flex flex-col lg:flex-row'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>Currency:</strong>
               </div>
               <div>{transaction.currency}</div>
             </div>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+
+            <div className='w-full flex flex-col lg:flex-row mt-3 lg:mt-0'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>Status:</strong>
               </div>
               <div>
@@ -247,88 +283,105 @@ const TransactionMerchantDetail: React.FC = () => {
               </div>
             </div>
           </Box>
-          <Box display='flex'>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
-                <strong> Amount :</strong>
+
+          {/* Row 4 */}
+          <Box className='flex flex-col lg:flex-row'>
+            <div className='w-full flex flex-col lg:flex-row'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
+                <strong>Amount:</strong>
               </div>
-              <div> {formatRupiah(transaction.amount)}</div>
+              <div>{formatRupiah(transaction.amount)}</div>
             </div>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+
+            <div className='w-full flex flex-col lg:flex-row mt-3 lg:mt-0'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>Item Name:</strong>
               </div>
               <div>{transaction.item_name}</div>
             </div>
           </Box>
 
-          <Box display='flex'>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
-                <strong>Testing :</strong>
+          {/* Row 5 */}
+          <Box className='flex flex-col lg:flex-row'>
+            <div className='w-full flex flex-col lg:flex-row'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
+                <strong>Testing:</strong>
               </div>
-              <div> {transaction.testing ? 'True' : 'False'}</div>
+              <div>{transaction.testing ? 'True' : 'False'}</div>
             </div>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+
+            <div className='w-full flex flex-col lg:flex-row mt-3 lg:mt-0'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>Price:</strong>
               </div>
               <div>{formatRupiah(transaction.price)}</div>
             </div>
           </Box>
-          <Box display='flex'>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
-                <strong>Route :</strong>
+
+          {/* Row 6 */}
+          <Box className='flex flex-col lg:flex-row'>
+            <div className='w-full flex flex-col lg:flex-row'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
+                <strong>Route:</strong>
               </div>
-              <div> {transaction.payment_method}</div>
+              <div>{transaction.payment_method}</div>
             </div>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+
+            <div className='w-full flex flex-col lg:flex-row mt-3 lg:mt-0'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>App Name:</strong>
               </div>
               <div>{transaction.app_name}</div>
             </div>
           </Box>
-          <Box display='flex'>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+
+          {/* Row 7 */}
+          <Box className='flex flex-col lg:flex-row'>
+            <div className='w-full flex flex-col lg:flex-row'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>Created At:</strong>
               </div>
               <div>{dayjs(transaction.created_at).format('YYYY-MM-DD HH:mm:ss')}</div>
             </div>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+
+            <div className='w-full flex flex-col lg:flex-row mt-3 lg:mt-0'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>Updated At:</strong>
               </div>
-              <div> {dayjs(transaction.updated_at).format('YYYY-MM-DD HH:mm:ss')}</div>
+              <div>{dayjs(transaction.updated_at).format('YYYY-MM-DD HH:mm:ss')}</div>
             </div>
           </Box>
-          <Box display='flex'>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+
+          {/* Row 8 */}
+          <Box className='flex flex-col lg:flex-row'>
+            <div className='w-full flex flex-col lg:flex-row'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>Request Date:</strong>
               </div>
-              <div> {dayjs(transaction.timestamp_request_date).format('YYYY-MM-DD HH:mm:ss')} </div>
+              <div>{dayjs(transaction.timestamp_request_date).format('YYYY-MM-DD HH:mm:ss')}</div>
             </div>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
+
+            <div className='w-full flex flex-col lg:flex-row mt-3 lg:mt-0'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
                 <strong>Callback Date:</strong>
               </div>
               <div>
                 {transaction.timestamp_callback_date
                   ? dayjs(transaction.timestamp_callback_date).format('YYYY-MM-DD HH:mm:ss')
-                  : '-'}{' '}
+                  : '-'}
               </div>
             </div>
           </Box>
-          <Box display='flex'>
-            <div className='w-full flex'>
-              <div className='w-1/4'>
-                <strong>Callback result:</strong>
+
+          {/* Row 9 */}
+          <Box className='flex flex-col lg:flex-row'>
+            <div className='w-full flex flex-col lg:flex-row'>
+              <div className='w-full lg:w-1/4 mb-1 lg:mb-0'>
+                <strong>Callback Result:</strong>
               </div>
               <div>{transaction.timestamp_callback_result}</div>
             </div>
+
             <div className='w-full flex' />
           </Box>
         </Box>
@@ -348,7 +401,7 @@ const TransactionMerchantDetail: React.FC = () => {
           Make Success
         </Button>
       </div> */}
-      <div className='flex pl-4 pt-2'>
+      <div className='flex p-5'>
         <Button
           type='button'
           className='mt-3 mr-4'
@@ -415,6 +468,130 @@ const TransactionMerchantDetail: React.FC = () => {
           </>
         )}
       </div>
+      {callbackRequest && (
+        <div className='mt-5 w-full flex justify-center items-center'>
+          <div className='w-full max-w-screen-2xl 4k:max-w-screen-xl px-2 sm:px-4 mb-10'>
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 4k:place-items-center'>
+              {/* REQUEST BLOCK */}
+              <div
+                className='bg-gray-900 text-gray-200 border border-gray-700 shadow-md p-3 rounded-xl 
+                w-full max-w-lg md:max-w-3xl 4k:max-w-xl mx-auto'
+              >
+                <div className='flex items-center justify-between mb-2'>
+                  <Typography variant='subtitle1' sx={{ color: 'white', fontWeight: 600 }}>
+                    Callback Request
+                  </Typography>
+
+                  {!callbackLoading && (
+                    <Button
+                      size='small'
+                      onClick={() => {
+                        navigator.clipboard.writeText(JSON.stringify(callbackRequest, null, 2))
+                        setCopiedResponse(true)
+
+                        message.success('Request copied!')
+                        setTimeout(() => setCopiedResponse(false), 2000)
+                      }}
+                      sx={{
+                        textTransform: 'none',
+                        fontSize: '0.75rem',
+                        padding: '2px 10px',
+                        borderRadius: '6px',
+                        backgroundColor: '#1f2937',
+                        color: '#e5e7eb',
+                        '&:hover': {
+                          backgroundColor: '#374151',
+                          borderColor: '#4b5563',
+                        },
+                      }}
+                    >
+                      {copiedResponse ? 'Copied!' : 'Copy'}
+                    </Button>
+                  )}
+                </div>
+
+                {/* LOADING STATE */}
+                {callbackLoading && (
+                  <div className='flex justify-center items-center h-48 w-full'>
+                    <CircularProgress size={32} sx={{ color: 'white' }} />
+                  </div>
+                )}
+
+                {/* CONTENT */}
+                {!callbackLoading && (
+                  <div className='rounded-lg p-2  bg-black/40 overflow-auto min-h-72  max-h-72'>
+                    <pre
+                      className='text-xs leading-relaxed font-mono'
+                      dangerouslySetInnerHTML={{
+                        __html: highlightJSON(JSON.stringify(callbackRequest, null, 2)),
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* RESPONSE BLOCK */}
+              <div
+                className='bg-gray-900 text-gray-200 border border-gray-700 shadow-md p-3 rounded-xl 
+                w-full max-w-lg md:max-w-3xl 4k:max-w-xl mx-auto'
+              >
+                <div className='flex items-center justify-between mb-2'>
+                  <Typography variant='subtitle1' sx={{ color: 'white', fontWeight: 600 }}>
+                    Callback Response
+                  </Typography>
+
+                  {!callbackLoading && callbackResponse && (
+                    <Button
+                      size='small'
+                      onClick={() => {
+                        navigator.clipboard.writeText(JSON.stringify(callbackResponse, null, 2))
+                        setCopiedResponse2(true)
+
+                        message.success('Response copied!')
+                        setTimeout(() => setCopiedResponse2(false), 2000)
+                      }}
+                      sx={{
+                        textTransform: 'none',
+                        fontSize: '0.75rem',
+                        padding: '2px 10px',
+                        borderRadius: '6px',
+                        backgroundColor: '#1f2937',
+                        color: '#e5e7eb',
+
+                        '&:hover': {
+                          backgroundColor: '#374151',
+                          borderColor: '#4b5563',
+                        },
+                      }}
+                    >
+                      {copiedResponse2 ? 'Copied!' : 'Copy'}
+                    </Button>
+                  )}
+                </div>
+
+                {/* LOADING */}
+                {callbackLoading && (
+                  <div className='flex justify-center items-center h-48 w-full'>
+                    <CircularProgress size={32} sx={{ color: 'white' }} />
+                  </div>
+                )}
+
+                {/* CONTENT */}
+                {!callbackLoading && callbackResponse && (
+                  <div className='bg-black/40 rounded-lg p-2 overflow-auto min-h-72 max-h-72'>
+                    <pre
+                      className='text-xs leading-relaxed font-mono'
+                      dangerouslySetInnerHTML={{
+                        __html: highlightJSON(JSON.stringify(callbackResponse, null, 2)),
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

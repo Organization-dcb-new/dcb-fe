@@ -90,30 +90,21 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [client, setClient] = useState<Client | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { token, apiUrl, appId, appKey } = useAuth()
+  const { token, apiUrl } = useAuth()
 
   const fetchClientDetail = async () => {
-    if (!appId || !appKey) {
-      setError('App ID or App Key not available')
-      return
-    }
-
     setLoading(true)
     setError(null)
 
     try {
-      const response = await axios.get(`${apiUrl}/merchant/detail`, {
+      const response = await axios.get(`${apiUrl}/merchant/detail/v2`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        params: {
-          app_id: appId,
-          app_key: appKey,
-        },
       })
 
-      if (response.data.success) {
+      if (response.data.status == 'success') {
         setClient(response.data.data)
       } else {
         setError('Failed to fetch client data')
@@ -131,10 +122,14 @@ export const ClientProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   useEffect(() => {
-    if (token && appId && appKey) {
+    // if (token && appId && appKey) {
+    //   fetchClientDetail()
+    // }
+    if (token) {
       fetchClientDetail()
     }
-  }, [token, appId, appKey])
+  }, [token])
+  // [token, appId, appKey])
 
   return <ClientContext.Provider value={{ client, loading, error, refetch }}>{children}</ClientContext.Provider>
 }

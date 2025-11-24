@@ -20,7 +20,6 @@ import {
   Alert,
   CircularProgress,
   Stack,
-  TextField,
 } from '@mui/material'
 import { Input } from 'antd'
 import {
@@ -41,7 +40,7 @@ import { useAuth } from '../provider/AuthProvider'
 
 const MerchantProfile: React.FC = () => {
   const { client, loading, error, refetch } = useClient()
-  const { token, apiUrl, appId, appKey } = useAuth()
+  const { token, apiUrl } = useAuth()
   const [editMode, setEditMode] = useState(false)
   const [, setSelectedAppId] = useState<number | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
@@ -107,10 +106,10 @@ const MerchantProfile: React.FC = () => {
   }
 
   const handleSaveProfile = async () => {
-    if (!appId || !appKey) {
-      setUpdateError('App ID or App Key not available')
-      return
-    }
+    // if (!appId || !appKey) {
+    //   setUpdateError('App ID or App Key not available')
+    //   return
+    // }
 
     setUpdateLoading(true)
     setUpdateError(null)
@@ -164,15 +163,15 @@ const MerchantProfile: React.FC = () => {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-          appkey: appKey,
-          appid: appId,
         },
         body: JSON.stringify(requestBody),
       })
 
       const data = await response.json()
+      console.log(data)
 
-      if (data.success) {
+      if (data.status === 'success') {
+        console.log('Todskoksdgokso')
         setUpdateSuccess(true)
         setEditMode(false)
         setSelectedAppId(null)
@@ -391,22 +390,13 @@ const MerchantProfile: React.FC = () => {
                     >
                       Alamat
                     </Typography>
-                    <TextField
+                    <Input
                       value={editMode ? formData.address : client.address || ''}
                       onChange={(e) => handleInputChange('address', e.target.value)}
                       disabled={!editMode}
-                      fullWidth
-                      multiline
-                      rows={3}
+                      style={{ borderRadius: 8, height: '48px' }}
                       variant='outlined'
-                      InputProps={{
-                        startAdornment: <LocationOn style={{ color: '#666', marginRight: 8 }} />,
-                      }}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: 2,
-                        },
-                      }}
+                      prefix={<LocationOn />}
                     />
                   </Box>
                 </Grid>
@@ -600,18 +590,42 @@ const MerchantProfile: React.FC = () => {
             <List>
               {client.apps.map((app, index) => (
                 <React.Fragment key={app.id}>
-                  <ListItem>
+                  <ListItem className='gap-3'>
                     <ListItemIcon>
                       <Apps />
                     </ListItemIcon>
                     <ListItemText
-                      primary={app.app_name}
+                      sx={{
+                        backgroundColor: '#f9fafb',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        overflowY: 'auto',
+                        padding: { xs: '8px 12px', sm: '12px 16px' },
+                      }}
+                      primary={
+                        <Typography
+                          variant='subtitle1'
+                          fontWeight='bold'
+                          color='primary'
+                          sx={{ mb: 1, wordBreak: 'break-word' }}
+                        >
+                          {app.app_name}
+                        </Typography>
+                      }
                       secondary={
-                        <Box>
-                          <Typography variant='body2'>App ID: {app.appid}</Typography>
-                          <Typography variant='body2'>Status: {app.status === 1 ? 'Aktif' : 'Tidak Aktif'}</Typography>
-                          <Typography variant='body2'>Testing: {app.testing === 1 ? 'Ya' : 'Tidak'}</Typography>
-                          <Typography variant='body2'>Mobile: {app.mobile}</Typography>
+                        <Box sx={{ ml: 0.5, mt: 0.5, lineHeight: 1.7 }}>
+                          <Typography variant='body2'>
+                            <strong>App ID:</strong> {app.appid}
+                          </Typography>
+                          <Typography variant='body2'>
+                            <strong>Status:</strong> {app.status === 1 ? 'Aktif' : 'Tidak Aktif'}
+                          </Typography>
+                          <Typography variant='body2'>
+                            <strong>Testing:</strong> {app.testing === 1 ? 'Ya' : 'Tidak'}
+                          </Typography>
+                          <Typography variant='body2'>
+                            <strong>Mobile:</strong> {app.mobile}
+                          </Typography>
                         </Box>
                       }
                     />
@@ -626,8 +640,26 @@ const MerchantProfile: React.FC = () => {
             </Typography>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Tutup</Button>
+        <DialogActions
+          sx={{
+            backgroundColor: '#f9fafb',
+            borderTop: '1px solid #e5e7eb',
+            padding: '12px 16px',
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            variant='contained'
+            color='primary'
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              backgroundColor: 'grey',
+              '&:hover': { backgroundColor: 'grey' },
+            }}
+          >
+            Tutup
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -644,21 +676,55 @@ const MerchantProfile: React.FC = () => {
             <List>
               {client.payment_methods.map((method, index) => (
                 <React.Fragment key={method.id}>
-                  <ListItem>
+                  <ListItem className='gap-3 '>
                     <ListItemIcon>
                       <Payment />
                     </ListItemIcon>
                     <ListItemText
-                      primary={method.name}
+                      sx={{
+                        backgroundColor: '#f9fafb',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        padding: { xs: '8px 12px', sm: '12px 16px' },
+                        maxHeight: 200,
+                        overflowY: 'auto',
+                        '&::-webkit-scrollbar': { width: '6px' },
+                        '&::-webkit-scrollbar-thumb': {
+                          backgroundColor: '#cbd5e1',
+                          borderRadius: '8px',
+                        },
+                        '&::-webkit-scrollbar-thumb:hover': {
+                          backgroundColor: '#94a3b8',
+                        },
+                      }}
+                      primary={
+                        <Typography
+                          variant='subtitle1'
+                          fontWeight='bold'
+                          color='primary'
+                          sx={{ mb: 1, wordBreak: 'break-word' }}
+                        >
+                          {method.name}
+                        </Typography>
+                      }
                       secondary={
-                        <Box>
-                          <Typography variant='body2'>ID: {method.id}</Typography>
+                        <Box sx={{ ml: 0.5, mt: 0.5, lineHeight: 1.7 }}>
                           <Typography variant='body2'>
-                            Status: {method.status === 1 ? 'Aktif' : 'Tidak Aktif'}
+                            <strong>ID:</strong> {method.id}
                           </Typography>
-                          <Typography variant='body2'>Flexible: {method.flexible ? 'Ya' : 'Tidak'}</Typography>
-                          <Typography variant='body2'>MSISDN: {method.msisdn}</Typography>
-                          <Typography variant='body2'>Client ID: {method.client_id}</Typography>
+                          <Typography variant='body2'>
+                            <strong>Status:</strong> {method.status === 1 ? 'Aktif' : 'Tidak Aktif'}
+                          </Typography>
+                          <Typography variant='body2'>
+                            <strong>Flexible:</strong> {method.flexible ? 'Ya' : 'Tidak'}
+                          </Typography>
+                          <Typography variant='body2'>
+                            <strong>MSISDN:</strong> {method.msisdn}
+                          </Typography>
+                          <Typography variant='body2'>
+                            <strong>Client ID:</strong> {method.client_id}
+                          </Typography>
+
                           {method.route && Object.keys(method.route).length > 0 && (
                             <Box mt={1}>
                               <Typography variant='body2' fontWeight='bold'>
@@ -675,6 +741,7 @@ const MerchantProfile: React.FC = () => {
                       }
                     />
                   </ListItem>
+
                   {index < client.payment_methods.length - 1 && <Divider />}
                 </React.Fragment>
               ))}
@@ -685,8 +752,26 @@ const MerchantProfile: React.FC = () => {
             </Typography>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenPaymentDialog(false)}>Tutup</Button>
+        <DialogActions
+          sx={{
+            backgroundColor: '#f9fafb',
+            borderTop: '1px solid #e5e7eb',
+            padding: '12px 16px',
+          }}
+        >
+          <Button
+            onClick={() => setOpenPaymentDialog(false)}
+            variant='contained'
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              backgroundColor: 'grey',
+              color: '#fff',
+              '&:hover': { backgroundColor: 'grey' },
+            }}
+          >
+            Tutup
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

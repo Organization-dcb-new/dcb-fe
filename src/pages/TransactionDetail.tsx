@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Button from '@mui/material/Button'
-import { Modal } from 'antd'
+import { message, Modal } from 'antd'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { Typography, Card, CircularProgress, Box } from '@mui/material'
 import { useAuth } from '../provider/AuthProvider'
 import formatRupiah from '../utils/FormatRupiah'
+import { highlightJSON } from '../utils/TransactionUtils'
 
 interface Transaction {
   u_id: string
@@ -57,6 +58,14 @@ const TransactionDetail: React.FC = () => {
   let paymentMethod
 
   let status
+
+  const [resendLoading, setResendLoading] = useState<boolean>(false)
+  const [resendDisabled, setResendDisabled] = useState<boolean>(false)
+  const [callbackRequest, setCallbackRequest] = useState<any>(null)
+  const [callbackResponse, setCallbackResponse] = useState<any>(null)
+  const [callbackLoading, setCallbackLoading] = useState<boolean>(false)
+  const [copiedResponse, setCopiedResponse] = useState(false)
+  const [copiedResponse2, setCopiedResponse2] = useState(false)
 
   const handleCheckCharging = async () => {
     try {
@@ -210,7 +219,29 @@ const TransactionDetail: React.FC = () => {
   }
 
   const handleManualCallback = async () => {
+    setResendLoading(true)
+    setResendDisabled(true)
+
+    const req = {
+      url: `${apiUrl}/manual-callback/${id}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: {
+        transaction_id: transaction?.u_id,
+        merchant_transaction_id: transaction?.merchant_transaction_id,
+        status_code: 1000,
+        message: 'Transaction updated',
+      },
+    }
+
+    setCallbackRequest(req)
+
     try {
+      setCallbackLoading(true)
+      setResendDisabled(true)
+
       const response = await fetch(`${apiUrl}/manual-callback/${id}`, {
         method: 'POST',
         headers: {
@@ -224,24 +255,37 @@ const TransactionDetail: React.FC = () => {
           message: 'Transaction updated',
         }),
       })
+      setCallbackLoading(false)
 
       const result = await response.json()
-      console.log('Manual callback result:', result)
+      setCallbackResponse(result)
 
       if (response.ok) {
-        Modal.success({
-          title: 'Manual Callback Success',
-          content: `Message: ${result.message}`,
-        })
+        setResendDisabled(false)
+        message.success('Callback resent successfully')
       } else {
         throw new Error(result.message || 'Failed to update transaction')
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response) {
+        setCallbackResponse({
+          status: error.response.status,
+          headers: error.response.headers,
+          data: error.response.data,
+        })
+      } else {
+        setCallbackResponse({
+          error: true,
+          message: error.message || 'Unknown error',
+        })
+      }
+
+      setCallbackLoading(false)
+      setResendDisabled(false)
       console.error('Error during manual callback:', error)
-      Modal.error({
-        title: 'Manual Callback Failed',
-        content: 'An error occurred while processing the manual callback.',
-      })
+      message.error('Manual Callback Failed')
+    } finally {
+      setResendLoading(false)
     }
   }
 
@@ -496,7 +540,7 @@ const TransactionDetail: React.FC = () => {
               </div>
               <div> {dayjs(transaction.timestamp_request_date).format('YYYY-MM-DD HH:mm:ss.SSS')} </div>
             </div>
-                    <div className='w-full flex'>
+            <div className='w-full flex'>
               <div className='w-1/4'>
                 <strong>Updated At:</strong>
               </div>
@@ -539,8 +583,10 @@ const TransactionDetail: React.FC = () => {
                 </div>
                 <div>{transaction.otp}</div>
               </div>
-              ): <div className='w-full flex'></div>}
-            </Box>
+            ) : (
+              <div className='w-full flex'></div>
+            )}
+          </Box>
         </Box>
       </Card>
       <div className='flex pl-4 pt-2'>
@@ -566,7 +612,9 @@ const TransactionDetail: React.FC = () => {
         </Button>
         <Button
           type='button'
-          disabled={transaction.status_code != 1003 && transaction.status_code != 1000}
+          disabled={
+            (transaction.status_code !== 1003 && transaction.status_code !== 1000) || resendDisabled || resendLoading
+          }
           className='mt-3 mr-4'
           onClick={handleManualCallback}
           variant='contained'
@@ -588,6 +636,130 @@ const TransactionDetail: React.FC = () => {
             : JSON.stringify(transactionStatus?.json, null, 2)}
         </pre>
       </Modal>
+      {callbackRequest && (
+        <div className='mt-5 w-full flex justify-center items-center'>
+          <div className='w-full max-w-screen-2xl 4k:max-w-screen-xl px-2 sm:px-4 mb-10'>
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 4k:place-items-center'>
+              {/* REQUEST BLOCK */}
+              <div
+                className='bg-gray-900 text-gray-200 border border-gray-700 shadow-md p-3 rounded-xl 
+                w-full max-w-lg md:max-w-3xl 4k:max-w-xl mx-auto'
+              >
+                <div className='flex items-center justify-between mb-2'>
+                  <Typography variant='subtitle1' sx={{ color: 'white', fontWeight: 600 }}>
+                    Callback Request
+                  </Typography>
+
+                  {!callbackLoading && (
+                    <Button
+                      size='small'
+                      onClick={() => {
+                        navigator.clipboard.writeText(JSON.stringify(callbackRequest, null, 2))
+                        setCopiedResponse(true)
+
+                        message.success('Request copied!')
+                        setTimeout(() => setCopiedResponse(false), 2000)
+                      }}
+                      sx={{
+                        textTransform: 'none',
+                        fontSize: '0.75rem',
+                        padding: '2px 10px',
+                        borderRadius: '6px',
+                        backgroundColor: '#1f2937',
+                        color: '#e5e7eb',
+                        '&:hover': {
+                          backgroundColor: '#374151',
+                          borderColor: '#4b5563',
+                        },
+                      }}
+                    >
+                      {copiedResponse ? 'Copied!' : 'Copy'}
+                    </Button>
+                  )}
+                </div>
+
+                {/* LOADING STATE */}
+                {callbackLoading && (
+                  <div className='flex justify-center items-center h-48 w-full'>
+                    <CircularProgress size={32} sx={{ color: 'white' }} />
+                  </div>
+                )}
+
+                {/* CONTENT */}
+                {!callbackLoading && (
+                  <div className='rounded-lg p-2  bg-black/40 overflow-auto min-h-72  max-h-72'>
+                    <pre
+                      className='text-xs leading-relaxed font-mono'
+                      dangerouslySetInnerHTML={{
+                        __html: highlightJSON(JSON.stringify(callbackRequest, null, 2)),
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* RESPONSE BLOCK */}
+              <div
+                className='bg-gray-900 text-gray-200 border border-gray-700 shadow-md p-3 rounded-xl 
+                w-full max-w-lg md:max-w-3xl 4k:max-w-xl mx-auto'
+              >
+                <div className='flex items-center justify-between mb-2'>
+                  <Typography variant='subtitle1' sx={{ color: 'white', fontWeight: 600 }}>
+                    Callback Response
+                  </Typography>
+
+                  {!callbackLoading && callbackResponse && (
+                    <Button
+                      size='small'
+                      onClick={() => {
+                        navigator.clipboard.writeText(JSON.stringify(callbackResponse, null, 2))
+                        setCopiedResponse2(true)
+
+                        message.success('Response copied!')
+                        setTimeout(() => setCopiedResponse2(false), 2000)
+                      }}
+                      sx={{
+                        textTransform: 'none',
+                        fontSize: '0.75rem',
+                        padding: '2px 10px',
+                        borderRadius: '6px',
+                        backgroundColor: '#1f2937',
+                        color: '#e5e7eb',
+
+                        '&:hover': {
+                          backgroundColor: '#374151',
+                          borderColor: '#4b5563',
+                        },
+                      }}
+                    >
+                      {copiedResponse2 ? 'Copied!' : 'Copy'}
+                    </Button>
+                  )}
+                </div>
+
+                {/* LOADING */}
+                {callbackLoading && (
+                  <div className='flex justify-center items-center h-48 w-full'>
+                    <CircularProgress size={32} sx={{ color: 'white' }} />
+                  </div>
+                )}
+
+                {/* CONTENT */}
+                {!callbackLoading && callbackResponse && (
+                  <div className='bg-black/40 rounded-lg p-2 overflow-auto min-h-72 max-h-72'>
+                    <pre
+                      className='text-xs leading-relaxed font-mono'
+                      dangerouslySetInnerHTML={{
+                        __html: highlightJSON(JSON.stringify(callbackResponse, null, 2)),
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

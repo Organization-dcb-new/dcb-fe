@@ -6,6 +6,9 @@ import router from './routes'
 import AuthProvider from './provider/AuthProvider'
 // import SideMenu from './components/SideMenu'
 // import Dashboard from './pages/Dashboard'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 
 function App() {
   return (
@@ -17,7 +20,9 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes> */}
       <AuthProvider>
-        <RouterProvider router={router} />
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
       </AuthProvider>
     </div>
   )
