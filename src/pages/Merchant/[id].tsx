@@ -4,7 +4,21 @@ import axios from 'axios'
 import dayjs from 'dayjs'
 import { Box, Typography as MuiTypography } from '@mui/material'
 import { alpha } from '@mui/material/styles'
-import { Card, Tag, Row, Col, Descriptions, Button, Skeleton, Space, Divider, Typography, Table, Tooltip } from 'antd'
+import {
+  Card,
+  Tag,
+  Row,
+  Col,
+  Descriptions,
+  Button,
+  Skeleton,
+  Space,
+  Divider,
+  Typography,
+  Table,
+  Tooltip,
+  Alert,
+} from 'antd'
 import {
   ArrowLeftOutlined,
   CalendarOutlined,
@@ -30,8 +44,18 @@ const useMerchantDetail = (id?: string) => {
 
   useEffect(() => {
     const getMerchantDetail = async () => {
+      if (!id || id === 'undefined' || id.trim() === '') {
+        setError('ID merchant tidak valid')
+        setIsLoading(false)
+        return
+      }
+
+      setIsLoading(true)
+      setError('')
+      const url = `${apiUrl}/admin/merchant/${id}`
+
       try {
-        const response = await axios.get<{ data: MerchantListDataApi }>(`${apiUrl}/admin/merchant/${id}`, {
+        const response = await axios.get<{ data: MerchantListDataApi }>(url, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -41,9 +65,9 @@ const useMerchantDetail = (id?: string) => {
         setData(response?.data?.data ?? null)
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
-          setError(error.response.data?.message || '')
+          setError(error.response.data?.message || 'Gagal memuat data merchant')
         } else {
-          setError('An unexpected error occurred')
+          setError('Terjadi kesalahan yang tidak terduga')
         }
       } finally {
         setIsLoading(false)
@@ -52,8 +76,11 @@ const useMerchantDetail = (id?: string) => {
 
     if (id) {
       getMerchantDetail()
+    } else {
+      console.warn('[MerchantDetail] No id provided, skipping fetch')
+      setIsLoading(false)
     }
-  }, [id])
+  }, [id, token, apiUrl])
 
   return { isLoading, error, merchantDetail: data }
 }
@@ -61,7 +88,7 @@ const useMerchantDetail = (id?: string) => {
 const DetailMerchant = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { merchantDetail, isLoading } = useMerchantDetail(id)
+  const { merchantDetail, isLoading, error: merchantError } = useMerchantDetail(id)
   const { role } = useAuth()
 
   const [showClientSecret, setShowClientSecret] = useState(false)
@@ -151,6 +178,29 @@ const DetailMerchant = () => {
             </MuiTypography>
           </Space>
         </div>
+
+        {/* Error Message */}
+        {merchantError && !isLoading && (
+          <Alert
+            message='Error'
+            description={merchantError}
+            type='error'
+            showIcon
+            closable
+            style={{ marginBottom: '24px' }}
+          />
+        )}
+
+        {id && (id === 'undefined' || id.trim() === '') && (
+          <Alert
+            message='ID Tidak Valid'
+            description={`ID merchant yang diberikan tidak valid: "${id}". Silakan kembali ke halaman sebelumnya.`}
+            type='warning'
+            showIcon
+            closable
+            style={{ marginBottom: '24px' }}
+          />
+        )}
 
         {/* Content */}
         <Row gutter={[24, 24]}>

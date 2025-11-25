@@ -32,78 +32,80 @@ const Merchant = () => {
 
       const merchantsData = Array.isArray(response.data?.data) ? response.data.data : []
 
-      const data: MerchantListDataModel[] = merchantsData.map((item) => ({
-        uid: item.u_id,
-        clientName: item.client_name,
-        clientAppkey: item.client_appkey,
-        clientSecret: item.client_secret,
-        clientAppid: item.client_appid,
-        appName: item.app_name,
-        mobile: item.mobile,
-        clientStatus: item.client_status,
-        phone: item.phone,
-        email: item.email,
-        testing: item.testing,
-        lang: item.lang,
-        callbackUrl: item.callback_url,
-        failCallback: item.fail_callback,
-        isdcb: item.isdcb,
-        updatedAt: item.updated_at,
-        createdAt: item.created_at,
-        paymentMethods: item.payment_methods.map((method) => ({
-          id: method.id,
-          name: method.name,
-          route: Array.isArray(method.route)
-            ? method.route.reduce(
-                (acc, routeName, index) => ({ ...acc, [index]: [routeName] }),
-                {} as { [key: string]: any[] },
-              )
-            : (method.route as { [key: string]: any[] }) || {},
-          flexible: method.flexible,
-          status: method.status,
-          msisdn: method.msisdn,
-          clientId: method.client_id,
-        })),
-        settlements: item.settlements.map((settlement) => ({
-          id: settlement.id,
-          clientId: settlement.client_id,
-          name: settlement.name,
-          isBhpuso: settlement.is_bhpuso,
-          serviceCharge: settlement.servicecharge,
-          tax23: settlement.tax23,
-          ppn: settlement.ppn,
-          mdr: settlement.mdr,
-          mdrType: settlement.mdr_type,
-          additionalFee: settlement.additionalfee,
-          additionalPercent: settlement.additional_percent,
-          additionalFeeType: settlement.additionalfee_type,
-          paymentType: settlement.payment_type,
-          shareRedision: settlement.share_redision,
-          sharePartner: settlement.share_partner,
-          isDivide1poin1: settlement.is_divide_1poin1,
-          updatedAt: settlement.updated_at,
-          createdAt: settlement.created_at,
-        })),
-        apps: item.apps.map((app) => ({
-          id: app.id,
-          appName: app.app_name,
-          appid: app.appid,
-          appkey: app.appkey,
-          callbackUrl: app.callback_url,
-          testing: app.testing,
-          status: app.status,
-          mobile: app.mobile,
-          failCallback: app.fail_callback,
-          clientId: app.client_id,
-          createdAt: app.created_at,
-          updatedAt: app.updated_at,
-        })),
-      }))
+      const data: MerchantListDataModel[] = merchantsData.map((item) => {
+        return {
+          uid: item.u_id,
+          clientName: item.client_name,
+          clientAppkey: item.client_appkey,
+          clientSecret: item.client_secret,
+          clientAppid: item.client_appid,
+          appName: item.app_name,
+          mobile: item.mobile,
+          clientStatus: item.client_status,
+          phone: item.phone,
+          email: item.email,
+          testing: item.testing,
+          lang: item.lang,
+          callbackUrl: item.callback_url,
+          failCallback: item.fail_callback,
+          isdcb: item.isdcb,
+          updatedAt: item.updated_at,
+          createdAt: item.created_at,
+          paymentMethods: item.payment_methods.map((method) => ({
+            id: method.id,
+            name: method.name,
+            route: Array.isArray(method.route)
+              ? method.route.reduce(
+                  (acc, routeName, index) => ({ ...acc, [index]: [routeName] }),
+                  {} as { [key: string]: any[] },
+                )
+              : (method.route as { [key: string]: any[] }) || {},
+            flexible: method.flexible,
+            status: method.status,
+            msisdn: method.msisdn,
+            clientId: method.client_id,
+          })),
+          settlements: item.settlements.map((settlement) => ({
+            id: settlement.id,
+            clientId: settlement.client_id,
+            name: settlement.name,
+            isBhpuso: settlement.is_bhpuso,
+            serviceCharge: settlement.servicecharge,
+            tax23: settlement.tax23,
+            ppn: settlement.ppn,
+            mdr: settlement.mdr,
+            mdrType: settlement.mdr_type,
+            additionalFee: settlement.additionalfee,
+            additionalPercent: settlement.additional_percent,
+            additionalFeeType: settlement.additionalfee_type,
+            paymentType: settlement.payment_type,
+            shareRedision: settlement.share_redision,
+            sharePartner: settlement.share_partner,
+            isDivide1poin1: settlement.is_divide_1poin1,
+            updatedAt: settlement.updated_at,
+            createdAt: settlement.created_at,
+          })),
+          apps: item.apps.map((app) => ({
+            id: app.id,
+            appName: app.app_name,
+            appid: app.appid,
+            appkey: app.appkey,
+            callbackUrl: app.callback_url,
+            testing: app.testing,
+            status: app.status,
+            mobile: app.mobile,
+            failCallback: app.fail_callback,
+            clientId: app.client_id,
+            createdAt: app.created_at,
+            updatedAt: app.updated_at,
+          })),
+        }
+      })
 
       setData(data)
       setFilteredData(data)
     } catch (error) {
-      console.log('aaa', error)
+      console.log('err: ', error)
     }
     setIsLoading(false)
   }
@@ -188,16 +190,38 @@ const Merchant = () => {
     {
       title: 'Action',
       key: 'action',
-      dataIndex: 'clientAppid',
+      dataIndex: 'uid',
       width: 300,
       align: 'center',
-      render: (clientAppid, record) => (
-        <Stack direction='row' justifyContent='center' alignItems='center' spacing={1} sx={{ minHeight: 40 }}>
-          <Link to={`/merchant/${clientAppid}`}>
+      render: (uid, record) => {
+        // const isValidClientid = uid && uid !== 'undefined' && uid.trim() !== ''
+
+        return (
+          <Stack direction='row' justifyContent='center' alignItems='center' spacing={1} sx={{ minHeight: 40 }}>
+            <Link to={`/merchant/${uid}`}>
+              <Button
+                type='primary'
+                size='small'
+                icon={<EyeOutlined />}
+                style={{
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  height: 28,
+                  minWidth: 70,
+                }}
+              >
+                View
+              </Button>
+            </Link>
+
+            <EditMerchant id={uid} data={record} />
+
             <Button
               type='primary'
+              danger
               size='small'
-              icon={<EyeOutlined />}
+              icon={<DeleteOutlined />}
               style={{
                 borderRadius: '6px',
                 fontSize: '11px',
@@ -205,34 +229,17 @@ const Merchant = () => {
                 height: 28,
                 minWidth: 70,
               }}
+              onClick={() => {
+                // TODO: Implement delete functionality
+                console.log('[Merchant] Delete merchant:', uid, record)
+              }}
+              // disabled={!isValidClientid}
             >
-              View
+              Delete
             </Button>
-          </Link>
-
-          <EditMerchant id={clientAppid} data={record} />
-
-          <Button
-            type='primary'
-            danger
-            size='small'
-            icon={<DeleteOutlined />}
-            style={{
-              borderRadius: '6px',
-              fontSize: '11px',
-              fontWeight: 600,
-              height: 28,
-              minWidth: 70,
-            }}
-            onClick={() => {
-              // TODO: Implement delete functionality
-              console.log('Delete merchant:', clientAppid)
-            }}
-          >
-            Delete
-          </Button>
-        </Stack>
-      ),
+          </Stack>
+        )
+      },
     },
   ]
 
