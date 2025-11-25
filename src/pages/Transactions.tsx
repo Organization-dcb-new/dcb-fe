@@ -886,38 +886,6 @@ export default function Transactions() {
                 {loadingExport ? 'Processing...' : 'Export Excel'}
               </Button>
             </div>
-            <div className='flex gap-2 mb-4'>
-              <Button
-                variant={filterMode === 'all' ? 'contained' : 'outlined'}
-                color='primary'
-                onClick={() => setFilterMode('all')}
-              >
-                All
-              </Button>
-
-              <Button
-                variant={filterMode === 'non-jpe' ? 'contained' : 'outlined'}
-                color='primary'
-                onClick={() => setFilterMode('non-jpe')}
-              >
-                Non-JPE
-              </Button>
-
-              <Button
-                variant={filterMode === 'jpe' ? 'contained' : 'outlined'}
-                color='primary'
-                onClick={() => setFilterMode('jpe')}
-              >
-                JPE Only
-              </Button>
-              <Button
-                variant={filterMode === 'higo' ? 'contained' : 'outlined'}
-                color='primary'
-                onClick={() => setFilterMode('higo')}
-              >
-                Higo Only
-              </Button>
-            </div>
           </div>
           <div className='flex '>
             <span className='ml-auto'>
