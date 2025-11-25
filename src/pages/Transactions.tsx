@@ -239,10 +239,7 @@ export default function Transactions() {
   const { token, apiUrl } = useAuth()
   const fetchDataRef = useRef<(page?: number, limit?: number) => Promise<void>>()
   const dateChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const [filterMode, setFilterMode] = useState<'all' | 'jpe' | 'higo' | 'non-jpe'>('all')
-  const [jpeData, setJpeData] = useState([])
-  const [higoData, setHigoData] = useState([])
-  const [nonJpeData, setNonJpeData] = useState([])
+
   const decoded: any = jwtDecode(token as string)
   const [loadingExport, setLoadingExport] = useState(false)
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
@@ -327,14 +324,8 @@ export default function Transactions() {
         })
 
         const allData = response.data.data || []
-        const jpeOnly = allData.filter((item: any) => item.merchant_name === 'PT Jaya Permata Elektro')
-        const higoOnly = allData.filter((item: any) => item.merchant_name === 'HIGO GAME PTE LTD')
-        const nonJpeOnly = allData.filter((item: any) => item.merchant_name != 'PT Jaya Permata Elektro')
 
         setData(allData)
-        setJpeData(jpeOnly)
-        setHigoData(higoOnly)
-        setNonJpeData(nonJpeOnly)
 
         setTotal(response.data.pagination.total_items)
       } catch (error) {
@@ -536,13 +527,6 @@ export default function Transactions() {
   const handlePageChange = (page: number, pageSize: number) => {
     setCurrentPage(page)
     setPageSize(pageSize)
-  }
-
-  const getFilteredData = () => {
-    if (filterMode === 'jpe') return jpeData
-    if (filterMode === 'higo') return higoData
-    if (filterMode === 'non-jpe') return nonJpeData
-    return data
   }
 
   const handleBatchManualCallback = async () => {
@@ -907,7 +891,7 @@ export default function Transactions() {
             <Table
               rowKey='u_id'
               columns={columns}
-              dataSource={getFilteredData()}
+              dataSource={data}
               rowSelection={{
                 selectedRowKeys,
                 onChange: (keys, rows) => {
