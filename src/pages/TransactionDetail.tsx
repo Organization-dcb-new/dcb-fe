@@ -52,11 +52,43 @@ const TransactionDetail: React.FC = () => {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
-  const { token, apiUrl } = useAuth()
+  const { token, apiUrl, isDev } = useAuth()
 
   let paymentMethod
 
   let status
+
+  const handleMarkSuccess = async () => {
+    if (!transaction) return
+    try {
+      await axios.get(`${apiUrl}/mark-paid/${transaction.u_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      alert('Marked as success')
+      navigate(0)
+    } catch (error) {
+      console.error('Failed to mark as success:', error)
+      alert('Failed to mark as success')
+    }
+  }
+
+  const handleMarkFailed = async () => {
+    if (!transaction) return
+    try {
+      await axios.get(`${apiUrl}/mark-failed/${transaction.u_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      alert('Marked as failed')
+      navigate(0)
+    } catch (error) {
+      console.error('Failed to mark as failed:', error)
+      alert('Failed to mark as failed')
+    }
+  }
 
   const handleCheckCharging = async () => {
     try {
@@ -499,7 +531,7 @@ const TransactionDetail: React.FC = () => {
               </div>
               <div> {dayjs(transaction.timestamp_request_date).format('YYYY-MM-DD HH:mm:ss.SSS')} </div>
             </div>
-                    <div className='w-full flex'>
+            <div className='w-full flex'>
               <div className='w-1/4'>
                 <strong>Updated At:</strong>
               </div>
@@ -542,11 +574,42 @@ const TransactionDetail: React.FC = () => {
                 </div>
                 <div>{transaction.otp}</div>
               </div>
-              ): <div className='w-full flex'></div>}
-            </Box>
+            ) : (
+              <div className='w-full flex'></div>
+            )}
+          </Box>
         </Box>
       </Card>
       <div className='flex pl-4 pt-2'>
+        {isDev && (
+          <>
+            {transaction.status_code !== 1000 && (
+              <Button
+                type='button'
+                className='mt-3 mr-4'
+                variant='contained'
+                color='success'
+                size='small'
+                onClick={handleMarkSuccess}
+              >
+                Mark Success
+              </Button>
+            )}
+
+            {transaction.status_code !== 1005 && (
+              <Button
+                type='button'
+                className='mt-3 mr-4'
+                variant='contained'
+                color='error'
+                size='small'
+                onClick={handleMarkFailed}
+              >
+                Mark Failed
+              </Button>
+            )}
+          </>
+        )}
         <Button
           type='button'
           className='mt-3 mr-4'
