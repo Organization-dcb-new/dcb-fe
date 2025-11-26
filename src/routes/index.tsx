@@ -15,7 +15,7 @@ import TransactionMerchantDetail from '../pages/TransactionsMerchantDetail'
 import Merchant from '../pages/Merchant'
 import DetailMerchant from '../pages/Merchant/[id]'
 import SummaryAdmin from '../pages/SummaryAdmin'
-import Report from '../pages/Report'
+import ReportDownload from '../pages/ReportDownload'
 import SummaryDaily from '../pages/SummaryDaily'
 import ReportMargin from '../pages/ReportMargin'
 import ReportMarginPaymentMethod from '../pages/ReportMarginPaymentMethod'
@@ -167,8 +167,18 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
             <MerchantProvider>
-              <Report />
+              <ReportDownload />
             </MerchantProvider>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'report/merchant',
+        element: (
+          <PrivateRoute allowedRoles={['merchant']}>
+            <ClientProvider>
+              <ReportDownload />
+            </ClientProvider>
           </PrivateRoute>
         ),
       },
