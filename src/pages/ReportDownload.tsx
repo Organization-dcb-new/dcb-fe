@@ -40,9 +40,14 @@ const paymentMethods = [
   { name: 'Three', value: 'three_airtime' },
   { name: 'XL', value: 'xl_airtime' },
   { name: 'Smartfren', value: 'smartfren_airtime' },
+  { name: 'OVO', value: 'ovo' },
   { name: 'VA BCA', value: 'va_bca' },
   { name: 'VA BRI', value: 'va_bri' },
-  { name: 'OVO', value: 'ovo' },
+  { name: 'VA BNI', value: 'va_bni' },
+  { name: 'VA Mandiri', value: 'va_mandiri' },
+  { name: 'VA Permata', value: 'va_permata' },
+  { name: 'VA Sinarmas', value: 'va_sinarmas' },
+  { name: 'Credit Card', value: 'visa_master' },
 ]
 
 interface ReportSummary {
