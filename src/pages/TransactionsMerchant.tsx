@@ -223,6 +223,7 @@ export default function TransactionsMerchant() {
   const [isFiltered, setIsFiltered] = useState(false)
   const [resetTrigger, setResetTrigger] = useState(0)
   const [total, setTotal] = useState(0)
+  const [loadingExport, setLoadingExport] = useState(false)
   const { token, apiUrl, appId, appKey } = useAuth()
   const { client, loading: clientLoading } = useClient()
   const decoded: any = jwtDecode(token as string)
@@ -340,13 +341,18 @@ export default function TransactionsMerchant() {
 
   const handleExport = async (type: string) => {
     try {
-      const start_date = formData.start_date
-        ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
-        : null
+      const start = formData.start_date ? dayjs(formData.start_date) : null
+      const end = formData.end_date ? dayjs(formData.end_date) : null
 
-      const end_date = formData.end_date
-        ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
-        : null
+      if (!start || !end) {
+        alert('Please select start date and end date')
+        return
+      }
+
+      setLoadingExport(true)
+
+      const start_date = start.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+      const end_date = end.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
 
       const response = await axios.get(`${apiUrl}/export/transactions-merchant`, {
         headers: {
@@ -379,6 +385,8 @@ export default function TransactionsMerchant() {
       link.remove()
     } catch (error) {
       console.error('Error exporting CSV:', error)
+    } finally {
+      setLoadingExport(false)
     }
   }
 
@@ -614,19 +622,21 @@ export default function TransactionsMerchant() {
                 variant='outlined'
                 color='info'
                 onClick={() => handleExport('csv')}
+                disabled={loadingExport || total > 500000}
               >
-                Export Csv
+                {loadingExport ? 'Exporting...' : 'Export Csv'}
               </Button>
 
-              <Button
+              {/* <Button
                 size='small'
                 className='border-sky-400 ml-3'
                 variant='contained'
+                disabled={loadingExport || total > 120000}
                 color='info'
                 onClick={() => handleExport('excel')}
               >
-                Export Excel
-              </Button>
+                {loadingExport ? 'Exporting...' : 'Export Excel'}
+              </Button> */}
             </div>
             {isFiltered && <Typography variant='subtitle1'>Total Items: {total}</Typography>}
           </div>
