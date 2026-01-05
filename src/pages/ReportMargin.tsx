@@ -313,13 +313,32 @@ const ReportMargin: React.FC = () => {
               </Table.Summary.Cell>
 
               <Table.Summary.Cell index={1} align='right'>
-                <strong>{totals.count.toLocaleString('id-ID')}</strong>
+                <strong>
+                  {(() => {
+                    const ppobRedisionData = raw?.summaries?.filter((item) => item.merchant_name === 'PPOB Redision')
+                    const ppobRedisionCount = ppobRedisionData?.reduce((acc, curr) => acc + (curr.count || 0), 0) || 0
+                    return (totals.count - ppobRedisionCount).toLocaleString('id-ID')
+                  })()}
+                </strong>
               </Table.Summary.Cell>
               <Table.Summary.Cell index={2} align='right'>
-                <strong>{formatRupiah(raw?.total_amount ?? totals.amount)}</strong>
+                <strong>
+                  {(() => {
+                    const ppobRedisionData = raw?.summaries?.filter((item) => item.merchant_name === 'PPOB Redision')
+                    const ppobRedisionAmount =
+                      ppobRedisionData?.reduce((acc, curr) => acc + (curr.total_amount || 0), 0) || 0
+                    return formatRupiah((raw?.total_amount ?? totals.amount) - ppobRedisionAmount)
+                  })()}
+                </strong>
               </Table.Summary.Cell>
               <Table.Summary.Cell index={3} align='right'>
-                <strong>{formatRupiah(raw?.total_margin ?? totals.margin)}</strong>
+                <strong>
+                  {(() => {
+                    const ppobRedisionData = raw?.summaries?.filter((item) => item.merchant_name === 'PPOB Redision')
+                    const ppobRedisionMargin = ppobRedisionData?.reduce((acc, curr) => acc + (curr.margin || 0), 0) || 0
+                    return formatRupiah((raw?.total_margin ?? totals.margin) - ppobRedisionMargin)
+                  })()}
+                </strong>
               </Table.Summary.Cell>
             </Table.Summary.Row>
           </Table.Summary>
