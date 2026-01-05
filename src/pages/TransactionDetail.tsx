@@ -530,7 +530,12 @@ const TransactionDetail: React.FC = () => {
               <div className='w-1/4'>
                 <strong>Request Date:</strong>
               </div>
-              <div> {dayjs(transaction.timestamp_request_date).format('YYYY-MM-DD HH:mm:ss.SSS')} </div>
+              <div>
+                {' '}
+                {transaction.payment_method !== 'va_bca'
+                  ? dayjs(transaction.timestamp_request_date).format('YYYY-MM-DD HH:mm:ss.SSS')
+                  : dayjs(transaction.created_at).format('YYYY-MM-DD HH:mm:ss.SSS')}{' '}
+              </div>
             </div>
             <div className='w-full flex'>
               <div className='w-1/4'>
