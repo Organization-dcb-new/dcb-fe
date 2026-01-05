@@ -27,6 +27,8 @@ interface Transaction {
   item_name: number
   testing: boolean
   price: number
+  otp: number
+  va_bca: string
   timestamp_request_date: Date
 }
 
@@ -329,7 +331,23 @@ const TransactionMerchantDetail: React.FC = () => {
               </div>
               <div>{transaction.timestamp_callback_result}</div>
             </div>
-            <div className='w-full flex' />
+            {transaction.payment_method === 'telkomsel_airtime' ? (
+              <div className='w-full flex'>
+                <div className='w-1/4'>
+                  <strong>SMS Code:</strong>
+                </div>
+                <div>{transaction.otp}</div>
+              </div>
+            ) : transaction.payment_method === 'va_bca' ? (
+              <div className='w-full flex'>
+                <div className='w-1/4'>
+                  <strong>VA BCA:</strong>
+                </div>
+                <div>{transaction.va_bca}</div>
+              </div>
+            ) : (
+              <div className='w-full flex'></div>
+            )}
           </Box>
         </Box>
       </Card>

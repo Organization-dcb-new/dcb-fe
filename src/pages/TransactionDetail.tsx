@@ -27,6 +27,7 @@ interface Transaction {
   merchant_name: string
   app_name: string
   updated_at: Date
+  va_bca: string
   ximpay_id: string
   reference_id: string
   otp: number
@@ -573,6 +574,13 @@ const TransactionDetail: React.FC = () => {
                   <strong>SMS Code:</strong>
                 </div>
                 <div>{transaction.otp}</div>
+              </div>
+            ) : transaction.payment_method === 'va_bca' ? (
+              <div className='w-full flex'>
+                <div className='w-1/4'>
+                  <strong>VA BCA:</strong>
+                </div>
+                <div>{transaction.va_bca}</div>
               </div>
             ) : (
               <div className='w-full flex'></div>
