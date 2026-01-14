@@ -224,6 +224,8 @@ export default function TransactionsMerchant() {
   const [resetTrigger, setResetTrigger] = useState(0)
   const [total, setTotal] = useState(0)
   const [loadingExport, setLoadingExport] = useState(false)
+  const [exportCooldown, setExportCooldown] = useState(false)
+  const [exportCountdown, setExportCountdown] = useState(0)
   const { token, apiUrl, appId, appKey } = useAuth()
   const { client, loading: clientLoading } = useClient()
   const decoded: any = jwtDecode(token as string)
@@ -383,6 +385,20 @@ export default function TransactionsMerchant() {
       document.body.appendChild(link)
       link.click()
       link.remove()
+
+      // Start 10-second cooldown
+      setExportCooldown(true)
+      setExportCountdown(10)
+      const timer = setInterval(() => {
+        setExportCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer)
+            setExportCooldown(false)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
     } catch (error) {
       console.error('Error exporting CSV:', error)
     } finally {
@@ -622,21 +638,25 @@ export default function TransactionsMerchant() {
                 variant='outlined'
                 color='info'
                 onClick={() => handleExport('csv')}
-                disabled={loadingExport || total > 500000}
+                disabled={loadingExport || total > 500000 || exportCooldown}
               >
-                {loadingExport ? 'Exporting...' : 'Export Csv'}
+                {loadingExport ? 'Exporting...' : exportCooldown ? `Export CSV (${exportCountdown}s)` : 'Export CSV'}
               </Button>
 
-              {/* <Button
+              <Button
                 size='small'
                 className='border-sky-400 ml-3'
                 variant='contained'
-                disabled={loadingExport || total > 120000}
+                disabled={loadingExport || total > 30000 || exportCooldown}
                 color='info'
                 onClick={() => handleExport('excel')}
               >
-                {loadingExport ? 'Exporting...' : 'Export Excel'}
-              </Button> */}
+                {loadingExport
+                  ? 'Exporting...'
+                  : exportCooldown
+                    ? `Export Excel (${exportCountdown}s)`
+                    : 'Export Excel'}
+              </Button>
             </div>
             {isFiltered && <Typography variant='subtitle1'>Total Items: {total}</Typography>}
           </div>
