@@ -398,7 +398,11 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
       selected_routes: processedRoutes,
       status: values.status,
       msisdn: values.msisdn,
-      settlement_config: values.settlement_config,
+      settlement_config: {
+        ...values.settlement_config,
+        share_redision: Number(values.settlement_config.share_redision),
+        share_partner: Number(values.settlement_config.share_partner),
+      },
     }
 
     if (editingPaymentIndex !== null) {
