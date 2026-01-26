@@ -176,9 +176,10 @@ export default function TransactionsMerchant() {
     merchant_transaction_id: string
     transaction_id: string
     payment_method: string[]
-    status: number | null
+    status: number | string | null
     start_date: dayjs.Dayjs | null
     end_date: dayjs.Dayjs | null
+    selected_app_id: string
     app_name: string
     item_name: string
     denom: number | null
@@ -191,6 +192,7 @@ export default function TransactionsMerchant() {
     status: null,
     start_date: dayjs().startOf('day'),
     end_date: dayjs().endOf('day'),
+    selected_app_id: '',
     app_name: '',
     item_name: '',
     denom: null,
@@ -206,6 +208,7 @@ export default function TransactionsMerchant() {
       status: null,
       start_date: dayjs().startOf('day'),
       end_date: dayjs().endOf('day'),
+      selected_app_id: '',
       app_name: '',
       item_name: '',
       denom: null,
@@ -227,7 +230,7 @@ export default function TransactionsMerchant() {
   const [exportCooldown, setExportCooldown] = useState(false)
   const [exportCountdown, setExportCountdown] = useState(0)
   const { token, apiUrl, appId, appKey } = useAuth()
-  const { client, loading: clientLoading } = useClient()
+  const { client } = useClient()
   const decoded: any = jwtDecode(token as string)
   const { RangePicker } = DatePicker
 
@@ -242,6 +245,8 @@ export default function TransactionsMerchant() {
       const end_date = formData.end_date
         ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
         : null
+
+      const statusParam = formData.status === 1000 ? '1000,1003' : formData.status
 
       const response = await axios.get(`${apiUrl}/merchant/transactions`, {
         headers: {
@@ -259,9 +264,10 @@ export default function TransactionsMerchant() {
           user_id: formData.user_id,
           merchant_transaction_id: formData.merchant_transaction_id,
           transaction_id: formData.transaction_id,
+          selected_app_id: formData.selected_app_id,
           app_name: formData.app_name,
           payment_method: formData.payment_method.join(','),
-          status: formData.status,
+          status: statusParam,
           item_name: formData.item_name,
           denom: formData.denom,
         },
@@ -328,7 +334,20 @@ export default function TransactionsMerchant() {
 
   const handleChange = (e: any) => {
     const { name, value } = e.target
+    // Handle multiple select for payment_method
+    if (name === 'payment_method') {
+      setFormData({ ...formData, [name]: typeof value === 'string' ? value.split(',') : value })
+    } else if (name === 'app_name') {
+      // When app_name is selected, also set selected_app_id
+      const selectedApp = client?.apps?.find((app) => app.app_name === value)
+      setFormData({
+        ...formData,
+        app_name: value,
+        selected_app_id: selectedApp?.appid || '',
+      })
+    } else {
     setFormData({ ...formData, [name]: value })
+    }
   }
 
   // const handlePaymentChange = (event: SelectChangeEvent<typeof paymentMethod>) => {
@@ -356,6 +375,8 @@ export default function TransactionsMerchant() {
       const start_date = start.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
       const end_date = end.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
 
+      const statusParam = formData.status === 1000 ? '1000,1003' : formData.status
+
       const response = await axios.get(`${apiUrl}/export/transactions-merchant`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -366,9 +387,9 @@ export default function TransactionsMerchant() {
         params: {
           export_csv: type == 'csv' ? 'true' : 'false',
           export_excel: type == 'excel' ? 'true' : 'false',
-          status: formData.status,
-          payment_method: formData.payment_method[0],
-          app_name: formData.app_name,
+          status: statusParam,
+          payment_method: formData.payment_method[0] || '',
+          app_id: formData.selected_app_id || '',
           start_date,
           end_date,
         },
@@ -486,7 +507,7 @@ export default function TransactionsMerchant() {
                   </Grid>
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>App Name</FormLabel>
-                    <Select
+                    {/* <Select
                       labelId='app-name-label'
                       id='app_name'
                       name='app_name'
@@ -494,6 +515,31 @@ export default function TransactionsMerchant() {
                       onChange={handleChange}
                       input={<OutlinedInput label='App Name' />}
                       disabled={clientLoading}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 350,
+                          },
+                        },
+                      }}
+                    >
+                      <MenuItem value=''>
+                        <em>All Apps</em>
+                      </MenuItem>
+                      {client?.apps?.map((app) => (
+                        <MenuItem key={app.id} value={app.app_name}>
+                          {app.app_name}
+                        </MenuItem>
+                      ))}
+                    </Select> */}
+
+                    <Select
+                      labelId='app-name-label'
+                      id='app_name'
+                      name='app_name'
+                      value={formData.app_name}
+                      onChange={handleChange}
+                      input={<OutlinedInput label='App Name' />}
                       MenuProps={{
                         PaperProps: {
                           style: {
@@ -673,7 +719,7 @@ export default function TransactionsMerchant() {
               }}
               size='small'
               className='transactions-table'
-              rowKey='key'
+              rowKey={(record) => record.u_id || record.merchant_transaction_id || record.id}
               scroll={{ x: 'max-content' }}
             />
           </div>
