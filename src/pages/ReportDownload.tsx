@@ -4,7 +4,12 @@ import axios from 'axios'
 import type { TableColumnsType } from 'antd'
 import Typography from '@mui/material/Typography'
 import dayjs, { Dayjs } from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
 import { useAuth } from '../provider/AuthProvider'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 import { useMerchants } from '../context/MerchantContext'
 import { useClient } from '../context/ClientContext'
 import { jwtDecode } from 'jwt-decode'
@@ -205,8 +210,12 @@ const ReportDownload: React.FC = () => {
       end = filteredDate.endOf('day')
     }
 
-    const start_date = encodeURIComponent(start.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]'))
-    const end_date = encodeURIComponent(end.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]'))
+    const start_date = encodeURIComponent(
+      dayjs.tz(start.format('YYYY-MM-DD HH:mm:ss'), 'Asia/Jakarta').utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]'),
+    )
+    const end_date = encodeURIComponent(
+      dayjs.tz(end.format('YYYY-MM-DD HH:mm:ss'), 'Asia/Jakarta').utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]'),
+    )
 
     setLoading(true)
     try {

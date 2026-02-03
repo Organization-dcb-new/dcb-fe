@@ -421,7 +421,7 @@ const DetailMerchant = () => {
                       title: 'MDR',
                       dataIndex: 'mdr',
                       key: 'mdr',
-                      render: (mdr) => `${mdr}%`,
+                      render: (mdr) => `${mdr}`,
                     },
                     {
                       title: 'PPN',

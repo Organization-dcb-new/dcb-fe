@@ -23,7 +23,12 @@ import formatRupiah from '../utils/FormatRupiah'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
 import { useAuth } from '../provider/AuthProvider'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 import { jwtDecode } from 'jwt-decode'
 import { useClient } from '../context/ClientContext'
 
@@ -121,7 +126,7 @@ const columns: ColumnType<any>[] = [
       } else if (status === 1005) {
         color = 'error'
         text = 'Failed'
-      } else if (status == 1003) {
+      } else if (status === 1003) {
         color = 'waiting-callback'
         text = 'Pending notification'
       }
@@ -239,11 +244,17 @@ export default function TransactionsMerchant() {
   const fetchData = async (page = 1, limit = 10) => {
     try {
       const start_date = formData.start_date
-        ? dayjs(formData.start_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        ? dayjs
+            .tz(formData.start_date.format('YYYY-MM-DD HH:mm:ss'), 'Asia/Jakarta')
+            .utc()
+            .format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
         : null
 
       const end_date = formData.end_date
-        ? dayjs(formData.end_date).utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        ? dayjs
+            .tz(formData.end_date.format('YYYY-MM-DD HH:mm:ss'), 'Asia/Jakarta')
+            .utc()
+            .format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
         : null
 
       const statusParam = formData.status === 1000 ? '1000,1003' : formData.status
@@ -346,7 +357,7 @@ export default function TransactionsMerchant() {
         selected_app_id: selectedApp?.appid || '',
       })
     } else {
-    setFormData({ ...formData, [name]: value })
+      setFormData({ ...formData, [name]: value })
     }
   }
 
@@ -372,8 +383,12 @@ export default function TransactionsMerchant() {
 
       setLoadingExport(true)
 
-      const start_date = start.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
-      const end_date = end.utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+      const start_date = start.format('YYYY-MM-DD HH:mm:ss')
+        ? dayjs.tz(start.format('YYYY-MM-DD HH:mm:ss'), 'Asia/Jakarta').utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
+      const end_date = end.format('YYYY-MM-DD HH:mm:ss')
+        ? dayjs.tz(end.format('YYYY-MM-DD HH:mm:ss'), 'Asia/Jakarta').utc().format('ddd, DD MMM YYYY HH:mm:ss [GMT]')
+        : null
 
       const statusParam = formData.status === 1000 ? '1000,1003' : formData.status
 
