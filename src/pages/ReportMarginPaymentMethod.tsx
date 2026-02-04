@@ -89,6 +89,16 @@ const columns: TableColumnsType<PaymentMethodAggregate> = [
       <span className={value < 0 ? 'text-red-600' : 'text-emerald-700'}>{formatRupiah(value || 0)}</span>
     ),
   },
+  {
+    title: 'Margin %',
+    key: 'margin_percentage',
+    align: 'right',
+    width: 100,
+    render: (_, r) => {
+      const per = r.total_amount ? (r.total_margin / r.total_amount) * 100 : 0
+      return <span className={per < 0 ? 'text-red-600' : 'text-emerald-700'}>{per.toFixed(2)}%</span>
+    },
+  },
 ]
 
 const ReportMarginPaymentMethod: React.FC = () => {
@@ -175,6 +185,14 @@ const ReportMarginPaymentMethod: React.FC = () => {
         </Table.Summary.Cell>
         <Table.Summary.Cell index={3} align='right'>
           <strong>{formatRupiah(totals.margin)}</strong>
+        </Table.Summary.Cell>
+        <Table.Summary.Cell index={4} align='right'>
+          <strong>
+            {(() => {
+              const per = totals.amount ? (totals.margin / totals.amount) * 100 : 0
+              return <span className={per < 0 ? 'text-red-600' : 'text-emerald-700'}>{per.toFixed(2)}%</span>
+            })()}
+          </strong>
         </Table.Summary.Cell>
       </Table.Summary.Row>
     </Table.Summary>

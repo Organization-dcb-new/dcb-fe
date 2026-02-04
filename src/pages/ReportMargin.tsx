@@ -113,6 +113,16 @@ const childColumns: TableColumnsType<MarginSummaryItem> = [
     width: 180,
     render: (v: number) => <span className={v < 0 ? 'text-red-600' : 'text-emerald-600'}>{formatRupiah(v || 0)}</span>,
   },
+  {
+    title: 'Margin %',
+    key: 'margin_percentage',
+    align: 'right',
+    width: 100,
+    render: (_, r) => {
+      const per = r.total_amount ? (r.margin / r.total_amount) * 100 : 0
+      return <span className={per < 0 ? 'text-red-600' : 'text-emerald-600'}>{per.toFixed(2)}%</span>
+    },
+  },
 ]
 
 const parentColumns: TableColumnsType<GroupedRow> = [
@@ -140,6 +150,16 @@ const parentColumns: TableColumnsType<GroupedRow> = [
     align: 'right',
     width: 200,
     render: (v: number) => <span className={v < 0 ? 'text-red-600' : 'text-emerald-700'}>{formatRupiah(v || 0)}</span>,
+  },
+  {
+    title: 'Margin %',
+    key: 'margin_percentage',
+    align: 'right',
+    width: 100,
+    render: (_, r) => {
+      const per = r.total_amount ? (r.total_margin / r.total_amount) * 100 : 0
+      return <span className={per < 0 ? 'text-red-600' : 'text-emerald-700'}>{per.toFixed(2)}%</span>
+    },
   },
 ]
 
@@ -337,6 +357,22 @@ const ReportMargin: React.FC = () => {
                     const ppobRedisionData = raw?.summaries?.filter((item) => item.merchant_name === 'PPOB Redision')
                     const ppobRedisionMargin = ppobRedisionData?.reduce((acc, curr) => acc + (curr.margin || 0), 0) || 0
                     return formatRupiah((raw?.total_margin ?? totals.margin) - ppobRedisionMargin)
+                  })()}
+                </strong>
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={4} align='right'>
+                <strong>
+                  {(() => {
+                    const ppobRedisionData = raw?.summaries?.filter((item) => item.merchant_name === 'PPOB Redision')
+                    const ppobRedisionAmount =
+                      ppobRedisionData?.reduce((acc, curr) => acc + (curr.total_amount || 0), 0) || 0
+                    const totalAmount = (raw?.total_amount ?? totals.amount) - ppobRedisionAmount
+
+                    const ppobRedisionMargin = ppobRedisionData?.reduce((acc, curr) => acc + (curr.margin || 0), 0) || 0
+                    const totalMargin = (raw?.total_margin ?? totals.margin) - ppobRedisionMargin
+
+                    const per = totalAmount ? (totalMargin / totalAmount) * 100 : 0
+                    return <span className={per < 0 ? 'text-red-600' : 'text-emerald-700'}>{per.toFixed(2)}%</span>
                   })()}
                 </strong>
               </Table.Summary.Cell>
