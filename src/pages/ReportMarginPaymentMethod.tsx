@@ -136,6 +136,9 @@ const ReportMarginPaymentMethod: React.FC = () => {
 
     for (const item of raw.summaries) {
       const key = item.payment_method || 'UNKNOWN'
+      // Exclude 'Aura Pakar' and 'PPOB Redision' to match ReportMargin logic
+      if (item.merchant_name === 'Aura Pakar' || item.merchant_name === 'PPOB Redision') continue
+
       if (!map.has(key)) {
         map.set(key, {
           payment_method: key,

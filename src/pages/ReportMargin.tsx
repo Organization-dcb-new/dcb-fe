@@ -347,7 +347,8 @@ const ReportMargin: React.FC = () => {
                     const ppobRedisionData = raw?.summaries?.filter((item) => item.merchant_name === 'PPOB Redision')
                     const ppobRedisionAmount =
                       ppobRedisionData?.reduce((acc, curr) => acc + (curr.total_amount || 0), 0) || 0
-                    return formatRupiah((raw?.total_amount ?? totals.amount) - ppobRedisionAmount)
+                    // Use totals.amount instead of raw.total_amount to exclude hidden merchants (Aura Pakar)
+                    return formatRupiah(totals.amount - ppobRedisionAmount)
                   })()}
                 </strong>
               </Table.Summary.Cell>
@@ -356,7 +357,8 @@ const ReportMargin: React.FC = () => {
                   {(() => {
                     const ppobRedisionData = raw?.summaries?.filter((item) => item.merchant_name === 'PPOB Redision')
                     const ppobRedisionMargin = ppobRedisionData?.reduce((acc, curr) => acc + (curr.margin || 0), 0) || 0
-                    return formatRupiah((raw?.total_margin ?? totals.margin) - ppobRedisionMargin)
+                    // Use totals.margin instead of raw.total_margin to exclude hidden merchants (Aura Pakar)
+                    return formatRupiah(totals.margin - ppobRedisionMargin)
                   })()}
                 </strong>
               </Table.Summary.Cell>
@@ -366,10 +368,12 @@ const ReportMargin: React.FC = () => {
                     const ppobRedisionData = raw?.summaries?.filter((item) => item.merchant_name === 'PPOB Redision')
                     const ppobRedisionAmount =
                       ppobRedisionData?.reduce((acc, curr) => acc + (curr.total_amount || 0), 0) || 0
-                    const totalAmount = (raw?.total_amount ?? totals.amount) - ppobRedisionAmount
+                    // Use totals.amount instead of raw.total_amount
+                    const totalAmount = totals.amount - ppobRedisionAmount
 
                     const ppobRedisionMargin = ppobRedisionData?.reduce((acc, curr) => acc + (curr.margin || 0), 0) || 0
-                    const totalMargin = (raw?.total_margin ?? totals.margin) - ppobRedisionMargin
+                    // Use totals.margin instead of raw.total_margin
+                    const totalMargin = totals.margin - ppobRedisionMargin
 
                     const per = totalAmount ? (totalMargin / totalAmount) * 100 : 0
                     return <span className={per < 0 ? 'text-red-600' : 'text-emerald-700'}>{per.toFixed(2)}%</span>
