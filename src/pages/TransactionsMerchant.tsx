@@ -326,6 +326,11 @@ export default function TransactionsMerchant() {
     { name: 'Ovo', value: 'ovo' },
     { name: 'Dana', value: 'dana' },
     { name: 'Va Bca', value: 'va_bca' },
+    { name: 'Va BRI', value: 'va_bri' },
+    { name: 'Va Mandiri', value: 'va_mandiri' },
+    { name: 'Va Permata', value: 'va_permata' },
+    { name: 'Va BNI', value: 'va_bni' },
+    { name: 'Va Sinarmas', value: 'va_sinarmas' },
   ]
 
   const status = [

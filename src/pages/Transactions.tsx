@@ -389,6 +389,7 @@ export default function Transactions() {
     { name: 'Va Bni', value: 'va_bni' },
     { name: 'Va Mandiri', value: 'va_mandiri' },
     { name: 'Va Sinarmas', value: 'va_sinarmas' },
+    { name: 'Va Permata', value: 'va_permata' },
     { name: 'Alfamart', value: 'alfamart_otc' },
     { name: 'Indomaret', value: 'indomaret_otc' },
     { name: 'Credit Card', value: 'visa_master' },
