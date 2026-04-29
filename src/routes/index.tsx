@@ -19,7 +19,7 @@ import ReportDownload from '../pages/ReportDownload'
 import SummaryDaily from '../pages/SummaryDaily'
 import ReportMargin from '../pages/ReportMargin'
 import ReportMarginPaymentMethod from '../pages/ReportMarginPaymentMethod'
-import ReportTrafficPaymentMethod from '../pages/ReportTrafficPaymentMethod'
+// import ReportTrafficPaymentMethod from '../pages/ReportTrafficPaymentMethod'
 import MerchantProfile from '../pages/MerchantProfile'
 import Monitoring from '../pages/Monitoring'
 import MonitoringDuration from '../pages/MonitoringDuration'
@@ -217,14 +217,14 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-      {
-        path: 'report-traffic-payment-method',
-        element: (
-          <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
-            <ReportTrafficPaymentMethod />
-          </PrivateRoute>
-        ),
-      },
+      // {
+      //   path: 'report-traffic-payment-method',
+      //   element: (
+      //     <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
+      //       <ReportTrafficPaymentMethod />
+      //     </PrivateRoute>
+      //   ),
+      // },
     ],
   },
   {
