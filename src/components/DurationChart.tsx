@@ -40,6 +40,23 @@ interface ParsedDataPoint extends DurationDataPoint {
   dateFormatted: string
 }
 
+interface AggregatedDurationPoint {
+  date: string
+  dateFormatted: string
+  supplierSeconds: number
+  merchantSeconds: number
+  totalSeconds: number
+  total_transactions: number
+}
+
+interface DurationCardGroup {
+  key: string
+  merchant_name: string
+  payment_method: string
+  statuses: string[]
+  points: AggregatedDurationPoint[]
+}
+
 // Auto-refresh interval (10 minutes = API cache TTL)
 const AUTO_REFRESH_INTERVAL = 10 * 60 * 1000
 
@@ -135,16 +152,91 @@ const DurationChart: React.FC = () => {
     })
   }, [parsedData, selectedMerchant, selectedPaymentMethod, selectedStatus])
 
-  // === Chart Data ===
-  const chartData = useMemo(() => {
-    const labels = filteredData.map((d) => d.dateFormatted)
+  const groupedCards = useMemo<DurationCardGroup[]>(() => {
+    const groups = new Map<string, ParsedDataPoint[]>()
 
+    filteredData.forEach((point) => {
+      const key = `${point.merchant_name}|||${point.payment_method}`
+      const current = groups.get(key)
+      if (current) current.push(point)
+      else groups.set(key, [point])
+    })
+
+    const aggregateByDate = (points: ParsedDataPoint[]) => {
+      const timeMap = new Map<
+        string,
+        {
+          date: string
+          supplierWeighted: number
+          merchantWeighted: number
+          totalWeighted: number
+          weightSum: number
+          total_transactions: number
+        }
+      >()
+
+      points.forEach((point) => {
+        const weight = Math.max(point.total_transactions || 0, 1)
+        const entry = timeMap.get(point.date)
+        if (entry) {
+          entry.supplierWeighted += point.supplierSeconds * weight
+          entry.merchantWeighted += point.merchantSeconds * weight
+          entry.totalWeighted += point.totalSeconds * weight
+          entry.weightSum += weight
+          entry.total_transactions += point.total_transactions
+          return
+        }
+
+        timeMap.set(point.date, {
+          date: point.date,
+          supplierWeighted: point.supplierSeconds * weight,
+          merchantWeighted: point.merchantSeconds * weight,
+          totalWeighted: point.totalSeconds * weight,
+          weightSum: weight,
+          total_transactions: point.total_transactions,
+        })
+      })
+
+      return Array.from(timeMap.values())
+        .sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf())
+        .map((entry) => ({
+          date: entry.date,
+          dateFormatted: dayjs(entry.date).format('HH:mm'),
+          supplierSeconds: entry.supplierWeighted / entry.weightSum,
+          merchantSeconds: entry.merchantWeighted / entry.weightSum,
+          totalSeconds: entry.totalWeighted / entry.weightSum,
+          total_transactions: entry.total_transactions,
+        }))
+    }
+
+    return Array.from(groups.entries())
+      .sort((a, b) => {
+        const [merchantA, paymentA] = a[0].split('|||')
+        const [merchantB, paymentB] = b[0].split('|||')
+        return `${merchantA} ${paymentA}`.localeCompare(`${merchantB} ${paymentB}`)
+      })
+      .map(([key, points]) => {
+        const [merchant_name, payment_method] = key.split('|||')
+        const aggregatedPoints = aggregateByDate(points)
+        const statuses = Array.from(new Set(points.map((point) => point.status))).sort()
+
+        return {
+          key,
+          merchant_name,
+          payment_method,
+          statuses,
+          points: aggregatedPoints,
+        }
+      })
+  }, [filteredData])
+
+  const buildCardChartData = useCallback((points: AggregatedDurationPoint[]) => {
     return {
-      labels,
+      labels: points.map((d) => d.dateFormatted),
       datasets: [
         {
           label: 'Avg Total Duration',
-          data: filteredData.map((d) => d.totalSeconds),
+          data: points.map((d) => d.totalSeconds),
           borderColor: '#6366f1',
           backgroundColor: 'rgba(99, 102, 241, 0.08)',
           tension: 0.4,
@@ -161,7 +253,7 @@ const DurationChart: React.FC = () => {
         },
         {
           label: 'Avg Supplier Duration',
-          data: filteredData.map((d) => d.supplierSeconds),
+          data: points.map((d) => d.supplierSeconds),
           borderColor: '#f59e0b',
           backgroundColor: 'rgba(245, 158, 11, 0.06)',
           tension: 0.4,
@@ -178,7 +270,7 @@ const DurationChart: React.FC = () => {
         },
         {
           label: 'Avg Merchant Duration',
-          data: filteredData.map((d) => d.merchantSeconds),
+          data: points.map((d) => d.merchantSeconds),
           borderColor: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.06)',
           tension: 0.4,
@@ -195,16 +287,15 @@ const DurationChart: React.FC = () => {
         },
       ],
     }
-  }, [filteredData])
+  }, [])
 
-  // === Chart Options ===
-  const chartOptions = useMemo(
-    () => ({
+  const buildCardChartOptions = useCallback(
+    (points: AggregatedDurationPoint[], merchantName: string, paymentMethod: string) => ({
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: true,
+          display: points.length > 1,
           position: 'top' as const,
           labels: {
             usePointStyle: true,
@@ -230,31 +321,28 @@ const DurationChart: React.FC = () => {
             title: (items: any[]) => {
               if (!items || !items[0]) return ''
               const idx = items[0].dataIndex
-              const point = filteredData[idx]
+              const point = points[idx]
               if (!point) return ''
               return `${dayjs(point.date).format('ddd, DD MMM YYYY HH:mm')}`
             },
-            afterTitle: (items: any[]) => {
-              const idx = items[0]?.dataIndex
-              const point = filteredData[idx]
-              if (!point) return ''
-              return `${point.merchant_name} • ${point.payment_method.toUpperCase()}`
+            afterTitle: () => {
+              return `${merchantName} • ${paymentMethod.toUpperCase()}`
             },
             label: (item: any) => {
               const idx = item.dataIndex
-              const point = filteredData[idx]
+              const point = points[idx]
               if (!point) return ''
 
               const labels: Record<string, string> = {
-                'Avg Total Duration': point.avg_total_duration,
-                'Avg Supplier Duration': point.avg_supplier_duration,
-                'Avg Merchant Duration': point.avg_merchant_duration,
+                'Avg Total Duration': formatSecondsToDuration(Math.round(point.totalSeconds)),
+                'Avg Supplier Duration': formatSecondsToDuration(Math.round(point.supplierSeconds)),
+                'Avg Merchant Duration': formatSecondsToDuration(Math.round(point.merchantSeconds)),
               }
               return `  ${item.dataset.label}: ${labels[item.dataset.label] || formatSecondsToDuration(item.raw)}`
             },
             afterBody: (items: any[]) => {
               const idx = items[0]?.dataIndex
-              const point = filteredData[idx]
+              const point = points[idx]
               if (!point) return ''
               return `\n  📦 Total Transactions: ${point.total_transactions}`
             },
@@ -317,7 +405,7 @@ const DurationChart: React.FC = () => {
         easing: 'easeOutQuart' as const,
       },
     }),
-    [filteredData],
+    [],
   )
 
   // === Stats Summary ===
@@ -554,66 +642,181 @@ const DurationChart: React.FC = () => {
           </div>
         )}
 
-        {/* Chart */}
-        <div
-          style={{
-            position: 'relative',
-            height: 420,
-            padding: '8px 0',
-          }}
-        >
-          {loading && (
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'rgba(255,255,255,0.8)',
-                borderRadius: 12,
-                zIndex: 10,
-              }}
-            >
-              <Space direction='vertical' align='center'>
-                <Spin size='large' />
-                <span style={{ color: '#64748b', fontSize: 13 }}>Loading duration data...</span>
-              </Space>
-            </div>
-          )}
+        {loading && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '28px 0 12px',
+            }}
+          >
+            <Space direction='vertical' align='center'>
+              <Spin size='large' />
+              <span style={{ color: '#64748b', fontSize: 13 }}>Loading duration data...</span>
+            </Space>
+          </div>
+        )}
 
-          {error && (
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 10,
-              }}
-            >
-              <Empty description={<span style={{ color: '#ef4444' }}>{error}</span>} />
-            </div>
-          )}
+        {error && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0 8px' }}>
+            <Empty description={<span style={{ color: '#ef4444' }}>{error}</span>} />
+          </div>
+        )}
 
-          {!loading && !error && filteredData.length === 0 && (
-            <div
-              style={{
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Empty description='No data available for the selected filters' />
-            </div>
-          )}
+        {!loading && !error && filteredData.length === 0 && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0 8px' }}>
+            <Empty description='No data available for the selected filters' />
+          </div>
+        )}
 
-          {!loading && !error && filteredData.length > 0 && (
-            <Line data={chartData} options={chartOptions} />
-          )}
-        </div>
+        {!loading && !error && filteredData.length > 0 && (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))',
+              gap: 16,
+              alignItems: 'stretch',
+            }}
+          >
+            {groupedCards.map((group) => {
+              const cardData = buildCardChartData(group.points)
+              const cardOptions = buildCardChartOptions(group.points, group.merchant_name, group.payment_method)
+              const totalTransactions = group.points.reduce((sum, point) => sum + point.total_transactions, 0)
+              const totalDurations = group.points.map((point) => point.totalSeconds)
+              const avgTotal = totalDurations.reduce((sum, value) => sum + value, 0) / totalDurations.length
+              const maxTotal = Math.max(...totalDurations)
+              const minTotal = Math.min(...totalDurations)
+
+              return (
+                <Card
+                  key={group.key}
+                  style={{
+                    borderRadius: 16,
+                    border: '1px solid rgba(148, 163, 184, 0.12)',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.03)',
+                    height: '100%',
+                  }}
+                  bodyStyle={{ padding: '20px' }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      gap: 12,
+                      marginBottom: 14,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <h3
+                        style={{
+                          margin: 0,
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: '#334155',
+                          letterSpacing: '-0.2px',
+                        }}
+                      >
+                        {group.merchant_name}
+                      </h3>
+                      <div style={{ marginTop: 4, color: '#6366f1', fontSize: 13, fontWeight: 600 }}>
+                        {group.payment_method.toUpperCase()}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'flex-end' }}>
+                      <Tag color='blue' style={{ margin: 0 }}>
+                        {group.points.length} points
+                      </Tag>
+                      <Tag color='geekblue' style={{ margin: 0 }}>
+                        {group.statuses.length === 1 ? group.statuses[0] : `${group.statuses.length} statuses`}
+                      </Tag>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                      gap: 10,
+                      marginBottom: 14,
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: '12px 14px',
+                        borderRadius: 12,
+                        background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.06))',
+                        border: '1px solid rgba(99,102,241,0.15)',
+                      }}
+                    >
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#6366f1', textTransform: 'uppercase' }}>
+                        Avg Duration
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: '#4f46e5', marginTop: 4 }}>
+                        {formatSecondsToDuration(Math.round(avgTotal))}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: '12px 14px',
+                        borderRadius: 12,
+                        background: 'linear-gradient(135deg, rgba(239,68,68,0.08), rgba(244,63,94,0.06))',
+                        border: '1px solid rgba(239,68,68,0.15)',
+                      }}
+                    >
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#ef4444', textTransform: 'uppercase' }}>
+                        Max Duration
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: '#dc2626', marginTop: 4 }}>
+                        {formatSecondsToDuration(maxTotal)}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: '12px 14px',
+                        borderRadius: 12,
+                        background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.06))',
+                        border: '1px solid rgba(16,185,129,0.15)',
+                      }}
+                    >
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#10b981', textTransform: 'uppercase' }}>
+                        Min Duration
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: '#059669', marginTop: 4 }}>
+                        {formatSecondsToDuration(minTotal)}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: '12px 14px',
+                        borderRadius: 12,
+                        background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(234,88,12,0.06))',
+                        border: '1px solid rgba(245,158,11,0.15)',
+                      }}
+                    >
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#f59e0b', textTransform: 'uppercase' }}>
+                        Total Transactions
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: '#d97706', marginTop: 4 }}>
+                        {totalTransactions.toLocaleString('id-ID')}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ position: 'relative', height: 320 }}>
+                    <Line data={cardData} options={cardOptions} />
+                  </div>
+                </Card>
+              )
+            })}
+          </div>
+        )}
       </Card>
     </div>
   )
