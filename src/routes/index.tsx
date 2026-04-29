@@ -19,7 +19,10 @@ import ReportDownload from '../pages/ReportDownload'
 import SummaryDaily from '../pages/SummaryDaily'
 import ReportMargin from '../pages/ReportMargin'
 import ReportMarginPaymentMethod from '../pages/ReportMarginPaymentMethod'
+import ReportTrafficPaymentMethod from '../pages/ReportTrafficPaymentMethod'
 import MerchantProfile from '../pages/MerchantProfile'
+import Monitoring from '../pages/Monitoring'
+import MonitoringDuration from '../pages/MonitoringDuration'
 
 const router = createBrowserRouter([
   {
@@ -31,6 +34,22 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <Dashboard />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'monitoring',
+        element: (
+          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+            <Monitoring />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'monitoring/duration',
+        element: (
+          <PrivateRoute allowedRoles={['admin', 'superadmin']}>
+            <MonitoringDuration />
           </PrivateRoute>
         ),
       },
@@ -195,6 +214,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute allowedRoles={['business']}>
             <ReportMarginPaymentMethod />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'report-traffic-payment-method',
+        element: (
+          <PrivateRoute allowedRoles={['admin', 'superadmin', 'business']}>
+            <ReportTrafficPaymentMethod />
           </PrivateRoute>
         ),
       },

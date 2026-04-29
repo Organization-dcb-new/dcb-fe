@@ -29,6 +29,9 @@ import {
   BarChartOutlined,
   // StarBorder,
   PersonOutline,
+  MonitorHeartOutlined,
+  TimerOutlined,
+  ShowChartOutlined,
 } from '@mui/icons-material'
 
 import { useAuth } from '../provider/AuthProvider'
@@ -66,6 +69,18 @@ export default function MenuContent() {
 
   const mainListItems = [
     ...(decoded.role !== 'merchant' ? [{ text: 'Dashboard', icon: <AnalyticsIcon />, path: '/' }] : []),
+    ...(decoded.role === 'admin' || decoded.role === 'superadmin'
+      ? [
+          {
+            text: 'Monitoring',
+            icon: <MonitorHeartOutlined />,
+            nestedItems: [
+              { text: 'Transaction Charts', icon: <ShowChartOutlined />, path: '/monitoring' },
+              { text: 'Time Durations', icon: <TimerOutlined />, path: '/monitoring/duration' },
+            ],
+          },
+        ]
+      : []),
     {
       text: 'Transaction Data',
       icon: <ReceiptLongOutlined />,
@@ -110,6 +125,15 @@ export default function MenuContent() {
                 path: '/report-margin-payment-method',
               },
             ],
+          },
+        ]
+      : []),
+    ...(decoded.role === 'admin' || decoded.role === 'superadmin' || decoded.role === 'business'
+      ? [
+          {
+            text: 'Report Traffic',
+            icon: <BarChartOutlined />,
+            path: '/report-traffic-payment-method',
           },
         ]
       : []),

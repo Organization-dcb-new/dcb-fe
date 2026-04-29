@@ -1,15 +1,9 @@
-// import type {} from '@mui/x-date-pickers/themeAugmentation';
-// import type {} from '@mui/x-charts/themeAugmentation';
-// import type {} from '@mui/x-data-grid/themeAugmentation';
-// import type {} from '@mui/x-tree-view/themeAugmentation';
 import { alpha } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
 import AppNavbar from '../components/AppNavbar'
-// import SummaryMerchant from '../components/SummaryMerchant'
-// import SideMenu from '../components/SideMenu'
+import DurationChart from '../components/DurationChart'
 import AppTheme from '../styles/theme/shared-theme/AppTheme'
 import {
   chartsCustomizations,
@@ -25,12 +19,11 @@ const xThemeComponents = {
   ...treeViewCustomizations,
 }
 
-export default function Dashboard(props: { disableCustomTheme?: boolean }) {
+export default function MonitoringDuration(props: { disableCustomTheme?: boolean }) {
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>
       <CssBaseline enableColorScheme />
       <Box sx={{ display: 'flex' }}>
-        {/* <SideMenu /> */}
         <AppNavbar />
         {/* Main content */}
         <Box
@@ -51,14 +44,7 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
               mt: { xs: 8, md: 0 },
             }}
           >
-            {/* <Header /> */}
-            {/* <SummaryMerchant /> */}
-            <Typography variant='h5' sx={{ fontWeight: 600, color: 'text.primary' }}>
-              Dashboard
-            </Typography>
-            <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-              Welcome to Redpay Panel. Use the sidebar navigation to access monitoring features and reports.
-            </Typography>
+            <DurationChart />
           </Stack>
         </Box>
       </Box>
