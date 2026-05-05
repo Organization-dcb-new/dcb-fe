@@ -31,7 +31,7 @@ pdfMake.fonts = {
 }
 
 const { Option } = Select
-const { MonthPicker } = DatePicker
+const { MonthPicker, RangePicker } = DatePicker
 
 // Clients will be populated from useMerchants context
 
@@ -122,7 +122,7 @@ const columns: TableColumnsType<ReportSummary> = [
 // Client map will be generated from useMerchants context
 
 const ReportDownload: React.FC = () => {
-  const [reportType, setReportType] = useState<'daily' | 'monthly'>('monthly')
+  const [reportType, setReportType] = useState<'daily' | 'monthly' | 'custom'>('monthly')
   const [data, setData] = useState<ReportData>()
   const [loading, setLoading] = useState(false)
 
@@ -131,6 +131,8 @@ const ReportDownload: React.FC = () => {
   const [filteredPaymentMethod, setFilteredPaymentMethod] = useState<{ name: string; value: string } | undefined>()
   const [filteredMonth, setFilteredMonth] = useState<Dayjs | null>(dayjs())
   const [filteredDate, setFilteredDate] = useState<Dayjs | null>(dayjs())
+  const [filteredDateRange, setFilteredDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null)
+  const [calendarDates, setCalendarDates] = useState<[Dayjs | null, Dayjs | null] | null>(null)
   const { apiUrl, token } = useAuth()
   const { merchants, loading: merchantsLoading } = useMerchants()
   const { client, loading: clientLoading } = useClient()
@@ -204,10 +206,18 @@ const ReportDownload: React.FC = () => {
       if (!filteredMonth) return
       start = filteredMonth.startOf('month')
       end = filteredMonth.endOf('month')
-    } else {
+    } else if (reportType === 'daily') {
       if (!filteredDate) return
       start = filteredDate.startOf('day')
       end = filteredDate.endOf('day')
+    } else {
+      if (!filteredDateRange || !filteredDateRange[0] || !filteredDateRange[1]) return
+      start = filteredDateRange[0].startOf('day')
+      end = filteredDateRange[1].endOf('day')
+      if (end.diff(start, 'day') > 31) {
+        message.error('Rentang waktu maksimal 1 bulan')
+        return
+      }
     }
 
     const start_date = encodeURIComponent(
@@ -490,23 +500,30 @@ const ReportDownload: React.FC = () => {
     if (reportType === 'monthly') {
       startDate = filteredMonth?.startOf('month')
       endDate = filteredMonth?.endOf('month')
-    } else {
+    } else if (reportType === 'daily') {
       startDate = filteredDate?.startOf('day')
       endDate = filteredDate?.endOf('day')
+    } else {
+      startDate = filteredDateRange?.[0]?.startOf('day')
+      endDate = filteredDateRange?.[1]?.endOf('day')
     }
 
-    const startDateStr = startDate?.format('DD')
+    const startDateStr = reportType === 'custom' ? startDate?.format('DD MMMM YYYY') : startDate?.format('DD')
     const endDateStr = endDate?.format('DD MMMM YYYY')
 
-    const reportTitle = reportType === 'monthly' ? 'MONTHLY SETTLEMENT REPORT' : 'DAILY SETTLEMENT REPORT'
+    const reportTitle = reportType === 'monthly' ? 'MONTHLY SETTLEMENT REPORT' : reportType === 'custom' ? 'CUSTOM SETTLEMENT REPORT' : 'DAILY SETTLEMENT REPORT'
     const periodStr =
       reportType === 'monthly'
         ? `PERIOD: ${startDate?.format('DD')} - ${endDate?.format('DD MMMM YYYY')}`
+        : reportType === 'custom'
+        ? `PERIOD: ${startDate?.format('DD MMMM YYYY')} - ${endDate?.format('DD MMMM YYYY')}`
         : `DATE: ${startDate?.format('DD MMMM YYYY')}`
 
     const detailsText =
       reportType === 'monthly'
         ? `Here's the details on the use of channel ${filteredPaymentMethod?.name} period ${startDate?.format('DD')} - ${endDate?.format('DD MMMM YYYY')}:`
+        : reportType === 'custom'
+        ? `Here's the details on the use of channel ${filteredPaymentMethod?.name} period ${startDate?.format('DD MMMM YYYY')} - ${endDate?.format('DD MMMM YYYY')}:`
         : `Here's the details on the use of channel ${filteredPaymentMethod?.name} on ${startDate?.format('DD MMMM YYYY')}:`
 
     const docDefinition = {
@@ -669,9 +686,11 @@ const ReportDownload: React.FC = () => {
         fetchReport()
       } else if (reportType === 'daily' && filteredDate) {
         fetchReport()
+      } else if (reportType === 'custom' && filteredDateRange && filteredDateRange[0] && filteredDateRange[1]) {
+        fetchReport()
       }
     }
-  }, [filteredApp, filteredPaymentMethod, filteredMonth, filteredDate, reportType])
+  }, [filteredApp, filteredPaymentMethod, filteredMonth, filteredDate, filteredDateRange, reportType])
 
   return (
     <div className='flex flex-col p-6'>
@@ -688,6 +707,7 @@ const ReportDownload: React.FC = () => {
           <Select id='type-select' value={reportType} style={{ width: 150 }} onChange={(val) => setReportType(val)}>
             <Option value='daily'>Daily</Option>
             <Option value='monthly'>Monthly</Option>
+            <Option value='custom'>Custom</Option>
           </Select>
         </Col>
         <Col className='flex gap-4'>
@@ -735,7 +755,7 @@ const ReportDownload: React.FC = () => {
         </Col>
         <Col className='flex gap-4'>
           <label htmlFor='client-select' className='text-2xl'>
-            {reportType === 'monthly' ? 'Month :' : 'Date :'}
+            {reportType === 'monthly' ? 'Month :' : reportType === 'custom' ? 'Date Range :' : 'Date :'}
           </label>
           {reportType === 'monthly' ? (
             <MonthPicker
@@ -743,6 +763,28 @@ const ReportDownload: React.FC = () => {
               style={{ width: 160 }}
               onChange={(val) => setFilteredMonth(val)}
               value={filteredMonth}
+            />
+          ) : reportType === 'custom' ? (
+            <RangePicker
+              style={{ width: 260 }}
+              value={filteredDateRange as any}
+              onChange={(val) => setFilteredDateRange(val as any)}
+              onCalendarChange={(val) => setCalendarDates(val as any)}
+              disabledDate={(current) => {
+                if (!calendarDates) {
+                  return false;
+                }
+                const tooLate = calendarDates[0] && current.diff(calendarDates[0], 'days') > 31;
+                const tooEarly = calendarDates[1] && calendarDates[1].diff(current, 'days') > 31;
+                return !!tooEarly || !!tooLate;
+              }}
+              onOpenChange={(open) => {
+                if (open) {
+                  setCalendarDates(null);
+                } else {
+                  setCalendarDates(null);
+                }
+              }}
             />
           ) : (
             <DatePicker
