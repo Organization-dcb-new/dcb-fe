@@ -53,6 +53,8 @@ const paymentMethods = [
   { name: 'VA Permata', value: 'va_permata' },
   { name: 'VA Sinarmas', value: 'va_sinarmas' },
   { name: 'Credit Card', value: 'visa_master' },
+  { name: 'Alfamart', value: 'alfamart_otc' },
+  { name: 'Indomaret', value: 'indomaret_otc' },
 ]
 
 interface ReportSummary {
@@ -511,7 +513,12 @@ const ReportDownload: React.FC = () => {
     const startDateStr = reportType === 'custom' ? startDate?.format('DD MMMM YYYY') : startDate?.format('DD')
     const endDateStr = endDate?.format('DD MMMM YYYY')
 
-    const reportTitle = reportType === 'monthly' ? 'MONTHLY SETTLEMENT REPORT' : reportType === 'custom' ? 'CUSTOM SETTLEMENT REPORT' : 'DAILY SETTLEMENT REPORT'
+    const reportTitle =
+      reportType === 'monthly'
+        ? 'MONTHLY SETTLEMENT REPORT'
+        : reportType === 'custom'
+          ? 'SETTLEMENT REPORT'
+          : 'DAILY SETTLEMENT REPORT'
     const periodStr =
       reportType === 'monthly'
         ? `PERIOD: ${startDate?.format('DD')} - ${endDate?.format('DD MMMM YYYY')}`
