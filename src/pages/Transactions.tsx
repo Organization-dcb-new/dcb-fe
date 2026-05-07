@@ -22,7 +22,7 @@ import { FormLabel } from '@mui/material'
 
 import Typography from '@mui/material/Typography'
 // import AppTheme from '../styles/theme/shared-theme/AppTheme'
-import { Table, DatePicker, Modal } from 'antd'
+import { Table, DatePicker, Modal, Select as AntSelect } from 'antd'
 import { ColumnType } from 'antd/es/table'
 
 import Badge from '../components/Badge'
@@ -675,62 +675,59 @@ export default function Transactions() {
 
                   <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>App</FormLabel>
-                    <Select
-                      labelId='merchant-label'
+                    <AntSelect
                       id='selected_app_id'
-                      name='selected_app_id'
-                      value={formData.selected_app_id}
-                      onChange={handleChange}
-                      input={<OutlinedInput label='app_id' />}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: 350,
-                          },
-                        },
-                      }}
+                      value={formData.selected_app_id || undefined}
+                      onChange={(val) => handleChange({ target: { name: 'selected_app_id', value: val || '' } })}
+                      style={{ width: '100%', height: 38 }}
+                      showSearch
+                      allowClear
+                      filterOption={(input, option: any) =>
+                        String(option?.children ?? '')
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      placeholder='Select App'
                     >
                       {isAlif
                         ? appListAlif.map((app) => (
-                            <MenuItem key={app.id} value={app.id}>
+                            <AntSelect.Option key={app.id} value={app.id}>
                               {app.name}
-                            </MenuItem>
+                            </AntSelect.Option>
                           ))
                         : appList.map((app) => (
-                            <MenuItem key={app.appid} value={app.appid}>
+                            <AntSelect.Option key={app.appid} value={app.appid}>
                               {app.app_name}
-                            </MenuItem>
+                            </AntSelect.Option>
                           ))}
-                    </Select>
+                    </AntSelect>
                   </Grid>
                 </Grid>
 
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>Payment Method</FormLabel>
-                    <Select
-                      multiple
-                      labelId='payment-method-label'
-                      id='payment-method '
-                      name='payment_method'
+                    <AntSelect
+                      mode='multiple'
+                      id='payment-method'
                       value={formData.payment_method}
-                      onChange={handleChange}
-                      input={<OutlinedInput label='payment_method' />}
-                      renderValue={(selected) => selected.join(', ')}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: 350,
-                          },
-                        },
-                      }}
+                      onChange={(val) => handleChange({ target: { name: 'payment_method', value: val } })}
+                      style={{ width: '100%', minHeight: 38 }}
+                      showSearch
+                      allowClear
+                      filterOption={(input, option: any) =>
+                        String(option?.children ?? '')
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      placeholder='Select Payment Method'
                     >
                       {routes.map((method) => (
-                        <MenuItem key={method.value} value={method.value}>
+                        <AntSelect.Option key={method.value} value={method.value}>
                           {method.name}
-                        </MenuItem>
+                        </AntSelect.Option>
                       ))}
-                    </Select>
+                    </AntSelect>
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
@@ -755,35 +752,33 @@ export default function Transactions() {
                   <Grid size={{ xs: 12, md: 4 }} className='flex flex-col'>
                     <FormLabel className='font-medium'>Merchant Name</FormLabel>
 
-                    <Select
-                      labelId='merchant-name-label'
-                      multiple
+                    <AntSelect
+                      mode='multiple'
                       id='merchant_name'
-                      name='merchant_name'
                       value={formData.merchant_name}
-                      onChange={handleChange}
-                      renderValue={(selected) => selected.join(', ')}
-                      input={<OutlinedInput label='merchant_name' />}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: 350,
-                          },
-                        },
-                      }}
+                      onChange={(val) => handleChange({ target: { name: 'merchant_name', value: val } })}
+                      style={{ width: '100%', minHeight: 38 }}
+                      showSearch
+                      allowClear
+                      filterOption={(input, option: any) =>
+                        String(option?.children ?? '')
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      placeholder='Select Merchant Name'
                     >
                       {isAlif
                         ? merchantListAlif.map((merchant) => (
-                            <MenuItem key={merchant.id} value={merchant.name}>
+                            <AntSelect.Option key={merchant.id} value={merchant.name}>
                               {merchant.name}
-                            </MenuItem>
+                            </AntSelect.Option>
                           ))
                         : merchants.map((merchant) => (
-                            <MenuItem key={merchant.u_id} value={merchant.client_name}>
+                            <AntSelect.Option key={merchant.u_id} value={merchant.client_name}>
                               {merchant.client_name}
-                            </MenuItem>
+                            </AntSelect.Option>
                           ))}
-                    </Select>
+                    </AntSelect>
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 4 }}>

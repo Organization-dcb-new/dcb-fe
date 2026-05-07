@@ -234,19 +234,19 @@ const TransactionSummaryPage: React.FC = () => {
         </Col>
         <Col xs={24} sm={12} md={12} lg={8}>
           <Text>Merchant</Text>
-          <Select
-            showSearch
-            placeholder='Select merchant'
-            value={merchantName}
-            onChange={(value) => setMerchantName(value)}
-            allowClear
-            style={{ width: '100%' }}
-            optionFilterProp='children'
-            filterOption={(input, option) =>
-              (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
-            }
-            loading={!merchants.length && !error}
-          >
+            <Select
+             showSearch
+             placeholder='Select merchant'
+             value={merchantName}
+             onChange={(value) => setMerchantName(value)}
+             allowClear
+             style={{ width: '100%' }}
+             optionFilterProp='children'
+             filterOption={(input, option: any) =>
+               (option?.children?.toString() || '').toLowerCase().includes(input.toLowerCase())
+             }
+             loading={!merchants.length && !error}
+            >
             {merchants.map((merchant) => (
               <Option key={merchant.u_id} value={merchant.client_name}>
                 {merchant.client_name}

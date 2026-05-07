@@ -523,15 +523,15 @@ const ReportDownload: React.FC = () => {
       reportType === 'monthly'
         ? `PERIOD: ${startDate?.format('DD')} - ${endDate?.format('DD MMMM YYYY')}`
         : reportType === 'custom'
-        ? `PERIOD: ${startDate?.format('DD MMMM YYYY')} - ${endDate?.format('DD MMMM YYYY')}`
-        : `DATE: ${startDate?.format('DD MMMM YYYY')}`
+          ? `PERIOD: ${startDate?.format('DD MMMM YYYY')} - ${endDate?.format('DD MMMM YYYY')}`
+          : `DATE: ${startDate?.format('DD MMMM YYYY')}`
 
     const detailsText =
       reportType === 'monthly'
         ? `Here's the details on the use of channel ${filteredPaymentMethod?.name} period ${startDate?.format('DD')} - ${endDate?.format('DD MMMM YYYY')}:`
         : reportType === 'custom'
-        ? `Here's the details on the use of channel ${filteredPaymentMethod?.name} period ${startDate?.format('DD MMMM YYYY')} - ${endDate?.format('DD MMMM YYYY')}:`
-        : `Here's the details on the use of channel ${filteredPaymentMethod?.name} on ${startDate?.format('DD MMMM YYYY')}:`
+          ? `Here's the details on the use of channel ${filteredPaymentMethod?.name} period ${startDate?.format('DD MMMM YYYY')} - ${endDate?.format('DD MMMM YYYY')}:`
+          : `Here's the details on the use of channel ${filteredPaymentMethod?.name} on ${startDate?.format('DD MMMM YYYY')}:`
 
     const docDefinition = {
       content: [
@@ -724,6 +724,12 @@ const ReportDownload: React.FC = () => {
           <Select
             id='app-select'
             allowClear
+            showSearch
+            filterOption={(input, option: any) => {
+              const children = option?.children
+              const text = Array.isArray(children) ? children.join('') : children
+              return String(text).toLowerCase().includes(input.toLowerCase())
+            }}
             placeholder={merchantsLoading || clientLoading ? 'Loading...' : 'Select App'}
             style={{ width: 300 }}
             onChange={(val) => setFilteredApp(val)}
@@ -744,6 +750,12 @@ const ReportDownload: React.FC = () => {
           <Select
             id='payment-select'
             allowClear
+            showSearch
+            filterOption={(input, option: any) => {
+              const children = option?.children
+              const text = Array.isArray(children) ? children.join('') : children
+              return String(text).toLowerCase().includes(input.toLowerCase())
+            }}
             placeholder='Select Payment Method'
             style={{ width: 180 }}
             onChange={(val) => {
@@ -779,17 +791,17 @@ const ReportDownload: React.FC = () => {
               onCalendarChange={(val) => setCalendarDates(val as any)}
               disabledDate={(current) => {
                 if (!calendarDates) {
-                  return false;
+                  return false
                 }
-                const tooLate = calendarDates[0] && current.diff(calendarDates[0], 'days') > 31;
-                const tooEarly = calendarDates[1] && calendarDates[1].diff(current, 'days') > 31;
-                return !!tooEarly || !!tooLate;
+                const tooLate = calendarDates[0] && current.diff(calendarDates[0], 'days') > 31
+                const tooEarly = calendarDates[1] && calendarDates[1].diff(current, 'days') > 31
+                return !!tooEarly || !!tooLate
               }}
               onOpenChange={(open) => {
                 if (open) {
-                  setCalendarDates(null);
+                  setCalendarDates(null)
                 } else {
-                  setCalendarDates(null);
+                  setCalendarDates(null)
                 }
               }}
             />

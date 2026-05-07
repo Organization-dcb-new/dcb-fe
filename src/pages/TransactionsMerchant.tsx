@@ -15,7 +15,7 @@ import Card from '@mui/material/Card'
 import { FormLabel } from '@mui/material'
 
 import Typography from '@mui/material/Typography'
-import { Table, DatePicker } from 'antd'
+import { Table, DatePicker, Select as AntSelect } from 'antd'
 
 import Badge from '../components/Badge'
 import { ColumnType } from 'antd/es/table'
@@ -553,30 +553,26 @@ export default function TransactionsMerchant() {
                       ))}
                     </Select> */}
 
-                    <Select
-                      labelId='app-name-label'
+                    <AntSelect
                       id='app_name'
-                      name='app_name'
-                      value={formData.app_name}
-                      onChange={handleChange}
-                      input={<OutlinedInput label='App Name' />}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: 350,
-                          },
-                        },
-                      }}
+                      value={formData.app_name || undefined}
+                      onChange={(val) => handleChange({ target: { name: 'app_name', value: val || '' } })}
+                      style={{ width: '100%', height: 38 }}
+                      showSearch
+                      allowClear
+                      filterOption={(input, option: any) =>
+                        String(option?.children ?? '')
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      placeholder='All Apps'
                     >
-                      <MenuItem value=''>
-                        <em>All Apps</em>
-                      </MenuItem>
                       {client?.apps?.map((app) => (
-                        <MenuItem key={app.id} value={app.app_name}>
+                        <AntSelect.Option key={app.id} value={app.app_name}>
                           {app.app_name}
-                        </MenuItem>
+                        </AntSelect.Option>
                       ))}
-                    </Select>
+                    </AntSelect>
                   </Grid>
                 </Grid>
                 {/* <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}></Grid> */}
@@ -635,22 +631,27 @@ export default function TransactionsMerchant() {
                 <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   <Grid size={6} className='flex flex-col'>
                     <FormLabel className='font-medium'>Payment Method</FormLabel>
-                    <Select
-                      multiple
-                      labelId='payment-method-label'
-                      id='payment-method '
-                      name='payment_method'
+                    <AntSelect
+                      mode='multiple'
+                      id='payment-method'
                       value={formData.payment_method}
-                      onChange={handleChange}
-                      input={<OutlinedInput label='payment_method' />}
-                      renderValue={(selected) => selected.join(', ')}
+                      onChange={(val) => handleChange({ target: { name: 'payment_method', value: val } })}
+                      style={{ width: '100%', minHeight: 38 }}
+                      showSearch
+                      allowClear
+                      filterOption={(input, option: any) =>
+                        String(option?.children ?? '')
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      placeholder='Select Payment Method'
                     >
                       {routes.map((method) => (
-                        <MenuItem key={method.value} value={method.value}>
+                        <AntSelect.Option key={method.value} value={method.value}>
                           {method.name}
-                        </MenuItem>
+                        </AntSelect.Option>
                       ))}
-                    </Select>
+                    </AntSelect>
                   </Grid>
                   <Grid size={6}>
                     <FormLabel className='font-medium'>Denom</FormLabel>

@@ -23,6 +23,7 @@ import { capitalizeLetter } from '../utils/Capitalize'
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { Select as AntSelect } from 'antd'
 
 // interface SummaryProps {
 //   type?: 'Hourly' | 'Daily' | 'Monthly'
@@ -193,21 +194,24 @@ export default function Summary() {
                     <Grid size={6} className='flex flex-col'>
                       <FormLabel className='font-medium'>Payment Method</FormLabel>
 
-                      <Select
-                        labelId='demo-multiple-name-label'
-                        id='demo-multiple-name'
-                        multiple
+                      <AntSelect
+                        mode='multiple'
+                        id='payment-method'
                         value={paymentMethod}
-                        onChange={handlePaymentChange}
-                        input={<OutlinedInput label='Name' />}
-                        // MenuProps={MenuProps}
+                        onChange={(val) => setPaymentMethod(val)}
+                        style={{ width: '100%', minHeight: 56 }}
+                        showSearch
+                        allowClear
+                        filterOption={(input, option: any) =>
+                          String(option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+                        }
                       >
                         {names.map((name) => (
-                          <MenuItem key={name} value={name}>
+                          <AntSelect.Option key={name} value={name}>
                             {name}
-                          </MenuItem>
+                          </AntSelect.Option>
                         ))}
-                      </Select>
+                      </AntSelect>
                     </Grid>
                     <Grid size={6} className='flex flex-col'>
                       <FormLabel className='font-medium'>Status</FormLabel>
@@ -233,37 +237,44 @@ export default function Summary() {
                     <Grid size={6} className='flex flex-col'>
                       <FormLabel className='font-medium'>Merchant</FormLabel>
 
-                      <Select
-                        labelId='demo-multiple-name-label'
-                        id='demo-multiple-name'
+                      <AntSelect
+                        id='merchant'
                         value={paymentMethod}
-                        onChange={handlePaymentChange}
-                        input={<OutlinedInput label='Name' />}
-                        // MenuProps={MenuProps}
+                        onChange={(val) => setPaymentMethod(val)}
+                        style={{ width: '100%', minHeight: 56 }}
+                        showSearch
+                        allowClear
+                        filterOption={(input, option: any) =>
+                          String(option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+                        }
                       >
                         {names.map((name) => (
-                          <MenuItem key={name} value={name}>
+                          <AntSelect.Option key={name} value={name}>
                             {name}
-                          </MenuItem>
+                          </AntSelect.Option>
                         ))}
-                      </Select>
+                      </AntSelect>
                     </Grid>
                     <Grid size={6} className='flex flex-col'>
                       <FormLabel className='font-medium'>App</FormLabel>
 
-                      <Select
-                        labelId='demo-multiple-name-label'
-                        id='demo-multiple-name'
+                      <AntSelect
+                        id='app'
                         value={paymentMethod}
-                        onChange={handlePaymentChange}
-                        input={<OutlinedInput label='Name' />}
+                        onChange={(val) => setPaymentMethod(val)}
+                        style={{ width: '100%', minHeight: 56 }}
+                        showSearch
+                        allowClear
+                        filterOption={(input, option: any) =>
+                          String(option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+                        }
                       >
                         {names.map((name) => (
-                          <MenuItem key={name} value={name}>
+                          <AntSelect.Option key={name} value={name}>
                             {name}
-                          </MenuItem>
+                          </AntSelect.Option>
                         ))}
-                      </Select>
+                      </AntSelect>
                     </Grid>
                   </Grid>
                   <Grid container rowSpacing={1} className='mb-2' columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
