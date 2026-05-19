@@ -240,6 +240,17 @@ const ReportMarginPaymentMethod: React.FC = () => {
         .report-margin-payment-method .ant-table-tbody > tr > td {
           font-size: 14px;
         }
+        /* Thick borders override */
+        .report-margin-payment-method .ant-table-container {
+          border-inline-start: 1.5px solid #cbd5e1 !important;
+          border-top: 1.5px solid #cbd5e1 !important;
+        }
+        .report-margin-payment-method .ant-table-thead > tr > th,
+        .report-margin-payment-method .ant-table-tbody > tr > td,
+        .report-margin-payment-method .ant-table-summary > tr > td {
+          border-bottom: 1.5px solid #cbd5e1 !important;
+          border-inline-end: 1.5px solid #cbd5e1 !important;
+        }
       `}</style>
       <Title level={4} style={{ marginBottom: 4 }}>
         Report Margin per Payment Method

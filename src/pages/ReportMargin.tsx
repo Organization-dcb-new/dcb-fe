@@ -270,6 +270,17 @@ const ReportMargin: React.FC = () => {
         .report-margin-table .ant-table-thead > tr > th {
           padding: 10px 12px;
         }
+        /* Thick borders override */
+        .report-margin-table .ant-table-container {
+          border-inline-start: 1.5px solid #cbd5e1 !important;
+          border-top: 1.5px solid #cbd5e1 !important;
+        }
+        .report-margin-table .ant-table-thead > tr > th,
+        .report-margin-table .ant-table-tbody > tr > td,
+        .report-margin-table .ant-table-summary > tr > td {
+          border-bottom: 1.5px solid #cbd5e1 !important;
+          border-inline-end: 1.5px solid #cbd5e1 !important;
+        }
       `}</style>
       <Title level={4} style={{ marginBottom: 16 }}>
         Report Margin
