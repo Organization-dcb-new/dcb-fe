@@ -193,7 +193,11 @@ const ReportDownload: React.FC = () => {
   // ])
 
   const fetchReport = async () => {
-    if (!filteredApp || !filteredPaymentMethod || !filteredMonth) return
+    if (!filteredApp || !filteredPaymentMethod) return
+
+    if (reportType === 'monthly' && !filteredMonth) return
+    if (reportType === 'daily' && !filteredDate) return
+    if (reportType === 'custom' && (!filteredDateRange || !filteredDateRange[0] || !filteredDateRange[1])) return
 
     const appInfo = appMap[filteredApp]
     if (!appInfo) return
@@ -686,17 +690,6 @@ const ReportDownload: React.FC = () => {
   useEffect(() => {
     // Clear data when filters change
     setData(undefined)
-
-    // Fetch new data if all filters are selected
-    if (filteredApp && filteredPaymentMethod) {
-      if (reportType === 'monthly' && filteredMonth) {
-        fetchReport()
-      } else if (reportType === 'daily' && filteredDate) {
-        fetchReport()
-      } else if (reportType === 'custom' && filteredDateRange && filteredDateRange[0] && filteredDateRange[1]) {
-        fetchReport()
-      }
-    }
   }, [filteredApp, filteredPaymentMethod, filteredMonth, filteredDate, filteredDateRange, reportType])
 
   return (
@@ -816,18 +809,33 @@ const ReportDownload: React.FC = () => {
         </Col>
       </Row>
 
-      <button
-        onClick={exportToPDF}
-        style={{ marginTop: 16 }}
-        className={`py-1 px-2 w-28 rounded ${
-          !data || !data.summaries || data.summaries.length === 0
-            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-            : 'bg-green-500 text-white hover:bg-green-600'
-        }`}
-        disabled={!data || !data.summaries || data.summaries.length === 0}
-      >
-        Export PDF
-      </button>
+      <div className='flex gap-4'>
+        <button
+          onClick={fetchReport}
+          style={{ marginTop: 16 }}
+          className={`py-1 px-4 rounded ${
+            !filteredApp || !filteredPaymentMethod
+              ? 'bg-blue-300 text-white cursor-not-allowed'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+          }`}
+          disabled={!filteredApp || !filteredPaymentMethod || loading}
+        >
+          {loading ? 'Loading...' : 'Load Data'}
+        </button>
+
+        <button
+          onClick={exportToPDF}
+          style={{ marginTop: 16 }}
+          className={`py-1 px-4 rounded ${
+            !data || !data.summaries || data.summaries.length === 0
+              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+              : 'bg-green-500 text-white hover:bg-green-600'
+          }`}
+          disabled={!data || !data.summaries || data.summaries.length === 0}
+        >
+          Export PDF
+        </button>
+      </div>
       <div style={{ padding: 24 }}>
         <Table
           bordered
