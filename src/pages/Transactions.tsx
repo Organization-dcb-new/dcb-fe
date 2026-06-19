@@ -588,6 +588,63 @@ export default function Transactions() {
     }
   }
 
+  // Hanya transaksi dengan status_code 1003 dan timestamp_callback_result "ok" yang boleh di-mark success
+  const eligibleMarkSuccessRows = selectedRows.filter(
+    (transaction) => transaction.status_code === 1003 && transaction.timestamp_callback_result === 'ok',
+  )
+
+  const handleBatchMarkSuccess = async () => {
+    try {
+      const confirmed = window.confirm(
+        `Kamu yakin ingin mark success untuk ${eligibleMarkSuccessRows.length} transaksi?`,
+      )
+      if (!confirmed) return
+
+      const promises = eligibleMarkSuccessRows.map((transaction) =>
+        fetch(`${apiUrl}/transactions/paid-to-success/${transaction.u_id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((res) => ({
+            transactionId: transaction.u_id,
+            success: res.status === 200 || res.code === 200 || res.success === true,
+            message: res.message,
+          })),
+      )
+
+      const results = await Promise.all(promises)
+      const failed = results.filter((r) => !r.success)
+
+      if (failed.length === 0) {
+        Modal.success({
+          title: 'Mark Success',
+          content: `${results.length} transaksi berhasil di-mark success.`,
+        })
+      } else {
+        Modal.warning({
+          title: 'Sebagian Gagal',
+          content: `${failed.length} dari ${results.length} transaksi gagal di-mark success. Cek log untuk detail.`,
+        })
+        console.error('Failed mark success:', failed)
+      }
+
+      // Refresh data
+      fetchData(currentPage, pageSize)
+      setSelectedRowKeys([])
+      setSelectedRows([])
+    } catch (error) {
+      console.error('Batch mark success error:', error)
+      Modal.error({
+        title: 'Mark Success Error',
+        content: 'Terjadi kesalahan saat menjalankan mark success.',
+      })
+    }
+  }
+
   return (
     <Box
       component='main'
@@ -875,13 +932,22 @@ export default function Transactions() {
 
           {/* 1540px */}
           {formData.status === 1003 && isFiltered && (
-            <ButtonAnt
-              type='primary'
-              disabled={formData.status !== 1003 || selectedRows.length === 0}
-              onClick={handleBatchManualCallback}
-            >
-              Manual Callback Selected
-            </ButtonAnt>
+            <Stack direction='row' spacing={2} sx={{ alignItems: 'center' }}>
+              <ButtonAnt
+                type='primary'
+                disabled={formData.status !== 1003 || selectedRows.length === 0}
+                onClick={handleBatchManualCallback}
+              >
+                Manual Callback Selected
+              </ButtonAnt>
+              <ButtonAnt
+                type='primary'
+                disabled={eligibleMarkSuccessRows.length === 0}
+                onClick={handleBatchMarkSuccess}
+              >
+                Mark Success Selected
+              </ButtonAnt>
+            </Stack>
           )}
           <div className='mt-5'>
             <Table
