@@ -1105,26 +1105,6 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
             </Row>
 
             <Card title='Settlement Configuration' style={{ marginTop: 16 }}>
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Form.Item label='Service Charge' name={['settlement_config', 'servicecharge']}>
-                    <Input placeholder='Service charge' disabled value='0' />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item label='Tax 23' name={['settlement_config', 'tax23']}>
-                    <Select placeholder='Pilih Tax 23'>
-                      <Option value='0'>0</Option>
-                      <Option value='1'>1</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item label='PPN' name={['settlement_config', 'ppn']}>
-                    <Input placeholder='PPN' disabled />
-                  </Form.Item>
-                </Col>
-              </Row>
 
               <Row gutter={16}>
                 <Col span={8}>
@@ -1185,17 +1165,6 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
                 <Col span={8}>
                   <Form.Item label='BHPUSO' name={['settlement_config', 'is_bhpuso']}>
                     <Select>
-                      <Option value='1'>Ya</Option>
-                      <Option value='0'>Tidak</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Form.Item label='Divide 1.1' name={['settlement_config', 'is_divide_1poin1']}>
-                    <Select disabled value='0'>
                       <Option value='1'>Ya</Option>
                       <Option value='0'>Tidak</Option>
                     </Select>

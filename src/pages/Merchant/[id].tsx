@@ -430,12 +430,6 @@ const DetailMerchant = () => {
                       render: (percent) => (percent ? `${percent}%` : 'No'),
                     },
                     {
-                      title: 'Service Charge',
-                      dataIndex: 'servicecharge',
-                      key: 'servicecharge',
-                      render: (charge) => `${charge}%`,
-                    },
-                    {
                       title: 'Tax 23',
                       dataIndex: 'tax23',
                       key: 'tax23',
