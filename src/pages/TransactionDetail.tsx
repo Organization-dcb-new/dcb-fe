@@ -41,6 +41,17 @@ interface Transaction {
   user_ip: string
 }
 
+interface NotificationHistory {
+  timestamp: string
+  level: string
+  endpoint: string
+  method: string
+  status_code: number
+  duration_ms: number
+  response_body: unknown
+  request_body: unknown
+}
+
 const TransactionDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>() // Ambil u_id dari URL
   const [transaction, setTransaction] = useState<Transaction | null>(null)
@@ -52,6 +63,12 @@ const TransactionDetail: React.FC = () => {
   } | null>(null)
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+  const [notifications, setNotifications] = useState<NotificationHistory[]>([])
+  const [expandedNotifications, setExpandedNotifications] = useState<Record<number, boolean>>({})
+
+  const toggleNotification = (index: number) => {
+    setExpandedNotifications((prev) => ({ ...prev, [index]: !prev[index] }))
+  }
 
   const { token, apiUrl, isDev } = useAuth()
 
@@ -304,7 +321,22 @@ const TransactionDetail: React.FC = () => {
       }
     }
 
+    const fetchNotificationHistory = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/transactions/${id}/notification-history`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        setNotifications(response.data.data || [])
+      } catch (error) {
+        console.error('Error fetching notification history:', error)
+      }
+    }
+
     fetchTransactionDetail()
+    fetchNotificationHistory()
   }, [id, token])
 
   if (loading) {
@@ -393,7 +425,7 @@ const TransactionDetail: React.FC = () => {
     transaction.route == 'qris_harsya'
 
   return (
-    <div>
+    <div className='flex flex-col gap-2 pb-8'>
       <Card className='bg-slate-100' sx={{ padding: 2 }}>
         <Typography variant='h5' sx={{ mb: 2 }}>
           Transaction Detail
@@ -593,6 +625,76 @@ const TransactionDetail: React.FC = () => {
           </Box>
         </Box>
       </Card>
+      {notifications.length > 0 && (
+        <Card className='bg-slate-100' sx={{ padding: 2, mt: 2 }}>
+          <Typography variant='h5' sx={{ mb: 2 }}>
+            Payment Notification History
+          </Typography>
+          <Box display='flex' flexDirection='column' gap={1}>
+            {notifications.map((notification, index) => {
+              const isExpanded = !!expandedNotifications[index]
+              const isSuccess = notification.status_code >= 200 && notification.status_code < 300
+              return (
+                <Box key={index} sx={{ border: '1px solid #cbd5e1', borderRadius: 1, bgcolor: '#fff' }}>
+                  <Box
+                    onClick={() => toggleNotification(index)}
+                    display='flex'
+                    alignItems='center'
+                    justifyContent='space-between'
+                    sx={{ cursor: 'pointer', padding: 1.5 }}
+                  >
+                    <Box display='flex' alignItems='center' gap={2}>
+                      <span>{isExpanded ? '▼' : '▶'}</span>
+                      <strong>{dayjs(notification.timestamp).format('YYYY-MM-DD HH:mm:ss')}</strong>
+                      <span>{notification.method}</span>
+                      <span
+                        style={{
+                          padding: '2px 8px',
+                          borderRadius: 4,
+                          fontSize: 12,
+                          color: '#fff',
+                          backgroundColor: isSuccess ? '#16a34a' : '#dc2626',
+                        }}
+                      >
+                        {notification.status_code}
+                      </span>
+                    </Box>
+                    <span style={{ fontSize: 12, color: '#64748b' }}>{notification.duration_ms.toFixed(2)} ms</span>
+                  </Box>
+                  {isExpanded && (
+                    <Box sx={{ borderTop: '1px solid #e2e8f0', padding: 1.5 }} display='flex' flexDirection='column' gap={1}>
+                      <div className='flex'>
+                        <div className='w-1/4'>
+                          <strong>Level:</strong>
+                        </div>
+                        <div>{notification.level}</div>
+                      </div>
+                      <div className='flex'>
+                        <div className='w-1/4'>
+                          <strong>Endpoint:</strong>
+                        </div>
+                        <div style={{ wordBreak: 'break-all' }}>{notification.endpoint}</div>
+                      </div>
+                      <div>
+                        <strong>Request Body:</strong>
+                        <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: '#f1f5f9', padding: 8, borderRadius: 4 }}>
+                          {JSON.stringify(notification.request_body, null, 2)}
+                        </pre>
+                      </div>
+                      <div>
+                        <strong>Response Body:</strong>
+                        <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: '#f1f5f9', padding: 8, borderRadius: 4 }}>
+                          {JSON.stringify(notification.response_body, null, 2)}
+                        </pre>
+                      </div>
+                    </Box>
+                  )}
+                </Box>
+              )
+            })}
+          </Box>
+        </Card>
+      )}
       <div className='flex pl-4 pt-2'>
         {isDev && (
           <>
