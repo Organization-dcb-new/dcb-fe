@@ -15,6 +15,7 @@ interface MerchantListDataApi {
   callback_url: string
   fail_callback: string
   isdcb: string
+  whitelisted_ips?: string
   updated_at: string
   created_at: string
   payment_methods: {

@@ -310,6 +310,23 @@ const DetailMerchant = () => {
                   <Descriptions.Item label='Language'>
                     <Tag>{merchantDetail.lang || 'id'}</Tag>
                   </Descriptions.Item>
+                  <Descriptions.Item label='Whitelisted IPs'>
+                    {merchantDetail.whitelisted_ips && merchantDetail.whitelisted_ips.trim() !== '' ? (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {merchantDetail.whitelisted_ips
+                          .split(',')
+                          .map((ip) => ip.trim())
+                          .filter(Boolean)
+                          .map((ip, index) => (
+                            <Tag key={index} color='geekblue'>
+                              {ip}
+                            </Tag>
+                          ))}
+                      </div>
+                    ) : (
+                      <Typography.Text type='secondary'>Semua IP diizinkan</Typography.Text>
+                    )}
+                  </Descriptions.Item>
                 </Descriptions>
               ) : (
                 <Skeleton active paragraph={{ rows: 4 }} />

@@ -5,6 +5,7 @@ import axios from 'axios'
 import { useAuth } from '../../../provider/AuthProvider'
 
 const { Option } = Select
+const { TextArea } = Input
 
 interface EditMerchantProps {
   id: string
@@ -85,6 +86,7 @@ interface MerchantDetailData {
   fail_callback: string
   fail_callback_url: string
   isdcb: string
+  whitelisted_ips?: string
   address?: string
   updated_at: string
   created_at: string
@@ -108,6 +110,7 @@ interface MerchantFormData {
   fail_callback: string
   fail_callback_url?: string
   isdcb: string
+  whitelisted_ips?: string
 }
 
 const EditMerchant = ({ id }: EditMerchantProps) => {
@@ -158,6 +161,7 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
           fail_callback: detail.fail_callback,
           fail_callback_url: detail.fail_callback_url || '',
           isdcb: detail.isdcb,
+          whitelisted_ips: detail.whitelisted_ips || '',
         })
 
         // Set apps data
@@ -472,6 +476,7 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
         lang: values.lang,
         callback_url: values.callback_url,
         isdcb: values.isdcb,
+        whitelisted_ips: values.whitelisted_ips || '',
         selected_payment_methods: selectedPaymentMethods,
         client_app: apps.map((app) => ({
           id: app.id,
@@ -787,6 +792,14 @@ const EditMerchant = ({ id }: EditMerchantProps) => {
 
                 <Form.Item label='Callback URL (Default)' name='callback_url'>
                   <Input placeholder='https://example.com/callback' />
+                </Form.Item>
+
+                <Form.Item
+                  label='Whitelisted IPs'
+                  name='whitelisted_ips'
+                  tooltip='Pisahkan beberapa IP dengan koma. Kosongkan untuk mengizinkan semua IP.'
+                >
+                  <TextArea rows={2} placeholder='192.168.1.1,10.0.0.1' />
                 </Form.Item>
 
                 {/* <Form.Item

@@ -76,6 +76,7 @@ interface MerchantFormData {
   fail_callback: string
   fail_callback_url?: string
   isdcb: string
+  whitelisted_ips?: string
 }
 
 const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
@@ -446,6 +447,7 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
         lang: values.lang,
         callback_url: values.callback_url,
         isdcb: values.isdcb,
+        whitelisted_ips: values.whitelisted_ips || '',
         selected_payment_methods: selectedPaymentMethods,
         client_app: apps.map((app) => ({
           app_name: app.app_name,
@@ -740,6 +742,14 @@ const AddMerchant = ({ onSuccess }: AddMerchantProps) => {
 
             <Form.Item label='Callback URL (Default)' name='callback_url'>
               <Input placeholder='https://example.com/callback' />
+            </Form.Item>
+
+            <Form.Item
+              label='Whitelisted IPs'
+              name='whitelisted_ips'
+              tooltip='Pisahkan beberapa IP dengan koma. Kosongkan untuk mengizinkan semua IP.'
+            >
+              <TextArea rows={2} placeholder='192.168.1.1,10.0.0.1' />
             </Form.Item>
 
             <Form.Item
