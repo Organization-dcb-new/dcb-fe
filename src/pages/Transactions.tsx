@@ -509,15 +509,35 @@ export default function Transactions() {
         },
         responseType: 'blob',
       })
+    const extension = type === 'csv' ? 'csv' : 'xlsx';
+    let fileName = `transactions.${extension}`;
 
-      const extension = type == 'csv' ? 'csv' : 'xlsx'
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `transactions.${extension}`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
+    // get header Content-Disposition (Axios/Fetch usually change header name to lowercase)
+    const disposition = response.headers['content-disposition'];
+
+    // extract file name if header is available
+    if (disposition && disposition.indexOf('attachment') !== -1) {
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+      const matches = filenameRegex.exec(disposition);
+      
+      if (matches != null && matches[1]) {
+        // remove single/double quote that might be stuck
+        fileName = matches[1].replace(/['"]/g, ''); 
+      }
+    }
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    
+    link.href = url;
+    link.setAttribute('download', fileName); // use file name from header
+    
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    
+    // clear URL from memory after use
+    window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error exporting CSV:', error)
     } finally {
