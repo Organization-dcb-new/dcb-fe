@@ -1,4 +1,4 @@
-import { createColumnHelper, tableFeatures } from '@tanstack/table-core'
+import { createColumnHelper } from '@tanstack/table-core'
 
 export interface CodaTelcoRow {
   nilaiTransaksi: number
@@ -9,8 +9,7 @@ export interface CodaTelcoRow {
   payoutToCoda: number
 }
 
-const features = tableFeatures({})
-const column = createColumnHelper<typeof features, CodaTelcoRow>()
+const column = createColumnHelper<CodaTelcoRow>()
 
 export const template = [
   column.accessor('nilaiTransaksi', {
@@ -39,5 +38,11 @@ export const template = [
   column.accessor('payoutToCoda', {
     header: 'Payout to Coda',
     cell: (info) => info.getValue(),
+    footer: ({ table }) => {
+      const total = table.getFilteredRowModel().rows.reduce((sum, row) => {
+        return sum + Number(row.getValue('payoutToCoda') || 0)
+      }, 0)
+      return total
+    },
   }),
 ]
