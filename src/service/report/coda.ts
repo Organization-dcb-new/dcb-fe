@@ -1,5 +1,5 @@
 import { CodaTelcoRow } from '../../templates/pdf-report/coda/telco'
-import type { ReportData, ReportSummary } from '../../types/report'
+import type { ReportData } from '../../types/report'
 
 interface TelcoPrice {
   basicPrice: number
@@ -104,26 +104,36 @@ const TELCO_PRICE: Record<number, TelcoPrice> = {
     eupCharging: 555000,
   },
 }
-export function calculateCodaTsel(data: ReportData): any {
-  const parsed: CodaTelcoRow[] = data.summaries.map((item): CodaTelcoRow => {
-    // const denom = item.amount
-    // const nilaiTrx = Math.round(denom * 1.1)
-    // const basePrice = Math.round(denom * 0.9009)
-    // const diskonPenyedia = Math.round(basePrice * 0.22)
-    // const codaSum = Math.round(denom * 0.7027)
 
-    const nilaiTrx = TELCO_PRICE[item.amount].eupCharging
-    const basePrice = TELCO_PRICE[item.amount].basicPrice
-    const diskonPenyedia = Math.round(TELCO_PRICE[item.amount].basicPrice * 0.22)
-    const codaSum = TELCO_PRICE[item.amount].payoutToCoda
+export function calculateCodaTsel(data: ReportData): CodaTelcoRow[] {
+  const parsed: CodaTelcoRow[] = data.summaries
+    .flatMap((item): CodaTelcoRow[] => {
+      const denom = item.amount
+      const price = TELCO_PRICE[denom]
 
-    return {
-      nilaiTransaksi: nilaiTrx, //
-      basicPrice: basePrice, //
-      diskonPenyedia: diskonPenyedia,
-      codaSum: codaSum,
-      jumlahTransaksi: codaSum * item.count, //
-      payoutToCoda: codaSum * item.count,
-    }
-  })
+      if (!price) {
+        return []
+      }
+
+      const nilaiTrx = TELCO_PRICE[denom].eupCharging
+      const basePrice = TELCO_PRICE[denom].basicPrice
+      const diskonPenyedia = Math.round(TELCO_PRICE[denom].basicPrice * 0.22)
+      const codaSum = TELCO_PRICE[denom].payoutToCoda
+
+      return [
+        {
+          nilaiTransaksi: nilaiTrx,
+          basicPrice: basePrice,
+          diskonPenyedia: diskonPenyedia,
+          codaSum: codaSum,
+          jumlahTransaksi: item.count,
+          // payoutToCoda: basePrice * 0.78 * item.count,
+          payoutToCoda: Math.trunc((basePrice * 0.78) * item.count),
+          denomination: item.amount,
+        },
+      ]
+    })
+    .filter((item) => !Array.isArray(item))
+
+  return parsed
 }

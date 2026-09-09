@@ -7,6 +7,7 @@ export interface CodaTelcoRow {
   codaSum: number
   jumlahTransaksi: number
   payoutToCoda: number
+  denomination: number
 }
 
 const column = createColumnHelper<CodaTelcoRow>()
@@ -14,6 +15,10 @@ const column = createColumnHelper<CodaTelcoRow>()
 export const template = [
   column.accessor('nilaiTransaksi', {
     header: 'Nilai Transaksi',
+    cell: (info) => info.getValue(),
+  }),
+  column.accessor('denomination', {
+    header: 'Denomination',
     cell: (info) => info.getValue(),
   }),
   column.accessor('basicPrice', {
