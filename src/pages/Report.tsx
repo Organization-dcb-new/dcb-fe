@@ -7,20 +7,27 @@ import dayjs, { Dayjs } from 'dayjs'
 import { useAuth } from '../provider/AuthProvider'
 import { useMerchants } from '../context/MerchantContext'
 
+import type { Alignment, TableCell, TDocumentDefinitions, Size } from 'pdfmake/interfaces'
 import pdfMake from 'pdfmake/build/pdfmake'
+import pdfFonts from 'pdfmake/build/vfs_fonts'
 import numberToWords from 'number-to-words'
 import timesNewRoman from '../assets/fonts/timesNewRomanWithBoldBase64'
 
-pdfMake.vfs = {
-  ...pdfMake.vfs,
-  ...timesNewRoman,
-}
-
-pdfMake.fonts = {
+pdfMake.addVirtualFileSystem(pdfFonts)
+pdfMake.addVirtualFileSystem(timesNewRoman)
+pdfMake.addFonts({
   TimesNewRoman: {
     normal: 'Times-New-Roman.ttf',
     bold: 'Times-New-Roman-Bold.ttf',
+    italics: 'Times-New-Roman-Italic.ttf',
+    bolditalics: 'Times-New-Roman-Bold-Italic.ttf',
   },
+})
+
+const ALIGN = {
+  left: 'left' as Alignment,
+  center: 'center' as Alignment,
+  right: 'right' as Alignment,
 }
 
 const { Option } = Select
@@ -196,18 +203,39 @@ const Report: React.FC = () => {
     let tableWidths
     if (isTelco) {
       // For telco payment methods - show both EUP INC and EUP EXC
-      tableWidths = ['15%', '15%', '10%', '20%', '20%', '20%']
+      tableWidths = ['15%', '15%', '10%', '20%', '20%', '20%'] as Size[]
       tableBody = [
         // Header row
         [
-          { text: 'EUP INC', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
-          { text: 'EUP EXC', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
-          { text: '#TRX', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
+          {
+            text: 'EUP INC',
+            style: 'tableHeader',
+            alignment: ALIGN.center,
+            verticalAlignment: 'middle',
+            bold: true,
+            rowSpan: 2,
+          },
+          {
+            text: 'EUP EXC',
+            style: 'tableHeader',
+            alignment: ALIGN.center,
+            verticalAlignment: 'middle',
+            bold: true,
+            rowSpan: 2,
+          },
+          {
+            text: '#TRX',
+            style: 'tableHeader',
+            alignment: ALIGN.center,
+            verticalAlignment: 'middle',
+            bold: true,
+            rowSpan: 2,
+          },
           {
             text: 'SALES EXC VAT',
             style: 'tableHeader',
-            alignment: 'center',
-            valign: 'middle',
+            alignment: ALIGN.center,
+            verticalAlignment: 'middle',
             bold: true,
             rowSpan: 2,
           },
@@ -217,120 +245,148 @@ const Report: React.FC = () => {
                 ? `REVENUE SHARING ${data.share_redision} - ${data.share_merchant ?? ''}`
                 : `REVENUE SHARING`,
             style: 'tableHeader',
-            alignment: 'center',
+            alignment: ALIGN.center,
             bold: true,
             colSpan: 2,
           },
-          {}, // kolom ke-6 untuk melengkapi colSpan
+          {},
         ],
-        // Baris 2: Kosongkan 4 kolom pertama, isi kolom 5-6
         [
           {},
           {},
           {},
           {},
           {
-            text: data?.share_redision == 0 ? `MDR (${data.mdr} per trx)` : 'REDISION',
+            text: data?.share_redision === 0 ? `MDR (${data.mdr ?? 0} per trx)` : 'REDISION',
             style: 'tableHeader',
-            alignment: 'center',
+            alignment: ALIGN.center,
             bold: true,
           },
-          { text: 'PARTNER', style: 'tableHeader', alignment: 'center', bold: true },
+          { text: 'PARTNER', style: 'tableHeader', alignment: ALIGN.center, bold: true },
         ],
-        ...(data?.summaries || []).map((item) => [
-          { text: `${item.amount_tax.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-          { text: `${item.amount.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-          { text: item.count.toString(), alignment: 'left', fontSize: 9 },
-          { text: `IDR ${item.total_amount.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-          { text: `IDR ${item.share_redision.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-          { text: `IDR ${item.share_merchant.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+        // Data Summaries
+        ...(data?.summaries ?? []).map((item): TableCell[] => [
+          { text: `${(item.amount_tax ?? 0).toLocaleString('id-ID')}`, alignment: ALIGN.left, fontSize: 9 },
+          { text: `${(item.amount ?? 0).toLocaleString('id-ID')}`, alignment: ALIGN.left, fontSize: 9 },
+          { text: (item.count ?? 0).toString(), alignment: ALIGN.left, fontSize: 9 },
+          { text: `IDR ${(item.total_amount ?? 0).toLocaleString('id-ID')}`, alignment: ALIGN.left, fontSize: 9 },
+          { text: `IDR ${(item.share_redision ?? 0).toLocaleString('id-ID')}`, alignment: ALIGN.left, fontSize: 9 },
+          { text: `IDR ${(item.share_merchant ?? 0).toLocaleString('id-ID')}`, alignment: ALIGN.left, fontSize: 9 },
         ]),
+        // Total
         [
           {},
           {},
           {},
-          { text: `TOTAL`, alignment: 'left', bold: true, fontSize: 9 },
+          { text: `TOTAL`, alignment: ALIGN.left, bold: true, fontSize: 9 },
           {
-            text: `IDR ${data?.grand_total_redision.toLocaleString('id-ID')}`,
-            alignment: 'left',
+            text: `IDR ${(data?.grand_total_redision ?? 0).toLocaleString('id-ID')}`,
+            alignment: ALIGN.left,
             bold: true,
             fontSize: 9,
           },
-          { text: `IDR ${data?.total_merchant?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+          {
+            text: `IDR ${(data?.total_merchant ?? 0).toLocaleString('id-ID')}`,
+            alignment: ALIGN.left,
+            bold: true,
+            fontSize: 9,
+          },
         ],
-
-        // Add additional fees if available
+        // Optional rows (BHP USO, TAX 23, ADD FEE)
         ...(data?.bhp_uso
-          ? [
+          ? ([
               [
                 {},
                 {},
                 {},
                 {},
-                { text: 'BHP USO', alignment: 'left', bold: true, fontSize: 9 },
-                { text: `IDR ${data.bhp_uso.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
-              ],
-            ]
-          : []),
-        ...(data?.tax_23
-          ? [
-              [
-                {},
-                {},
-                {},
-                {},
-                { text: 'TAX 23', alignment: 'left', bold: true, fontSize: 9 },
-                { text: `IDR ${data.tax_23.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
-              ],
-            ]
-          : []),
-        ...(data?.additional_fee
-          ? [
-              [
-                {},
-                {},
-                {},
-                {},
-                { text: 'ADDITIONAL FEE', alignment: 'left', bold: true, fontSize: 9 },
+                { text: 'BHP USO', alignment: ALIGN.left, bold: true, fontSize: 9 },
                 {
-                  text: `IDR ${data.additional_fee.toLocaleString('id-ID')}`,
-                  alignment: 'left',
+                  text: `IDR ${data.bhp_uso.toLocaleString('id-ID')}`,
+                  alignment: ALIGN.left,
                   bold: true,
                   fontSize: 9,
                 },
               ],
-            ]
+            ] as TableCell[][])
           : []),
+        ...(data?.tax_23
+          ? ([
+              [
+                {},
+                {},
+                {},
+                {},
+                { text: 'TAX 23', alignment: ALIGN.left, bold: true, fontSize: 9 },
+                {
+                  text: `IDR ${data.tax_23.toLocaleString('id-ID')}`,
+                  alignment: ALIGN.left,
+                  bold: true,
+                  fontSize: 9,
+                },
+              ],
+            ] as TableCell[][])
+          : []),
+        ...(data?.additional_fee
+          ? ([
+              [
+                {},
+                {},
+                {},
+                {},
+                { text: 'ADDITIONAL FEE', alignment: ALIGN.left, bold: true, fontSize: 9 },
+                {
+                  text: `IDR ${data.additional_fee.toLocaleString('id-ID')}`,
+                  alignment: ALIGN.left,
+                  bold: true,
+                  fontSize: 9,
+                },
+              ],
+            ] as TableCell[][])
+          : []),
+        // Grand Total
         [
           {},
           {},
           {},
           {},
-          { text: 'GRAND TOTAL', alignment: 'left', bold: true, fontSize: 9 },
-          { text: `IDR ${data?.grand_total?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+          { text: 'GRAND TOTAL', alignment: ALIGN.left, bold: true, fontSize: 9 },
+          {
+            text: `IDR ${(data?.grand_total ?? 0).toLocaleString('id-ID')}`,
+            alignment: ALIGN.left,
+            bold: true,
+            fontSize: 9,
+          },
         ],
-      ]
+      ] as TableCell[][]
     } else {
       // For non-telco payment methods - hide EUP INC, change EUP EXC to Denom
-      tableWidths = ['20%', '15%', '25%', '20%', '20%']
+      tableWidths = ['20%', '15%', '25%', '20%', '20%'] as Size[]
       tableBody = [
         // Header row
         [
           {
             text: 'Denom',
             style: 'tableHeader',
-            alignment: 'center',
-            valign: 'middle',
+            alignment: ALIGN.center,
+            verticalAlignment: 'middle',
             bold: true,
             rowSpan: 2,
             fontSize: 10,
           },
-          { text: '#TRX', style: 'tableHeader', alignment: 'center', valign: 'middle', bold: true, rowSpan: 2 },
+          {
+            text: '#TRX',
+            style: 'tableHeader',
+            alignment: ALIGN.center,
+            verticalAlignment: 'middle',
+            bold: true,
+            rowSpan: 2,
+          },
           {
             text: 'SALES EXC VAT',
             style: 'tableHeader',
-            alignment: 'center',
-            valign: 'middle',
+            alignment: ALIGN.center,
+            verticalAlignment: 'middle',
             bold: true,
             rowSpan: 2,
           },
@@ -340,92 +396,114 @@ const Report: React.FC = () => {
                 ? `REVENUE SHARING ${data.share_redision} - ${data?.share_merchant ?? ''}`
                 : `REVENUE SHARING`,
             style: 'tableHeader',
-            alignment: 'center',
+            alignment: ALIGN.center,
             bold: true,
             colSpan: 2,
           },
-          {}, // kolom ke-5 untuk melengkapi colSpan
+          {},
         ],
-        // Baris 2: Kosongkan 3 kolom pertama, isi kolom 4-5
+        // Baris 2
         [
           {},
           {},
           {},
           {
-            text: data?.share_redision == 0 ? `MDR (${data.mdr} per trx)` : 'REDISION',
+            text: data?.share_redision === 0 ? `MDR (${data.mdr ?? 0} per trx)` : 'REDISION',
             style: 'tableHeader',
-            alignment: 'center',
+            alignment: ALIGN.center,
             bold: true,
           },
-          { text: 'PARTNER', style: 'tableHeader', alignment: 'center', bold: true },
+          { text: 'PARTNER', style: 'tableHeader', alignment: ALIGN.center, bold: true },
         ],
-        ...(data?.summaries || []).map((item) => [
-          { text: `${item.amount.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-          { text: item.count.toString(), alignment: 'left', fontSize: 9 },
-          { text: `IDR ${item.total_amount.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-          { text: `IDR ${item.share_redision.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
-          { text: `IDR ${item.share_merchant.toLocaleString('id-ID')}`, alignment: 'left', fontSize: 9 },
+        // Data Summaries
+        ...(data?.summaries ?? []).map((item): TableCell[] => [
+          { text: `${(item.amount ?? 0).toLocaleString('id-ID')}`, alignment: ALIGN.left, fontSize: 9 },
+          { text: (item.count ?? 0).toString(), alignment: ALIGN.left, fontSize: 9 },
+          { text: `IDR ${(item.total_amount ?? 0).toLocaleString('id-ID')}`, alignment: ALIGN.left, fontSize: 9 },
+          { text: `IDR ${(item.share_redision ?? 0).toLocaleString('id-ID')}`, alignment: ALIGN.left, fontSize: 9 },
+          { text: `IDR ${(item.share_merchant ?? 0).toLocaleString('id-ID')}`, alignment: ALIGN.left, fontSize: 9 },
         ]),
+        // Total
         [
           {},
           {},
-          { text: `TOTAL`, alignment: 'left', bold: true, fontSize: 9 },
+          { text: `TOTAL`, alignment: ALIGN.left, bold: true, fontSize: 9 },
           {
-            text: `IDR ${data?.grand_total_redision.toLocaleString('id-ID')}`,
-            alignment: 'left',
+            text: `IDR ${(data?.grand_total_redision ?? 0).toLocaleString('id-ID')}`,
+            alignment: ALIGN.left,
             bold: true,
             fontSize: 9,
           },
-          { text: `IDR ${data?.total_merchant?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+          {
+            text: `IDR ${(data?.total_merchant ?? 0).toLocaleString('id-ID')}`,
+            alignment: ALIGN.left,
+            bold: true,
+            fontSize: 9,
+          },
         ],
-
-        // Add additional fees if available
+        // Optional rows
         ...(data?.bhp_uso
-          ? [
+          ? ([
               [
                 {},
                 {},
                 {},
-                { text: 'BHP USO', alignment: 'left', bold: true, fontSize: 9 },
-                { text: `IDR ${data.bhp_uso.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
-              ],
-            ]
-          : []),
-        ...(data?.tax_23
-          ? [
-              [
-                {},
-                {},
-                {},
-                { text: 'TAX 23', alignment: 'left', bold: true, fontSize: 9 },
-                { text: `IDR ${data.tax_23.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
-              ],
-            ]
-          : []),
-        ...(data?.additional_fee
-          ? [
-              [
-                {},
-                {},
-                {},
-                { text: 'ADDITIONAL FEE', alignment: 'left', bold: true, fontSize: 9 },
+                { text: 'BHP USO', alignment: ALIGN.left, bold: true, fontSize: 9 },
                 {
-                  text: `IDR ${data.additional_fee.toLocaleString('id-ID')}`,
-                  alignment: 'left',
+                  text: `IDR ${data.bhp_uso.toLocaleString('id-ID')}`,
+                  alignment: ALIGN.left,
                   bold: true,
                   fontSize: 9,
                 },
               ],
-            ]
+            ] as TableCell[][])
           : []),
+        ...(data?.tax_23
+          ? ([
+              [
+                {},
+                {},
+                {},
+                { text: 'TAX 23', alignment: ALIGN.left, bold: true, fontSize: 9 },
+                {
+                  text: `IDR ${data.tax_23.toLocaleString('id-ID')}`,
+                  alignment: ALIGN.left,
+                  bold: true,
+                  fontSize: 9,
+                },
+              ],
+            ] as TableCell[][])
+          : []),
+        ...(data?.additional_fee
+          ? ([
+              [
+                {},
+                {},
+                {},
+                { text: 'ADDITIONAL FEE', alignment: ALIGN.left, bold: true, fontSize: 9 },
+                {
+                  text: `IDR ${data.additional_fee.toLocaleString('id-ID')}`,
+                  alignment: ALIGN.left,
+                  bold: true,
+                  fontSize: 9,
+                },
+              ],
+            ] as TableCell[][])
+          : []),
+        // Grand Total
         [
           {},
           {},
           {},
-          { text: 'GRAND TOTAL', alignment: 'left', bold: true, fontSize: 9 },
-          { text: `IDR ${data?.grand_total?.toLocaleString('id-ID')}`, alignment: 'left', bold: true, fontSize: 9 },
+          { text: 'GRAND TOTAL', alignment: ALIGN.left, bold: true, fontSize: 9 },
+          {
+            text: `IDR ${(data?.grand_total ?? 0).toLocaleString('id-ID')}`,
+            alignment: ALIGN.left,
+            bold: true,
+            fontSize: 9,
+          },
         ],
-      ]
+      ] as TableCell[][]
     }
 
     const grandTotal = data?.grand_total
@@ -438,7 +516,7 @@ const Report: React.FC = () => {
     const startDateStr = startDate?.format('DD')
     const endDateStr = endDate?.format('DD MMMM YYYY')
 
-    const docDefinition = {
+    const docDefinition: TDocumentDefinitions = {
       content: [
         {
           image:
@@ -494,7 +572,6 @@ const Report: React.FC = () => {
         {
           table: {
             widths: tableWidths,
-            fontSize: 9,
             body: tableBody,
           },
           layout: {
@@ -568,7 +645,6 @@ const Report: React.FC = () => {
           fontSize: 10,
           bold: true,
           margin: [0, 0, 0, 10],
-          // font: 'TimesNewRoman',
         },
         tableHeader: {
           bold: true,
