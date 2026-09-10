@@ -106,6 +106,9 @@ const TELCO_PRICE: Record<number, TelcoPrice> = {
 }
 
 export function calculateCodaTsel(data: ReportData): CodaTelcoRow[] {
+  if (!data.summaries) {
+    return []
+  }
   const parsed: CodaTelcoRow[] = data.summaries
     .flatMap((item): CodaTelcoRow[] => {
       const denom = item.amount
@@ -128,7 +131,7 @@ export function calculateCodaTsel(data: ReportData): CodaTelcoRow[] {
           codaSum: codaSum,
           jumlahTransaksi: item.count,
           // payoutToCoda: basePrice * 0.78 * item.count,
-          payoutToCoda: Math.trunc((basePrice * 0.78) * item.count),
+          payoutToCoda: Math.trunc(basePrice * 0.78 * item.count),
           denomination: item.amount,
         },
       ]
