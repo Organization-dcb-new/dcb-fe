@@ -121,7 +121,7 @@ const ReportDownload: React.FC = () => {
   const [filteredClient, setFilteredClient] = useState<string | undefined>()
   const [filteredApp, setFilteredApp] = useState<string | undefined>()
   const [filteredPaymentMethod, setFilteredPaymentMethod] = useState<{ name: string; value: string } | undefined>()
-  const [filteredMonth, setFilteredMonth] = useState<Dayjs | null>(dayjs())
+  const [filteredMonth, setFilteredMonth] = useState<Dayjs | null>(dayjs().year(2026).month(7))
   const [filteredDate, setFilteredDate] = useState<Dayjs | null>(dayjs())
   const [filteredDateRange, setFilteredDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null)
   const [calendarDates, setCalendarDates] = useState<[Dayjs | null, Dayjs | null] | null>(null)
@@ -243,27 +243,15 @@ const ReportDownload: React.FC = () => {
           summaries: [
             {
               user_id: '',
-              merchant_name: 'HIGO GAME PTE LTD',
-              payment_method: 'gopay',
+              merchant_name: 'Coda',
+              payment_method: 'telkomsel_airtime',
               amount: 5000,
-              amount_tax: 5000,
-              count: 31543,
-              total_amount: 157715000,
-              total_amount_tax: 157715000,
-              share_redision: 12617200,
-              share_merchant: 145097800,
-            },
-            {
-              user_id: '',
-              merchant_name: 'HIGO GAME PTE LTD',
-              payment_method: 'gopay',
-              amount: 10000,
-              amount_tax: 10000,
-              count: 40606,
-              total_amount: 406060000,
-              total_amount_tax: 406060000,
-              share_redision: 32484800,
-              share_merchant: 373575200,
+              amount_tax: 5550,
+              count: 5,
+              total_amount: 25000,
+              total_amount_tax: 27750,
+              share_redision: 6250,
+              share_merchant: 18750,
             },
           ],
           additional_fee: 0,
@@ -619,11 +607,13 @@ const ReportDownload: React.FC = () => {
         {
           text: 'TOTAL PAYOUT',
           alignment: 'right',
+          fontSize: 9,
           bold: true,
         },
         {
           text: `IDR ${numFmt.format(total)}`,
           alignment: 'right',
+          fontSize: 9,
           bold: true,
         },
       ],
