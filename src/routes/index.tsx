@@ -23,8 +23,13 @@ import ReportMarginPaymentMethod from '../pages/ReportMarginPaymentMethod'
 import MerchantProfile from '../pages/MerchantProfile'
 import Monitoring from '../pages/Monitoring'
 import MonitoringDuration from '../pages/MonitoringDuration'
+// import Playground from '../components/Playground'
 
 const router = createBrowserRouter([
+  // {
+  //   path: '/play',
+  //   element: <Playground />,
+  // },
   {
     path: '/',
     element: <MainLayout />,
